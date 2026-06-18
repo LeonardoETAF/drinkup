@@ -348,18 +348,20 @@ fn SuaMarca() -> impl IntoView {
 #[component]
 fn Depoimentos() -> impl IntoView {
     view! {
-        <section class="container depo-secao">
-            <span class="kicker kicker--center">"Satisfação"</span>
-            <h2 class="secao__titulo">"Que se compartilha"</h2>
-            <blockquote class="depo-card">
-                <p class="depo-card__quote">
-                    "“Produtos de ótima qualidade, atendimento incomparável, entregas dentro do \
-                    prazo. Empresa séria e comprometida com seus clientes. Super recomendo!”"
-                </p>
-                <footer class="depo-card__autor">
-                    "Dieferson Schaffer · Personalização Canábis"
-                </footer>
-            </blockquote>
+        <section class="depo-secao">
+            <div class="container">
+                <span class="kicker kicker--center">"Satisfação"</span>
+                <h2 class="secao__titulo">"Que se compartilha"</h2>
+                <blockquote class="depo-card">
+                    <p class="depo-card__quote">
+                        "“Produtos de ótima qualidade, atendimento incomparável, entregas dentro do \
+                        prazo. Empresa séria e comprometida com seus clientes. Super recomendo!”"
+                    </p>
+                    <footer class="depo-card__autor">
+                        "Dieferson Schaffer · Personalização Canábis"
+                    </footer>
+                </blockquote>
+            </div>
         </section>
     }
 }
