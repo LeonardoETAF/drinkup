@@ -120,7 +120,7 @@ img.hero__slogan {
 .hero__mark {
   position: absolute;
   top: 50%;
-  right: clamp(1.5rem, 6vw, 7rem);
+  right: clamp(1rem, 4vw, 4.5rem);
   transform: translateY(-50%);
   width: clamp(130px, 16vw, 220px);
   height: auto;
