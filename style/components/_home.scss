@@ -25,10 +25,20 @@
 /* ---------- Hero: conteúdo à esquerda + marca "//" à direita ---------- */
 .hero {
   background-color: var(--color-bg);
-  background-image: url("/backgrounds/doodles.png");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  /* Overlay escuro sobre os doodles + desvanecimento suave para a cor sólida
+     na base (transição imperceptível com a seção de baixo). */
+  background-image:
+    linear-gradient(
+      to bottom,
+      rgba(10, 10, 10, 0.62) 0%,
+      rgba(10, 10, 10, 0.78) 45%,
+      rgba(10, 10, 10, 0.95) 80%,
+      var(--color-bg) 100%
+    ),
+    url("/backgrounds/doodles.png");
+  background-size: cover, cover;
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
 }
 
 .hero__inner {
