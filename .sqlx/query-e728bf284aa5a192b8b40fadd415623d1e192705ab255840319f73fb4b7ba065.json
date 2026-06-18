@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT id, titulo, cor, ordem, ativo FROM eventos WHERE id = $1",
+  "query": "SELECT id, titulo, cor, imagem_url, ordem, ativo FROM eventos WHERE id = $1",
   "describe": {
     "columns": [
       {
@@ -20,11 +20,16 @@
       },
       {
         "ordinal": 3,
+        "name": "imagem_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
         "name": "ordem",
         "type_info": "Int4"
       },
       {
-        "ordinal": 4,
+        "ordinal": 5,
         "name": "ativo",
         "type_info": "Bool"
       }
@@ -38,9 +43,10 @@
       false,
       false,
       true,
+      true,
       false,
       false
     ]
   },
-  "hash": "a52ee564bc9996f2ca7bbc14e0d7ada6d2b13f46c24564aa240da93e6ddc1a54"
+  "hash": "e728bf284aa5a192b8b40fadd415623d1e192705ab255840319f73fb4b7ba065"
 }

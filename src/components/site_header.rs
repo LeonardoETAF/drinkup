@@ -38,10 +38,6 @@ pub fn SiteHeader() -> impl IntoView {
                         <a href="/contato" on:click=move |_| close()>"Contato"</a>
                     </nav>
                     <div class="site-header__actions">
-                        <label class="search">
-                            <span class="visually-hidden">"Pesquisar produto"</span>
-                            <input type="search" placeholder="Pesquisar produto..."/>
-                        </label>
                         <a href="/contato" class="btn btn--primary" on:click=move |_| close()>
                             "Orçamento"
                         </a>

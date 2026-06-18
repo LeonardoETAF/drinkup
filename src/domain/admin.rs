@@ -97,6 +97,7 @@ pub struct EventoForm {
     pub id: Option<Uuid>,
     pub titulo: String,
     pub cor: Option<String>,
+    pub imagem_url: Option<String>,
     pub ordem: i32,
     pub ativo: bool,
 }

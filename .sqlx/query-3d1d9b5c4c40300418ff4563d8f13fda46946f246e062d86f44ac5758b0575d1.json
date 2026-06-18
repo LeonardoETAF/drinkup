@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "INSERT INTO eventos (titulo, slug, cor, ordem, ativo)\n                   VALUES ($1, $2, $3, $4, $5) RETURNING id",
+  "query": "INSERT INTO eventos (titulo, slug, cor, imagem_url, ordem, ativo)\n                   VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
   "describe": {
     "columns": [
       {
@@ -14,6 +14,7 @@
         "Text",
         "Text",
         "Text",
+        "Text",
         "Int4",
         "Bool"
       ]
@@ -22,5 +23,5 @@
       false
     ]
   },
-  "hash": "fa62d0fb5e05d4dbbab274150ed531c98d43d053d6d14d7c7f16c5b5cec261d0"
+  "hash": "3d1d9b5c4c40300418ff4563d8f13fda46946f246e062d86f44ac5758b0575d1"
 }

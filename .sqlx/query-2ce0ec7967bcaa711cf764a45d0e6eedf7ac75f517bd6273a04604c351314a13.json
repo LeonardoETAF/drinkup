@@ -1,0 +1,19 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE eventos SET titulo = $2, cor = $3, imagem_url = $4,\n                    ordem = $5, ativo = $6 WHERE id = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Int4",
+        "Bool"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "2ce0ec7967bcaa711cf764a45d0e6eedf7ac75f517bd6273a04604c351314a13"
+}

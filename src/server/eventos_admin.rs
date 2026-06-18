@@ -31,7 +31,7 @@ pub async fn listar(pool: &PgPool) -> Result<Vec<EventoLista>, sqlx::Error> {
 /// Carrega uma categoria para edição.
 pub async fn obter_form(pool: &PgPool, id: Uuid) -> Result<Option<EventoForm>, sqlx::Error> {
     let row = sqlx::query!(
-        r#"SELECT id, titulo, cor, ordem, ativo FROM eventos WHERE id = $1"#,
+        r#"SELECT id, titulo, cor, imagem_url, ordem, ativo FROM eventos WHERE id = $1"#,
         id
     )
     .fetch_optional(pool)
@@ -41,6 +41,7 @@ pub async fn obter_form(pool: &PgPool, id: Uuid) -> Result<Option<EventoForm>, s
         id: Some(r.id),
         titulo: r.titulo,
         cor: r.cor,
+        imagem_url: r.imagem_url,
         ordem: r.ordem,
         ativo: r.ativo,
     }))
@@ -56,10 +57,12 @@ pub async fn salvar(pool: &PgPool, form: &EventoForm) -> Result<Uuid, AppError> 
     let id = match form.id {
         Some(id) => {
             sqlx::query!(
-                "UPDATE eventos SET titulo = $2, cor = $3, ordem = $4, ativo = $5 WHERE id = $1",
+                r#"UPDATE eventos SET titulo = $2, cor = $3, imagem_url = $4,
+                    ordem = $5, ativo = $6 WHERE id = $1"#,
                 id,
                 titulo,
                 form.cor.as_deref(),
+                form.imagem_url.as_deref(),
                 form.ordem,
                 form.ativo,
             )
@@ -71,11 +74,12 @@ pub async fn salvar(pool: &PgPool, form: &EventoForm) -> Result<Uuid, AppError> 
         None => {
             let slug = slug_unico(pool, &slugify(titulo)).await?;
             sqlx::query_scalar!(
-                r#"INSERT INTO eventos (titulo, slug, cor, ordem, ativo)
-                   VALUES ($1, $2, $3, $4, $5) RETURNING id"#,
+                r#"INSERT INTO eventos (titulo, slug, cor, imagem_url, ordem, ativo)
+                   VALUES ($1, $2, $3, $4, $5, $6) RETURNING id"#,
                 titulo,
                 slug,
                 form.cor.as_deref(),
+                form.imagem_url.as_deref(),
                 form.ordem,
                 form.ativo,
             )
