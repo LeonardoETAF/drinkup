@@ -92,11 +92,7 @@ fn Hero() -> impl IntoView {
                         loading="lazy"
                     />
                 </div>
-                <span class="hero__mark" aria-hidden="true">
-                    <span class="hero__slash hero__slash--lime"></span>
-                    <span class="hero__slash hero__slash--white"></span>
-                    <span class="hero__slash hero__slash--cyan"></span>
-                </span>
+                <img class="hero__mark" src="/brand/logo-mark.png" alt="" aria-hidden="true"/>
             </div>
         </section>
     }

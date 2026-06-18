@@ -38,8 +38,11 @@
 }
 
 .hero__title {
-  font-size: clamp(2.6rem, 6.2vw, 4.8rem);
-  line-height: 0.92;
+  font-family: var(--font-title);
+  font-weight: 400;
+  font-size: clamp(2.9rem, 7.4vw, 5.6rem);
+  line-height: 0.9;
+  letter-spacing: 0.015em;
   white-space: nowrap;
 }
 
@@ -57,9 +60,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  align-self: center;
+  flex: none;
   width: 22px;
   height: 22px;
-  margin-right: 0.5rem;
+  line-height: 1;
+  margin-right: 0.25rem;
 }
 
 .btn__ic svg {
@@ -76,7 +82,7 @@
 
 /* Slogan como imagem (substitui o texto) */
 img.hero__slogan {
-  height: clamp(16px, 2vw, 26px);
+  height: clamp(8px, 1vw, 13px);
   width: auto;
   display: block;
 }
@@ -96,37 +102,10 @@ img.hero__slogan {
   top: 50%;
   right: 0;
   transform: translateY(-50%);
-  width: clamp(140px, 17vw, 290px);
-  aspect-ratio: 3 / 4;
+  width: clamp(150px, 19vw, 320px);
+  height: auto;
+  object-fit: contain;
   z-index: 0;
-}
-
-.hero__slash {
-  position: absolute;
-  top: 0;
-  height: 100%;
-  width: 26%;
-  transform: skewX(-15deg);
-  border-radius: 8px;
-}
-
-.hero__slash--lime {
-  left: 10%;
-  background: var(--color-lime);
-}
-
-.hero__slash--white {
-  left: 48%;
-  background: #fff;
-}
-
-.hero__slash--cyan {
-  left: 8%;
-  top: auto;
-  bottom: -4%;
-  height: 26%;
-  width: 22%;
-  background: var(--color-cyan);
 }
 
 /* ---------- "Do seu jeito": carrossel ---------- */
