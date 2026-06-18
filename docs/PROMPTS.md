@@ -29,7 +29,7 @@ telas (Fases 4 e 7) devem cobrir essas entidades. O escopo continua **sem pagame
 | 4 — Vitrine (catálogo) | ✅ feito | Home (hero+destaques+CTA), `/produtos` (filtros/busca/paginação via query params, SSR), `/produtos/:slug` (galeria+atributos). Placeholders p/ quem-somos/parceiros. |
 | 5 — Orçamento/contato | ✅ feito | `/contato` com validação cliente+servidor, honeypot + throttle, prefill por produto; teste de integração passando. |
 | 6 — Auth + RBAC | ✅ feito | Argon2id; sessão `tower-sessions` (store Postgres, cookie HttpOnly/SameSite/Secure-em-prod); rate limit no login; guarda `exigir_papel`; middleware 303 em `/admin/*`; auditoria de login/logout. CLI `src/bin/admin.rs` cria o admin. |
-| 7 — Painel admin | ⏳ próximo | dashboard, produtos, leads, eventos, parceiros, configurações, uploads (cada ação chama `exigir_papel`). |
+| 7 — Painel admin | 🔄 em andamento | **Parte 1 feita**: casca (sidebar+topo) + dashboard (KPIs/leads recentes) + leads (listar/buscar/filtrar/mudar status); RBAC (`exigir_papel`) em toda server fn + middleware 303. **Importante:** dados do painel carregam **client-side** (Effect+spawn_local) — acessar sessão/banco durante o SSR com streaming trava (tower-sessions). **Pendente**: CRUD de produtos+upload, eventos, parceiros, usuários/config. |
 | 8 — Endurecimento de segurança | ⬜ pendente | CSP/HSTS, CSRF, rate limit por IP, auditoria do bundle. |
 | 9 — SEO + desempenho | ⬜ pendente | meta tags, sitemap, otimização de imagens, cache. |
 | 10 — Deploy (VPS/Docker) | ⬜ pendente | Dockerfile multi-stage, compose de produção. |

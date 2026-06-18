@@ -1,0 +1,50 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT id AS \"id!\", nome AS \"nome!\", contato AS \"contato!\",\n               origem AS \"origem!\", status AS \"status!\",\n               to_char(created_at, 'DD/MM/YYYY') AS \"inscricao!\"\n        FROM leads\n        ORDER BY created_at DESC\n        LIMIT 6\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "nome!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "contato!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "origem!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "status!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "inscricao!",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      null
+    ]
+  },
+  "hash": "6d3211badd84471c6c53f1c28fce9c75d456ce5f9d8a394c42e08f2ca67acf94"
+}

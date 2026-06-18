@@ -38,12 +38,12 @@ pub async fn login(email: String, senha: String) -> Result<(), ServerFnError> {
 pub async fn logout() -> Result<(), ServerFnError> {
     use tower_sessions::Session;
 
+    let pool = expect_context::<sqlx::PgPool>();
     let session: Session = leptos_axum::extract()
         .await
         .map_err(|_| ServerFnError::new("Sessão indisponível."))?;
 
     if let Ok(Some(uid)) = session.get::<uuid::Uuid>(SESSION_UID).await {
-        let pool = expect_context::<sqlx::PgPool>();
         crate::server::auth::auditar(&pool, Some(uid), "auth.logout").await;
     }
     session
@@ -58,6 +58,8 @@ pub async fn logout() -> Result<(), ServerFnError> {
 pub async fn usuario_atual() -> Result<Option<UsuarioSessao>, ServerFnError> {
     use tower_sessions::Session;
 
+    // Captura o pool ANTES de qualquer await (o owner reativo pode mudar depois).
+    let pool = expect_context::<sqlx::PgPool>();
     let session: Session = leptos_axum::extract()
         .await
         .map_err(|_| ServerFnError::new("Sessão indisponível."))?;
@@ -70,7 +72,6 @@ pub async fn usuario_atual() -> Result<Option<UsuarioSessao>, ServerFnError> {
         return Ok(None);
     };
 
-    let pool = expect_context::<sqlx::PgPool>();
     crate::server::auth::carregar_sessao(&pool, uid)
         .await
         .map_err(|_| ServerFnError::new("Erro interno."))
