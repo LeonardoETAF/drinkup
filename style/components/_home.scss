@@ -243,13 +243,21 @@ img.hero__slogan {
 
 /* ---------- Faixa de logos (pink) ---------- */
 .faixa-logos {
-  background: var(--color-pink);
+  /* Faixa rosa mais alta, com bordas que se fundem ao fundo escuro (transição
+     suave com as seções de cima e de baixo). */
+  background: linear-gradient(
+    to bottom,
+    var(--color-bg) 0%,
+    var(--color-pink) 30%,
+    var(--color-pink) 70%,
+    var(--color-bg) 100%
+  );
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   gap: clamp(1.5rem, 5vw, 4rem);
-  padding: var(--space-5) var(--space-6);
+  padding: clamp(3.5rem, 7vw, 6rem) var(--space-6);
 }
 
 .faixa-logos__img {
