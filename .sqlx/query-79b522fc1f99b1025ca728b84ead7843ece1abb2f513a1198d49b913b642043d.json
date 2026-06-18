@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT chave, valor FROM configuracoes",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "chave",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "valor",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "79b522fc1f99b1025ca728b84ead7843ece1abb2f513a1198d49b913b642043d"
+}

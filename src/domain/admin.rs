@@ -47,6 +47,40 @@ pub struct ProdutoLista {
     pub imagem_url: Option<String>,
 }
 
+/// Configurações da loja (editáveis no painel, usadas no site).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
+pub struct Configuracoes {
+    pub nome_loja: String,
+    pub cnpj: String,
+    pub telefone: String,
+    pub endereco: String,
+    pub horario_semana: String,
+    pub horario_sabado: String,
+    pub horario_domingo: String,
+}
+
+/// Usuário do painel na listagem.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct UsuarioLista {
+    pub id: Uuid,
+    pub nome: String,
+    pub email: String,
+    pub papel: String,
+    pub ativo: bool,
+    pub ultimo_login: Option<String>,
+}
+
+/// Formulário de usuário do painel. `senha` vazia no editar = manter a atual.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
+pub struct UsuarioForm {
+    pub id: Option<Uuid>,
+    pub nome: String,
+    pub email: String,
+    pub papel: String,
+    pub ativo: bool,
+    pub senha: Option<String>,
+}
+
 /// Evento = categoria do carrossel da home (listagem do painel).
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct EventoLista {

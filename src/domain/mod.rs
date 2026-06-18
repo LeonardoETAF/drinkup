@@ -7,8 +7,8 @@ mod produto;
 mod usuario;
 
 pub use admin::{
-    DashboardResumo, EventoForm, EventoLista, FiltroLeads, LeadResumo, PaginaLeads, ParceiroForm,
-    ParceiroLista, ProdutoForm, ProdutoLista,
+    Configuracoes, DashboardResumo, EventoForm, EventoLista, FiltroLeads, LeadResumo, PaginaLeads,
+    ParceiroForm, ParceiroLista, ProdutoForm, ProdutoLista, UsuarioForm, UsuarioLista,
 };
 pub use categoria::Categoria;
 pub use orcamento::{ItemOrcamento, NovoOrcamento};

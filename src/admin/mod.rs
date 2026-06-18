@@ -1,5 +1,6 @@
 //! Painel administrativo (rotas protegidas). A autorização é SEMPRE verificada
 //! no servidor (sessão + RBAC); a UI aqui é apresentação, não controle de acesso.
+mod configuracoes;
 mod confirmar;
 mod dashboard;
 mod em_construcao;
@@ -13,8 +14,11 @@ mod parceiros;
 mod produto_form;
 mod produtos;
 mod recuperar;
+mod usuario_form;
+mod usuarios;
 mod util;
 
+pub use configuracoes::AdminConfiguracoes;
 pub use dashboard::AdminDashboard;
 pub use em_construcao::AdminEmBreve;
 pub use evento_form::AdminEventoForm;
@@ -27,3 +31,5 @@ pub use parceiros::AdminParceiros;
 pub use produto_form::AdminProdutoForm;
 pub use produtos::AdminProdutos;
 pub use recuperar::AdminRecuperarSenhaPage;
+pub use usuario_form::AdminUsuarioForm;
+pub use usuarios::AdminUsuarios;

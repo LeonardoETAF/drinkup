@@ -581,6 +581,67 @@
   }
 }
 
+/* Configurações da loja */
+.admin-config {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.admin-fieldset {
+  border: none;
+  margin: 0;
+}
+
+.admin-fieldset__titulo {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-lg);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-4);
+  padding: 0;
+}
+
+.admin-form__grid--3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.admin-ok {
+  color: var(--color-lime);
+  font-weight: var(--fw-semibold);
+}
+
+.admin-acesso {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-top: var(--space-5);
+}
+
+.admin-voltar {
+  display: inline-block;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-1);
+  text-decoration: none;
+}
+
+.admin-voltar:hover {
+  color: var(--color-text);
+}
+
+.badge--cap {
+  text-transform: capitalize;
+}
+
+@media (max-width: 720px) {
+  .admin-form__grid--3 {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Lista de eventos (categorias do carrossel) */
 .evt-lista {
   display: grid;

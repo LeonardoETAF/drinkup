@@ -38,6 +38,17 @@ INSERT INTO eventos (titulo, slug, cor, ordem) VALUES
     ('Restaurantes', 'restaurantes', '#2a9d8f', 7)
 ON CONFLICT (slug) DO NOTHING;
 
+-- Configurações da loja (valores padrão)
+INSERT INTO configuracoes (chave, valor) VALUES
+    ('nome_loja',        'DrinkUp'),
+    ('cnpj',             '21.525.492/0001-09'),
+    ('telefone',         '(44) 9 9812-4366'),
+    ('endereco',         'Rua Rodolfo Cremm, 6436 · Jd. Andrade, Maringá – PR'),
+    ('horario_semana',   '8h às 18h'),
+    ('horario_sabado',   '8h às 12h'),
+    ('horario_domingo',  'Fechado')
+ON CONFLICT (chave) DO NOTHING;
+
 -- Usuário admin de desenvolvimento.
 -- A senha real (hash Argon2id) é definida na Fase 6; aqui é só um placeholder.
 INSERT INTO usuarios (nome, email, senha_hash, papel)

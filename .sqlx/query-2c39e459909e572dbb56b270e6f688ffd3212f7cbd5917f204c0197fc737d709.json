@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO configuracoes (chave, valor) VALUES ($1, $2)\n               ON CONFLICT (chave) DO UPDATE SET valor = EXCLUDED.valor",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "2c39e459909e572dbb56b270e6f688ffd3212f7cbd5917f204c0197fc737d709"
+}

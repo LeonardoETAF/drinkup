@@ -2,8 +2,9 @@ use leptos::prelude::*;
 use leptos_router::hooks::use_query_map;
 use uuid::Uuid;
 
+use crate::api::config::obter_contato;
 use crate::api::orcamento::enviar_orcamento;
-use crate::domain::{ItemOrcamento, NovoOrcamento};
+use crate::domain::{Configuracoes, ItemOrcamento, NovoOrcamento};
 
 const ICON_FONE: &str = r#"<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.4 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.4 1.8.6 2.8.8a2 2 0 0 1 1.7 2z"/></svg>"#;
 const ICON_PIN: &str = r#"<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>"#;
@@ -76,6 +77,9 @@ pub fn ContatoPage() -> impl IntoView {
         _ => None,
     };
     let enviando = enviar.pending();
+
+    // Dados de contato vêm das configurações (SSR; sem sessão = seguro).
+    let info = Resource::new(|| (), |_| async move { obter_contato().await });
 
     view! {
         <section class="contato-hero">
@@ -169,28 +173,40 @@ pub fn ContatoPage() -> impl IntoView {
             </div>
 
             <div class="contato-info">
-                <div class="info-card">
-                    <span class="info-card__icon info-card__icon--lime" inner_html=ICON_FONE></span>
-                    <h3>"Telefone"</h3>
-                    <p>"(44) 9 9812-4366"</p>
-                    <p class="info-card__muted">"WhatsApp disponível"</p>
-                </div>
-                <div class="info-card">
-                    <span class="info-card__icon info-card__icon--pink" inner_html=ICON_PIN></span>
-                    <h3>"Endereço"</h3>
-                    <p>"Rua Rodolfo Cremm, 6436"</p>
-                    <p class="info-card__muted">"Jd. Andrade, Maringá – PR · CEP 87035-480"</p>
-                </div>
-                <div class="info-card">
-                    <span
-                        class="info-card__icon info-card__icon--roxo"
-                        inner_html=ICON_RELOGIO
-                    ></span>
-                    <h3>"Horários"</h3>
-                    <p>"Seg. a Sex.: 8h às 18h"</p>
-                    <p class="info-card__muted">"Sábado: 8h às 12h · Domingo: fechado"</p>
-                </div>
+                <Suspense fallback=move || cards_contato(Configuracoes::default())>
+                    {move || {
+                        info.get().map(|r| cards_contato(r.unwrap_or_default()))
+                    }}
+                </Suspense>
             </div>
         </section>
+    }
+}
+
+/// Renderiza os três cards de contato a partir das configurações da loja.
+fn cards_contato(c: Configuracoes) -> impl IntoView {
+    let horario_semana = format!("Seg. a Sex.: {}", c.horario_semana);
+    let horario_fds = format!(
+        "Sábado: {} · Domingo: {}",
+        c.horario_sabado, c.horario_domingo
+    );
+    view! {
+        <div class="info-card">
+            <span class="info-card__icon info-card__icon--lime" inner_html=ICON_FONE></span>
+            <h3>"Telefone"</h3>
+            <p>{c.telefone}</p>
+            <p class="info-card__muted">"WhatsApp disponível"</p>
+        </div>
+        <div class="info-card">
+            <span class="info-card__icon info-card__icon--pink" inner_html=ICON_PIN></span>
+            <h3>"Endereço"</h3>
+            <p>{c.endereco}</p>
+        </div>
+        <div class="info-card">
+            <span class="info-card__icon info-card__icon--roxo" inner_html=ICON_RELOGIO></span>
+            <h3>"Horários"</h3>
+            <p>{horario_semana}</p>
+            <p class="info-card__muted">{horario_fds}</p>
+        </div>
     }
 }
