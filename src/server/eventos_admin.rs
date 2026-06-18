@@ -2,9 +2,20 @@
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use crate::domain::{EventoForm, EventoLista};
+use crate::domain::{EventoCarrossel, EventoForm, EventoLista};
 use crate::error::AppError;
 use crate::server::produtos_admin::slugify;
+
+/// Categorias ativas do carrossel "Do seu jeito" (home pública).
+pub async fn listar_publicos(pool: &PgPool) -> Result<Vec<EventoCarrossel>, sqlx::Error> {
+    sqlx::query_as!(
+        EventoCarrossel,
+        r#"SELECT titulo AS "titulo!", slug AS "slug!", cor, imagem_url
+           FROM eventos WHERE ativo = true ORDER BY ordem, titulo"#
+    )
+    .fetch_all(pool)
+    .await
+}
 
 /// Lista as categorias ordenadas.
 pub async fn listar(pool: &PgPool) -> Result<Vec<EventoLista>, sqlx::Error> {

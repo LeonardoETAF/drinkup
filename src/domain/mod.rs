@@ -2,6 +2,7 @@
 //! Sem lógica de negócio sensível e sem segredos — só o que pode ir ao cliente.
 mod admin;
 mod categoria;
+mod evento;
 mod orcamento;
 mod parceiro;
 mod produto;
@@ -12,6 +13,7 @@ pub use admin::{
     ParceiroForm, ParceiroLista, ProdutoForm, ProdutoLista, UsuarioForm, UsuarioLista,
 };
 pub use categoria::Categoria;
+pub use evento::EventoCarrossel;
 pub use orcamento::{ItemOrcamento, NovoOrcamento};
 pub use parceiro::ParceiroPublico;
 pub use produto::{FiltroProdutos, PaginaProdutos, ProdutoDetalhe, ProdutoImagem, ProdutoResumo};

@@ -1,0 +1,38 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT titulo AS \"titulo!\", slug AS \"slug!\", cor, imagem_url\n           FROM eventos WHERE ativo = true ORDER BY ordem, titulo",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "titulo!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "slug!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "cor",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "imagem_url",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "8ac4f2c4e4e42011c804a7482b14e5b0ae93c8c659994e837853da330d65fe28"
+}
