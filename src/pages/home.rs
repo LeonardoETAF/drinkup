@@ -192,21 +192,38 @@ fn FaixaLogos(parceiros: Resource<Result<Vec<ParceiroPublico>, ServerFnError>>) 
                 {move || Suspend::new(async move {
                     match parceiros.await {
                         Ok(itens) if !itens.is_empty() => {
-                            itens
-                                .into_iter()
-                                .map(|p| match p.logo_url {
-                                    Some(url) => {
-                                        view! {
-                                            <img class="faixa-logos__img" src=url alt=p.nome loading="lazy"/>
+                            // Repete a lista para preencher a largura e duplica a "fita"
+                            // (loop contínuo sem emenda com a animação de -50%).
+                            let n = itens.len();
+                            let repeticoes = 12usize.div_ceil(n).max(1);
+                            let fita: Vec<ParceiroPublico> =
+                                itens.iter().cycle().take(n * repeticoes).cloned().collect();
+                            let render = move || {
+                                fita.iter()
+                                    .map(|p| match &p.logo_url {
+                                        Some(url) => {
+                                            view! {
+                                                <img
+                                                    class="faixa-logos__img"
+                                                    src=url.clone()
+                                                    alt=p.nome.clone()
+                                                    loading="lazy"
+                                                />
+                                            }
+                                                .into_any()
                                         }
-                                            .into_any()
-                                    }
-                                    None => {
-                                        view! { <span class="faixa-logos__nome">{p.nome}</span> }
-                                            .into_any()
-                                    }
-                                })
-                                .collect_view()
+                                        None => {
+                                            view! {
+                                                <span class="faixa-logos__nome">{p.nome.clone()}</span>
+                                            }
+                                                .into_any()
+                                        }
+                                    })
+                                    .collect_view()
+                            };
+                            view! {
+                                <div class="faixa-logos__track">{render()} {render()}</div>
+                            }
                                 .into_any()
                         }
                         _ => ().into_any(),

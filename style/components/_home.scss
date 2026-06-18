@@ -243,36 +243,51 @@ img.hero__slogan {
 
 /* ---------- Faixa de logos (pink) ---------- */
 .faixa-logos {
-  /* Faixa rosa mais alta, com bordas que se fundem ao fundo escuro (transição
-     suave com as seções de cima e de baixo). */
-  background: linear-gradient(
-    to bottom,
-    var(--color-bg) 0%,
-    var(--color-pink) 30%,
-    var(--color-pink) 70%,
-    var(--color-bg) 100%
-  );
+  /* Faixa rosa sólida; banner contínuo (sem suavização nas bordas). */
+  background: var(--color-pink);
+  padding-block: clamp(2.8rem, 6vw, 4.5rem);
+  overflow: hidden;
+}
+
+.faixa-logos__track {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
-  gap: clamp(1.5rem, 5vw, 4rem);
-  padding: clamp(3.5rem, 7vw, 6rem) var(--space-6);
+  width: max-content;
+  gap: clamp(2.5rem, 6vw, 5rem);
+  animation: faixa-marquee 28s linear infinite;
+}
+
+@keyframes faixa-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faixa-logos__track {
+    animation: none;
+  }
 }
 
 .faixa-logos__img {
-  max-height: 40px;
-  max-width: 110px;
+  flex: none;
+  max-height: clamp(56px, 7vw, 84px);
+  max-width: 180px;
   object-fit: contain;
   filter: brightness(0) invert(1);
-  opacity: 0.9;
+  opacity: 0.92;
 }
 
 .faixa-logos__nome {
+  flex: none;
   font-family: var(--font-display);
   font-weight: var(--fw-black);
-  font-size: var(--text-lg);
+  font-size: clamp(1.4rem, 3vw, 2.1rem);
   text-transform: uppercase;
+  white-space: nowrap;
   color: #fff;
   opacity: 0.92;
 }
