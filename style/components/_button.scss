@@ -1,0 +1,69 @@
+/* Botões / pills — reutilizáveis. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 0.8rem 1.6rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  transition:
+    transform var(--transition),
+    background var(--transition),
+    color var(--transition),
+    border-color var(--transition),
+    box-shadow var(--transition);
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn--primary {
+  background: var(--color-lime);
+  color: var(--color-on-lime);
+  box-shadow: var(--shadow-lime);
+}
+
+.btn--primary:hover {
+  background: var(--color-lime-bright);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.btn--ghost:hover {
+  border-color: var(--color-lime);
+  color: var(--color-lime);
+}
+
+.btn--dark {
+  background: var(--color-on-lime);
+  color: var(--color-lime);
+}
+
+.btn--dark:hover {
+  background: #000;
+}
+
+.btn--pink {
+  background: var(--color-pink);
+  color: #fff;
+}
+
+.btn--pink:hover {
+  filter: brightness(1.08);
+}
+
+.btn--block {
+  width: 100%;
+}

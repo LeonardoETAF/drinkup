@@ -1,0 +1,25 @@
+# Desenvolvimento: apenas o banco. O app roda via `cargo leptos watch`.
+# O compose de produção (app + db) será criado na Fase 10.
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: drinkup_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: drinkup
+      POSTGRES_PASSWORD: drinkup
+      POSTGRES_DB: drinkup
+    # Porta do host configurável (evita conflito com outro Postgres local).
+    # Ex.: DRINKUP_DB_PORT=5544 docker compose up -d db
+    ports:
+      - "${DRINKUP_DB_PORT:-5432}:5432"
+    volumes:
+      - drinkup_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U drinkup"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  drinkup_db_data:

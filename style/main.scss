@@ -1,0 +1,10 @@
+// Entrada de estilos do DRINKUP.
+// O conteúdo é CSS puro + variáveis CSS; o SCSS apenas concatena os parciais
+// num único arquivo final (pkg/drinkup.css).
+@import "fonts";
+@import "tokens";
+@import "base";
+@import "components/button";
+@import "components/catalog";
+@import "components/contato";
+@import "layout";

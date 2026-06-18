@@ -1,0 +1,88 @@
+[package]
+name = "drinkup"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# --- Núcleo Leptos (cliente + servidor) ---
+leptos = { version = "0.8.0" }
+leptos_router = { version = "0.8.0" }
+leptos_meta = { version = "0.8.0" }
+
+# --- Servidor (feature `ssr`) ---
+leptos_axum = { version = "0.8.0", optional = true }
+axum = { version = "0.8.0", optional = true }
+tokio = { version = "1", features = ["rt-multi-thread", "macros"], optional = true }
+tracing = { version = "0.1", optional = true }
+tracing-subscriber = { version = "0.3", features = ["env-filter"], optional = true }
+
+# --- Cliente (feature `hydrate`) ---
+wasm-bindgen = { version = "=0.2.106", optional = true }
+console_error_panic_hook = { version = "0.1", optional = true }
+
+# --- Compartilhado (cliente + servidor) ---
+serde = { version = "1", features = ["derive"] }
+thiserror = "2"
+uuid = { version = "1", features = ["serde"] }
+urlencoding = "2"
+
+# --- APENAS servidor (frontend burro): NUNCA entram no bundle wasm ---
+sqlx = { version = "0.8", default-features = false, features = [
+    "runtime-tokio",
+    "tls-rustls-ring",
+    "postgres",
+    "macros",
+    "migrate",
+    "chrono",
+    "uuid",
+], optional = true }
+argon2 = { version = "0.5", optional = true }
+dotenvy = { version = "0.15", optional = true }
+# tower-sessions / tower-http: adicionados nas Fases 6 e 8/9.
+
+[features]
+hydrate = [
+    "leptos/hydrate",
+    "dep:console_error_panic_hook",
+    "dep:wasm-bindgen",
+]
+ssr = [
+    "dep:axum",
+    "dep:tokio",
+    "dep:leptos_axum",
+    "dep:tracing",
+    "dep:tracing-subscriber",
+    "dep:sqlx",
+    "dep:argon2",
+    "dep:dotenvy",
+    "leptos/ssr",
+    "leptos_meta/ssr",
+    "leptos_router/ssr",
+]
+
+[package.metadata.leptos]
+output-name = "drinkup"
+site-root = "target/site"
+site-pkg-dir = "pkg"
+style-file = "style/main.scss"
+assets-dir = "public"
+site-addr = "127.0.0.1:3000"
+reload-port = 3001
+browserquery = "defaults"
+env = "DEV"
+bin-features = ["ssr"]
+bin-default-features = false
+lib-features = ["hydrate"]
+lib-default-features = false
+lib-profile-release = "wasm-release"
+
+# Perfil de release do bundle wasm: o menor possível.
+[profile.wasm-release]
+inherits = "release"
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"

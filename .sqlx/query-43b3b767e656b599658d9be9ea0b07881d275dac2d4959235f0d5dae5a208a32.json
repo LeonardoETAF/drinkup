@@ -1,0 +1,69 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            p.id            AS \"id!\",\n            p.nome          AS \"nome!\",\n            p.slug          AS \"slug!\",\n            p.capacidade_ml,\n            p.material,\n            p.cor,\n            p.destaque      AS \"destaque!\",\n            (SELECT pi.url FROM produto_imagens pi\n               WHERE pi.produto_id = p.id AND pi.principal LIMIT 1) AS \"imagem_url?\"\n        FROM produtos p\n        LEFT JOIN categorias c ON c.id = p.categoria_id\n        WHERE p.ativo\n          AND ($1::text IS NULL OR c.slug = $1)\n          AND ($2::text IS NULL OR p.material = $2)\n          AND ($3::text IS NULL OR p.cor = $3)\n          AND ($4::text IS NULL OR lower(p.nome) LIKE '%' || lower($4) || '%')\n        ORDER BY p.destaque DESC, p.nome\n        LIMIT $5 OFFSET $6\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "nome!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "slug!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "capacidade_ml",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "material",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "cor",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "destaque!",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 7,
+        "name": "imagem_url?",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      null
+    ]
+  },
+  "hash": "43b3b767e656b599658d9be9ea0b07881d275dac2d4959235f0d5dae5a208a32"
+}

@@ -1,0 +1,74 @@
+/* Design tokens (variáveis CSS) — extraídos dos mockups em assets/design/.
+   Conteúdo é CSS puro; o SCSS só concatena os parciais. */
+:root {
+  /* === Cores de marca (acentos) === */
+  --color-lime: #c8d400; /* primária */
+  --color-lime-bright: #d7e21a; /* hover */
+  --color-pink: #ff0070;
+  --color-cyan: #00c8ef;
+  --color-orange: #f5821f;
+  --color-green: #3fbf5f; /* sucesso / positivo */
+
+  /* === Superfícies (tema escuro) === */
+  --color-bg: #0a0a0a;
+  --color-surface: #111111;
+  --color-surface-2: #181818;
+  --color-surface-3: #1d1d1d;
+  --color-border: #262626;
+
+  /* === Texto === */
+  --color-text: #f5f5f5;
+  --color-text-muted: #9a9a9a;
+  --color-on-lime: #0a0a0a; /* texto sobre fundo lima */
+
+  /* === Semânticos === */
+  --color-primary: var(--color-lime);
+  --color-on-primary: var(--color-on-lime);
+
+  /* === Tipografia === */
+  --font-display: "Montserrat", system-ui, sans-serif;
+  --font-body: "Montserrat", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --fw-regular: 400;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --fw-extra: 800;
+  --fw-black: 900;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+  --text-3xl: 2.75rem;
+  --text-display: clamp(2.75rem, 7vw, 5.5rem);
+
+  /* === Espaçamento === */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-8: 3rem;
+  --space-10: 4rem;
+  --space-12: 6rem;
+
+  /* === Forma === */
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  /* === Sombras === */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-lime: 0 8px 30px rgba(200, 212, 0, 0.25);
+
+  /* === Layout === */
+  --container-max: 1200px;
+  --header-h: 76px;
+
+  /* === Movimento === */
+  --transition: 160ms ease;
+}

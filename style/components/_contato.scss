@@ -1,0 +1,190 @@
+/* ===== Hero da página de contato (centralizado, escuro) ===== */
+.contato-hero {
+  text-align: center;
+  padding-block: var(--space-10) var(--space-6);
+}
+
+.contato-hero__title {
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  margin-top: var(--space-2);
+}
+
+.contato-hero__sub {
+  color: var(--color-text-muted);
+  max-width: 52ch;
+  margin: var(--space-3) auto 0;
+}
+
+/* ===== Card do formulário ===== */
+.contato {
+  display: grid;
+  gap: var(--space-6);
+  padding-bottom: var(--space-12);
+}
+
+.form-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  max-width: 760px;
+  width: 100%;
+  margin-inline: auto;
+}
+
+.orc-form {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.orc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.field__label {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-xs);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-text);
+  resize: vertical;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: var(--color-text-muted);
+}
+
+.field input:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--color-lime);
+}
+
+.field--erro {
+  border-color: var(--color-pink) !important;
+}
+
+.field__erro {
+  font-size: var(--text-sm);
+  color: var(--color-pink);
+}
+
+.orc-form__erro {
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius);
+  background: rgba(255, 0, 112, 0.12);
+  border: 1px solid var(--color-pink);
+  color: #ffd0e4;
+  font-size: var(--text-sm);
+}
+
+/* Honeypot — fora da tela, mas ainda submetido por bots. */
+.hp-field {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.orc-sucesso {
+  display: grid;
+  gap: var(--space-4);
+  justify-items: center;
+  text-align: center;
+  padding-block: var(--space-6);
+}
+
+.orc-sucesso h2 {
+  color: var(--color-lime);
+}
+
+.orc-sucesso p {
+  color: var(--color-text-muted);
+  max-width: 44ch;
+}
+
+/* ===== Cards de informação ===== */
+.contato-info {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+}
+
+.info-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  display: grid;
+  gap: var(--space-2);
+  justify-items: center;
+  text-align: center;
+}
+
+.info-card__icon {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-content: center;
+  border-radius: 50%;
+  margin-bottom: var(--space-2);
+}
+
+.info-card__icon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.info-card__icon--lime {
+  background: var(--color-lime);
+  color: var(--color-on-lime);
+}
+
+.info-card__icon--pink {
+  background: var(--color-pink);
+  color: #fff;
+}
+
+.info-card__icon--roxo {
+  background: #7c3aed;
+  color: #fff;
+}
+
+.info-card p {
+  color: var(--color-text);
+}
+
+.info-card__muted {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+@media (max-width: 720px) {
+  .orc-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .contato-info {
+    grid-template-columns: 1fr;
+  }
+}

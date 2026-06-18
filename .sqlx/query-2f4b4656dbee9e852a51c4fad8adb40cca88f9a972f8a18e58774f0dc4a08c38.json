@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT EXISTS(\n            SELECT 1 FROM leads WHERE contato = $1 AND created_at > now() - interval '30 seconds'\n        ) AS \"recente!\"",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "recente!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "2f4b4656dbee9e852a51c4fad8adb40cca88f9a972f8a18e58774f0dc4a08c38"
+}

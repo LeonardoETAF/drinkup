@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT url AS \"url!\", alt\n        FROM produto_imagens\n        WHERE produto_id = $1\n        ORDER BY principal DESC, ordem\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "url!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "alt",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      true
+    ]
+  },
+  "hash": "fbc6768067bcb986a200d17ef97e457898268449d63dac4852562cbac05d4340"
+}

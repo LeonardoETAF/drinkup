@@ -1,0 +1,20 @@
+# Build
+/target
+/dist
+
+# Segredos e ambiente (NUNCA commitar)
+.env
+*.pem
+*.key
+
+# Sistema / editores
+.DS_Store
+*.log
+*.rs.bk
+
+# Ferramentas locais (config de máquina)
+.claude/settings.local.json
+
+# Mantidos no repo de propósito:
+#   Cargo.lock  -> binário: versões travadas
+#   .sqlx/      -> queries preparadas (build offline)
