@@ -191,6 +191,7 @@ Definidas em `.env` (local) e no ambiente do container (produção). Ver `.env.e
 - `SESSION_SECRET` — chave de assinatura de sessão (forte, secreta)
 - `RUST_LOG` — nível de log
 - `DRINKUP_DB_PORT` — (só `docker-compose`) porta do host p/ o Postgres; default `5432`. Útil quando a 5432 já está ocupada.
+- `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASSWORD` / `SMTP_FROM` — envio de e-mail (recuperação de senha, via `lettre` + STARTTLS). Sem `SMTP_HOST`, o link de redefinição é só registrado em log (dev).
 
 O servidor carrega o `.env` em dev (via `dotenvy`). Nenhuma dessas variáveis pode ser referenciada em código compilado para `hydrate`.
 

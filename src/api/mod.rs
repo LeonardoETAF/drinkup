@@ -10,4 +10,5 @@ pub mod orcamento;
 pub mod parceiros;
 pub mod parceiros_admin;
 pub mod produtos_admin;
+pub mod recuperacao;
 pub mod usuarios_admin;

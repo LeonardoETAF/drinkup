@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE password_resets SET usado_em = now() WHERE id = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "de84b0b1f3cd533f33f8a2d254dbe3637b7e836092aa13b165e1132581f7eb9f"
+}

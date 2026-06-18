@@ -1,28 +1,33 @@
 use leptos::prelude::*;
 
+use crate::api::recuperacao::solicitar_redefinicao;
+
 const ICON_VOLTAR: &str = r#"<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>"#;
 
-/// Tela "Recuperar senha": pede o WhatsApp para envio de um código.
-/// (UI; o envio real do código depende da integração de WhatsApp — pendente.)
+/// Tela "Recuperar senha": pede o e-mail cadastrado e dispara o envio do link.
+/// A resposta é sempre genérica (não revela se o e-mail existe).
 #[component]
 pub fn AdminRecuperarSenhaPage() -> impl IntoView {
-    let whatsapp = RwSignal::new(String::new());
+    let email = RwSignal::new(String::new());
     let erro = RwSignal::new(false);
-    let enviado = RwSignal::new(false);
+
+    let solicitar = Action::new(|email: &String| {
+        let email = email.clone();
+        async move { solicitar_redefinicao(email).await }
+    });
+    // Sucesso assim que a ação concluir (independente do resultado: genérico).
+    let enviado = move || solicitar.value().get().is_some();
+    let enviando = solicitar.pending();
 
     let on_submit = move |ev: leptos::ev::SubmitEvent| {
         ev.prevent_default();
-        let digitos = whatsapp
-            .get_untracked()
-            .chars()
-            .filter(char::is_ascii_digit)
-            .count();
-        if digitos < 10 {
+        let e = email.get_untracked().trim().to_string();
+        if !e.contains('@') || e.len() < 5 {
             erro.set(true);
             return;
         }
         erro.set(false);
-        enviado.set(true);
+        solicitar.dispatch(e);
     };
 
     view! {
@@ -45,40 +50,45 @@ pub fn AdminRecuperarSenhaPage() -> impl IntoView {
                 </a>
 
                 <Show
-                    when=move || enviado.get()
+                    when=enviado
                     fallback=move || {
                         view! {
                             <form class="recuperar-form" on:submit=on_submit>
                                 <div class="recuperar-head">
                                     <h1 class="recuperar__title">"Recuperar senha"</h1>
                                     <p class="recuperar__sub">
-                                        "Informe o WhatsApp cadastrado e enviaremos um código para você redefinir sua senha."
+                                        "Informe o e-mail cadastrado e enviaremos um link para você redefinir sua senha."
                                     </p>
                                 </div>
                                 <label class="field">
-                                    <span class="field__label">"WhatsApp"</span>
+                                    <span class="field__label">"E-mail"</span>
                                     <input
-                                        type="tel"
-                                        placeholder="(00) 00000-0000"
+                                        type="email"
+                                        autocomplete="email"
+                                        placeholder="voce@exemplo.com"
                                         class:field--erro=move || erro.get()
-                                        prop:value=move || whatsapp.get()
-                                        on:input=move |ev| whatsapp.set(event_target_value(&ev))
+                                        prop:value=move || email.get()
+                                        on:input=move |ev| email.set(event_target_value(&ev))
                                     />
                                     <Show when=move || erro.get()>
-                                        <span class="field__erro">"Informe um WhatsApp válido."</span>
+                                        <span class="field__erro">"Informe um e-mail válido."</span>
                                     </Show>
                                 </label>
-                                <button type="submit" class="btn btn--primary btn--block">
-                                    "Enviar código"
+                                <button
+                                    type="submit"
+                                    class="btn btn--primary btn--block"
+                                    prop:disabled=move || enviando.get()
+                                >
+                                    {move || if enviando.get() { "Enviando..." } else { "Enviar link" }}
                                 </button>
                             </form>
                         }
                     }
                 >
                     <div class="recuperar-head">
-                        <h1 class="recuperar__title">"Tudo certo!"</h1>
+                        <h1 class="recuperar__title">"Verifique seu e-mail"</h1>
                         <p class="recuperar__sub">
-                            "Se este WhatsApp estiver cadastrado, você receberá um código para redefinir sua senha."
+                            "Se este e-mail estiver cadastrado, você receberá um link para redefinir sua senha. O link expira em 1 hora."
                         </p>
                         <a class="btn btn--primary btn--block" href="/admin/login">
                             "Voltar ao login"

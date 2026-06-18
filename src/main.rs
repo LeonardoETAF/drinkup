@@ -216,7 +216,9 @@ async fn guarda_admin(
     use axum::response::{IntoResponse, Redirect};
 
     let path = req.uri().path();
-    let publico = path == "/admin/login" || path == "/admin/recuperar-senha";
+    let publico = path == "/admin/login"
+        || path == "/admin/recuperar-senha"
+        || path == "/admin/redefinir-senha";
     let protegido = (path == "/admin" || path.starts_with("/admin/")) && !publico;
     if protegido {
         let autenticado = session
