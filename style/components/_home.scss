@@ -486,6 +486,21 @@ img.hero__slogan {
 .depo-secao {
   padding-block: var(--space-12);
   text-align: center;
+  /* Mesmo fundo de doodles do hero, porém desvanecendo de baixo para cima:
+     sólido no topo (emenda com a seção acima) e textura crescendo na base. */
+  background-color: var(--color-bg);
+  background-image:
+    linear-gradient(
+      to bottom,
+      var(--color-bg) 0%,
+      rgba(10, 10, 10, 0.95) 22%,
+      rgba(10, 10, 10, 0.8) 55%,
+      rgba(10, 10, 10, 0.62) 100%
+    ),
+    url("/backgrounds/doodles.png");
+  background-size: cover, cover;
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
 }
 
 .depo-secao .depo-card {
