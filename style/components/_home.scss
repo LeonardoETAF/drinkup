@@ -38,7 +38,8 @@
 }
 
 .hero__title {
-  font-size: clamp(2.2rem, 5vw, 3.9rem);
+  font-size: clamp(2.6rem, 6.2vw, 4.8rem);
+  line-height: 0.92;
   white-space: nowrap;
 }
 
@@ -67,9 +68,15 @@
   display: block;
 }
 
+/* Ícone menor no botão compacto do cabeçalho */
+.site-header__actions .btn__ic {
+  width: 17px;
+  height: 17px;
+}
+
 /* Slogan como imagem (substitui o texto) */
 img.hero__slogan {
-  height: clamp(26px, 3.4vw, 42px);
+  height: clamp(16px, 2vw, 26px);
   width: auto;
   display: block;
 }

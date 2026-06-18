@@ -25,6 +25,13 @@
   transform: translateY(-1px);
 }
 
+/* Botão compacto (ex.: ação do cabeçalho) */
+.btn--sm {
+  padding: 0.5rem 1.05rem;
+  font-size: var(--text-xs);
+  gap: 0.4rem;
+}
+
 .btn--primary {
   background: var(--color-lime);
   color: var(--color-on-lime);
