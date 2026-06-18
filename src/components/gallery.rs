@@ -26,7 +26,16 @@ pub fn Gallery(imagens: Vec<ProdutoImagem>, nome: String) -> impl IntoView {
         imgs.with_value(|v| {
             v.get(i).or_else(|| v.first()).map(|im| {
                 let alt = im.alt.clone().unwrap_or_else(|| nome_alt.clone());
-                view! { <img class="gallery__img" src=im.url.clone() alt=alt/> }
+                let (src, srcset) = crate::components::responsiva(&im.url);
+                view! {
+                    <img
+                        class="gallery__img"
+                        src=src
+                        srcset=srcset
+                        sizes="(max-width: 900px) 100vw, 600px"
+                        alt=alt
+                    />
+                }
             })
         })
     };
@@ -35,7 +44,7 @@ pub fn Gallery(imagens: Vec<ProdutoImagem>, nome: String) -> impl IntoView {
         .iter()
         .enumerate()
         .map(|(i, im)| {
-            let url = im.url.clone();
+            let src = crate::components::responsiva(&im.url).0;
             view! {
                 <button
                     type="button"
@@ -44,7 +53,7 @@ pub fn Gallery(imagens: Vec<ProdutoImagem>, nome: String) -> impl IntoView {
                     on:click=move |_| set_sel.set(i)
                     aria-label=format!("Ver imagem {}", i + 1)
                 >
-                    <img src=url alt="" loading="lazy"/>
+                    <img src=src alt="" loading="lazy"/>
                 </button>
             }
         })

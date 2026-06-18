@@ -2,6 +2,7 @@
 //! server functions e apenas renderizam. Sem lógica de negócio nem segredos.
 mod filter_bar;
 mod gallery;
+mod imagem;
 mod page_hero;
 mod pagination;
 pub(crate) mod product_card;
@@ -11,6 +12,7 @@ mod site_header;
 
 pub use filter_bar::FilterBar;
 pub use gallery::Gallery;
+pub use imagem::responsiva;
 pub use page_hero::PageHero;
 pub use pagination::Pagination;
 pub use product_card::ProductCard;

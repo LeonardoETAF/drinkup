@@ -64,7 +64,10 @@ fn DetalheProduto(produto: ProdutoDetalhe) -> impl IntoView {
     // SEO: computado antes de mover `imagens`/`descricao` para o restante da view.
     let seo_titulo = produto.nome.clone();
     let seo_caminho = format!("/produtos/{}", produto.slug);
-    let seo_imagem = produto.imagens.first().map(|i| i.url.clone());
+    let seo_imagem = produto
+        .imagens
+        .first()
+        .map(|i| crate::components::responsiva(&i.url).0);
     let seo_descricao = produto.descricao.clone().unwrap_or_else(|| {
         format!(
             "{} — copo acrílico personalizável da DRINK UP. Peça seu orçamento.",

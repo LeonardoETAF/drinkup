@@ -16,18 +16,23 @@ pub fn ProductCard(produto: ProdutoResumo) -> impl IntoView {
         <a class="product-card" href=href>
             <div class="product-card__media">
                 {match produto.imagem_url {
-                    Some(url) => view! {
-                        <img
-                            class="product-card__img"
-                            src=url
-                            alt=nome
-                            loading="lazy"
-                            decoding="async"
-                            width="400"
-                            height="300"
-                        />
+                    Some(url) => {
+                        let (src, srcset) = crate::components::responsiva(&url);
+                        view! {
+                            <img
+                                class="product-card__img"
+                                src=src
+                                srcset=srcset
+                                sizes="(max-width: 700px) 45vw, 280px"
+                                alt=nome
+                                loading="lazy"
+                                decoding="async"
+                                width="400"
+                                height="300"
+                            />
+                        }
+                        .into_any()
                     }
-                    .into_any(),
                     None => view! {
                         <span class="product-card__ph" inner_html=CUP_SVG></span>
                     }

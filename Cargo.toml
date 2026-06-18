@@ -56,6 +56,10 @@ tower-sessions = { version = "0.14", optional = true }
 tower-sessions-sqlx-store = { version = "0.15", features = ["postgres"], optional = true }
 time = { version = "0.3", optional = true }
 sha2 = { version = "0.10", optional = true }
+image = { version = "0.25", default-features = false, features = [
+    "jpeg",
+    "png",
+], optional = true }
 lettre = { version = "0.11", default-features = false, features = [
     "smtp-transport",
     "tokio1-rustls-tls",
@@ -87,6 +91,7 @@ ssr = [
     "dep:time",
     "dep:sha2",
     "dep:lettre",
+    "dep:image",
     "leptos/ssr",
     "leptos_meta/ssr",
     "leptos_router/ssr",
