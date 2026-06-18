@@ -1,12 +1,14 @@
 //! Páginas públicas (vitrine).
 mod contato;
-mod em_breve;
 mod home;
+mod parceiros;
 mod produto;
 mod produtos;
+mod sobre;
 
 pub use contato::ContatoPage;
-pub use em_breve::EmBrevePage;
 pub use home::HomePage;
+pub use parceiros::ParceirosPage;
 pub use produto::ProdutoPage;
 pub use produtos::ProdutosPage;
+pub use sobre::QuemSomosPage;

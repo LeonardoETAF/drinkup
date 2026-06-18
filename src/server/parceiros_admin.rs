@@ -2,9 +2,20 @@
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use crate::domain::{ParceiroForm, ParceiroLista};
+use crate::domain::{ParceiroForm, ParceiroLista, ParceiroPublico};
 use crate::error::AppError;
 use crate::server::produtos_admin::slugify;
+
+/// Lista parceiros ativos para a página pública (ordenados).
+pub async fn listar_publicos(pool: &PgPool) -> Result<Vec<ParceiroPublico>, sqlx::Error> {
+    sqlx::query_as!(
+        ParceiroPublico,
+        r#"SELECT nome AS "nome!", logo_url, site_url, descricao
+           FROM parceiros WHERE ativo = true ORDER BY ordem, nome"#
+    )
+    .fetch_all(pool)
+    .await
+}
 
 /// Lista parceiros (ordenados) para a grade do painel.
 pub async fn listar(pool: &PgPool, busca: Option<&str>) -> Result<Vec<ParceiroLista>, sqlx::Error> {

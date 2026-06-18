@@ -3,6 +3,7 @@
 mod admin;
 mod categoria;
 mod orcamento;
+mod parceiro;
 mod produto;
 mod usuario;
 
@@ -12,5 +13,6 @@ pub use admin::{
 };
 pub use categoria::Categoria;
 pub use orcamento::{ItemOrcamento, NovoOrcamento};
+pub use parceiro::ParceiroPublico;
 pub use produto::{FiltroProdutos, PaginaProdutos, ProdutoDetalhe, ProdutoImagem, ProdutoResumo};
 pub use usuario::UsuarioSessao;

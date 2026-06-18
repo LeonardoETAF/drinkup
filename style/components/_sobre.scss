@@ -1,0 +1,189 @@
+/* ===== Página Quem Somos ===== */
+.sobre-hero {
+  background: var(--color-pink);
+  color: #fff;
+  text-align: center;
+  padding-block: clamp(3rem, 8vw, 6rem);
+}
+
+.sobre-hero__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-black);
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.sobre-hero__text {
+  max-width: 60ch;
+  margin: var(--space-5) auto 0;
+  font-size: var(--text-lg);
+  line-height: 1.6;
+}
+
+.sobre-stat {
+  text-align: center;
+  padding-block: var(--space-12);
+}
+
+.sobre-stat__num {
+  font-family: var(--font-display);
+  font-weight: var(--fw-black);
+  font-size: clamp(2.5rem, 8vw, 5.5rem);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.sobre-stat__label {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  color: var(--color-lime);
+  text-transform: uppercase;
+}
+
+.sobre-stat__text {
+  max-width: 56ch;
+  margin: var(--space-5) auto 0;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.sobre-video {
+  display: grid;
+  place-content: center;
+  gap: var(--space-4);
+  aspect-ratio: 16 / 7;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
+.sobre-video__play {
+  width: 72px;
+  height: 72px;
+  display: grid;
+  place-items: center;
+  margin-inline: auto;
+  background: var(--color-lime);
+  color: var(--color-on-lime);
+  border-radius: 50%;
+}
+
+.sobre-video__play svg {
+  width: 32px;
+  height: 32px;
+  margin-left: 4px;
+}
+
+.sobre-video__cap {
+  color: var(--color-text-muted);
+  font-family: monospace;
+}
+
+.sobre-mvv {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5);
+  padding-block: var(--space-12);
+  align-items: stretch;
+}
+
+.sobre-mvv__col {
+  display: grid;
+  gap: var(--space-5);
+  align-content: start;
+}
+
+.mvv-card {
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  line-height: 1.6;
+}
+
+.mvv-card__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-black);
+  font-size: var(--text-2xl);
+  text-transform: uppercase;
+  margin-bottom: var(--space-3);
+}
+
+.mvv-card--pink {
+  background: var(--color-pink);
+  color: #fff;
+}
+.mvv-card--dark {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+.mvv-card--lime {
+  background: var(--color-lime);
+  color: var(--color-on-lime);
+}
+.mvv-card--tall {
+  height: 100%;
+}
+
+.sobre-fotos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5);
+  padding-bottom: var(--space-12);
+}
+
+.sobre-foto {
+  aspect-ratio: 4 / 3;
+  display: grid;
+  place-content: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.sobre-foto__cap {
+  color: var(--color-text-muted);
+  font-family: monospace;
+}
+
+.sobre-depo {
+  text-align: center;
+  padding-bottom: var(--space-12);
+}
+
+.sobre-depo__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-black);
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  text-transform: uppercase;
+  margin-bottom: var(--space-6);
+}
+
+.depo-card {
+  max-width: 60ch;
+  margin-inline: auto;
+  padding: var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.depo-card__quote {
+  font-style: italic;
+  font-size: var(--text-lg);
+  line-height: 1.6;
+}
+
+.depo-card__autor {
+  margin-top: var(--space-4);
+  color: var(--color-lime);
+  font-weight: var(--fw-semibold);
+}
+
+@media (max-width: 720px) {
+  .sobre-mvv,
+  .sobre-fotos {
+    grid-template-columns: 1fr;
+  }
+}

@@ -12,7 +12,9 @@ use crate::admin::{
     AdminRecuperarSenhaPage, AdminUsuarioForm, AdminUsuarios,
 };
 use crate::components::{SiteFooter, SiteHeader};
-use crate::pages::{ContatoPage, EmBrevePage, HomePage, ProdutoPage, ProdutosPage};
+use crate::pages::{
+    ContatoPage, HomePage, ParceirosPage, ProdutoPage, ProdutosPage, QuemSomosPage,
+};
 
 /// Documento HTML renderizado no servidor (SSR).
 pub fn shell(options: LeptosOptions) -> impl IntoView {
@@ -59,22 +61,8 @@ pub fn App() -> impl IntoView {
                         view=ProdutoPage
                         ssr=SsrMode::Async
                     />
-                    <Route
-                        path=StaticSegment("quem-somos")
-                        view=|| {
-                            view! {
-                                <EmBrevePage kicker="Sobre" titulo="Quem Somos" caminho="/quem-somos"/>
-                            }
-                        }
-                    />
-                    <Route
-                        path=StaticSegment("parceiros")
-                        view=|| {
-                            view! {
-                                <EmBrevePage kicker="Rede" titulo="Parceiros" caminho="/parceiros"/>
-                            }
-                        }
-                    />
+                    <Route path=StaticSegment("quem-somos") view=QuemSomosPage/>
+                    <Route path=StaticSegment("parceiros") view=ParceirosPage/>
                     <Route path=StaticSegment("contato") view=ContatoPage/>
                 </ParentRoute>
 

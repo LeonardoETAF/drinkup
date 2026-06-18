@@ -1,0 +1,95 @@
+/* ===== Página pública de Parceiros ===== */
+
+/* Variante de topo escura e centralizada (sobrepõe a faixa lima padrão). */
+.page-hero--center {
+  background: var(--color-bg);
+  color: var(--color-text);
+  text-align: center;
+}
+
+.page-hero--center .page-hero__kicker {
+  color: var(--color-lime);
+  opacity: 1;
+}
+
+.page-hero__sub {
+  max-width: 46ch;
+  margin: var(--space-4) auto 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-lg);
+  line-height: 1.6;
+}
+
+.parceiros {
+  padding-block: var(--space-10);
+}
+
+.parceiros-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-5);
+}
+
+.parceiro-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-top: 4px solid var(--color-lime);
+  border-radius: var(--radius-lg);
+}
+
+.parceiro-card--lime {
+  border-top-color: var(--color-lime);
+}
+.parceiro-card--pink {
+  border-top-color: var(--color-pink);
+}
+.parceiro-card--cyan {
+  border-top-color: var(--color-cyan);
+}
+.parceiro-card--orange {
+  border-top-color: var(--color-orange);
+}
+
+.parceiro-card__media {
+  height: 80px;
+  display: grid;
+  place-items: center;
+}
+
+.parceiro-card__logo {
+  max-height: 80px;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.parceiro-card__iniciais {
+  font-family: var(--font-display);
+  font-weight: var(--fw-black);
+  font-size: var(--text-2xl);
+  color: var(--color-text-muted);
+}
+
+.parceiro-card__nome {
+  font-size: var(--text-lg);
+}
+
+.parceiro-card__desc {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.parceiro-card__link {
+  margin-top: auto;
+  color: var(--color-lime);
+  font-weight: var(--fw-semibold);
+  text-decoration: none;
+}
+
+.parceiro-card__link:hover {
+  text-decoration: underline;
+}
