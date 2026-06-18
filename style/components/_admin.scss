@@ -84,8 +84,31 @@
   color: var(--color-lime);
 }
 
+.login-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.login-check {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.login-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-lime);
+  cursor: pointer;
+}
+
 .admin-login__forgot {
-  justify-self: center;
   font-size: var(--text-sm);
   color: var(--color-text-muted);
   transition: color var(--transition);
@@ -98,6 +121,45 @@
 .admin-login__footer {
   font-size: var(--text-xs);
   color: var(--color-text-muted);
+}
+
+/* ===== Recuperar senha ===== */
+.admin-back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-5);
+  transition: color var(--transition);
+}
+
+.admin-back:hover {
+  color: var(--color-lime);
+}
+
+.admin-back__icon {
+  display: grid;
+  place-content: center;
+}
+
+.recuperar-form,
+.recuperar-head {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.recuperar-head {
+  gap: var(--space-2);
+}
+
+.recuperar__title {
+  font-size: var(--text-2xl);
+}
+
+.recuperar__sub {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
 }
 
 /* ===== Casca do painel ===== */

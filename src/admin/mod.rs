@@ -3,7 +3,9 @@
 mod dashboard;
 mod layout;
 mod login;
+mod recuperar;
 
 pub use dashboard::AdminDashboard;
 pub use layout::AdminLayout;
 pub use login::AdminLoginPage;
+pub use recuperar::AdminRecuperarSenhaPage;

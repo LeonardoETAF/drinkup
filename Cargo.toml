@@ -22,6 +22,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"], optional = tr
 # --- Cliente (feature `hydrate`) ---
 wasm-bindgen = { version = "=0.2.106", optional = true }
 console_error_panic_hook = { version = "0.1", optional = true }
+web-sys = { version = "0.3", optional = true, features = ["Window", "Storage"] }
 
 # --- Compartilhado (cliente + servidor) ---
 serde = { version = "1", features = ["derive"] }
@@ -51,6 +52,7 @@ hydrate = [
     "leptos/hydrate",
     "dep:console_error_panic_hook",
     "dep:wasm-bindgen",
+    "dep:web-sys",
 ]
 ssr = [
     "dep:axum",
