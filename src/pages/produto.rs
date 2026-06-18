@@ -2,7 +2,7 @@ use leptos::prelude::*;
 use leptos_router::hooks::use_params_map;
 
 use crate::api::catalogo::obter_produto;
-use crate::components::Gallery;
+use crate::components::{Gallery, Seo};
 use crate::domain::ProdutoDetalhe;
 
 /// Página de detalhe do produto.
@@ -16,7 +16,8 @@ pub fn ProdutoPage() -> impl IntoView {
             .map(|s| s.to_string())
             .unwrap_or_default()
     };
-    let produto = Resource::new(slug, |s| async move { obter_produto(s).await });
+    // Blocking: o SSR aguarda o produto para que `<title>`/meta entrem no <head>.
+    let produto = Resource::new_blocking(slug, |s| async move { obter_produto(s).await });
 
     view! {
         <Suspense fallback=move || {
@@ -60,6 +61,17 @@ fn DetalheProduto(produto: ProdutoDetalhe) -> impl IntoView {
         produto.id
     );
 
+    // SEO: computado antes de mover `imagens`/`descricao` para o restante da view.
+    let seo_titulo = produto.nome.clone();
+    let seo_caminho = format!("/produtos/{}", produto.slug);
+    let seo_imagem = produto.imagens.first().map(|i| i.url.clone());
+    let seo_descricao = produto.descricao.clone().unwrap_or_else(|| {
+        format!(
+            "{} — copo acrílico personalizável da DRINK UP. Peça seu orçamento.",
+            produto.nome
+        )
+    });
+
     let atributos: Vec<(&'static str, String)> = [
         produto
             .capacidade_ml
@@ -83,6 +95,12 @@ fn DetalheProduto(produto: ProdutoDetalhe) -> impl IntoView {
     .collect();
 
     view! {
+        <Seo
+            titulo=seo_titulo
+            descricao=seo_descricao
+            caminho=seo_caminho
+            imagem=seo_imagem
+        />
         <nav class="breadcrumb container" aria-label="Trilha de navegação">
             <a href="/">"Início"</a>
             <span aria-hidden="true">"/"</span>

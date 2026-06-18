@@ -61,6 +61,13 @@ async fn main() {
 
     let app = Router::new()
         .route("/upload-imagem", post(upload_handler))
+        .route(
+            "/sitemap.xml",
+            axum::routing::get({
+                let pool = pool.clone();
+                move || sitemap_handler(pool.clone())
+            }),
+        )
         .nest_service("/uploads", ServeDir::new(uploads::DIR_UPLOADS))
         .leptos_routes_with_context(
             &leptos_options,
@@ -101,8 +108,17 @@ async fn cabecalhos_seguranca(
 ) -> axum::response::Response {
     use axum::http::{header, HeaderName, HeaderValue};
 
+    // Caminho capturado antes de `req` ser consumido por `next`.
+    let path = req.uri().path().to_string();
     let mut resp = next.run(req).await;
     let h = resp.headers_mut();
+    // Imagens enviadas têm nome aleatório/estável → cache longo e imutável.
+    if path.starts_with("/uploads/") {
+        h.insert(
+            header::CACHE_CONTROL,
+            HeaderValue::from_static("public, max-age=31536000, immutable"),
+        );
+    }
     h.insert(
         header::X_CONTENT_TYPE_OPTIONS,
         HeaderValue::from_static("nosniff"),
@@ -167,6 +183,25 @@ async fn verifica_origem(
         }
     }
     next.run(req).await
+}
+
+/// Serve o `sitemap.xml` gerado a partir das páginas públicas + produtos ativos.
+#[cfg(feature = "ssr")]
+async fn sitemap_handler(pool: sqlx::PgPool) -> axum::response::Response {
+    use axum::http::{header, StatusCode};
+    use axum::response::IntoResponse;
+
+    match drinkup::server::sitemap::gerar_xml(&pool, drinkup::components::SITE_URL).await {
+        Ok(xml) => (
+            [(header::CONTENT_TYPE, "application/xml; charset=utf-8")],
+            xml,
+        )
+            .into_response(),
+        Err(e) => {
+            tracing::error!(error = %e, "falha ao gerar sitemap");
+            StatusCode::INTERNAL_SERVER_ERROR.into_response()
+        }
+    }
 }
 
 /// Guarda de rota server-side: barra acesso não autenticado a `/admin/*`

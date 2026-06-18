@@ -5,6 +5,7 @@ mod gallery;
 mod page_hero;
 mod pagination;
 pub(crate) mod product_card;
+mod seo;
 mod site_footer;
 mod site_header;
 
@@ -13,5 +14,6 @@ pub use gallery::Gallery;
 pub use page_hero::PageHero;
 pub use pagination::Pagination;
 pub use product_card::ProductCard;
+pub use seo::{Seo, SITE_URL};
 pub use site_footer::SiteFooter;
 pub use site_header::SiteHeader;

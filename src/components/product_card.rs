@@ -17,7 +17,15 @@ pub fn ProductCard(produto: ProdutoResumo) -> impl IntoView {
             <div class="product-card__media">
                 {match produto.imagem_url {
                     Some(url) => view! {
-                        <img class="product-card__img" src=url alt=nome loading="lazy"/>
+                        <img
+                            class="product-card__img"
+                            src=url
+                            alt=nome
+                            loading="lazy"
+                            decoding="async"
+                            width="400"
+                            height="300"
+                        />
                     }
                     .into_any(),
                     None => view! {

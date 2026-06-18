@@ -14,5 +14,6 @@ pub mod products;
 pub mod produtos_admin;
 pub mod quotes;
 pub mod rbac;
+pub mod sitemap;
 pub mod uploads;
 pub mod usuarios_admin;

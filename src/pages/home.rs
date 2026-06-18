@@ -1,7 +1,7 @@
 use leptos::prelude::*;
 
 use crate::api::catalogo::listar_produtos;
-use crate::components::ProductCard;
+use crate::components::{ProductCard, Seo};
 use crate::domain::FiltroProdutos;
 
 /// Home da vitrine: hero + produtos em destaque + chamada para orçamento.
@@ -20,6 +20,12 @@ pub fn HomePage() -> impl IntoView {
     );
 
     view! {
+        <Seo
+            titulo="Copos personalizados para eventos — Maringá-PR"
+            descricao="Copos acrílicos personalizados para formaturas, casamentos e eventos. \
+            Fábrica própria em Maringá-PR. Sua marca em cada momento. Peça um orçamento."
+            caminho="/"
+        />
         <section class="hero">
             <div class="container hero__inner">
                 <span class="kicker">"Maringá, PR · Fábrica própria"</span>

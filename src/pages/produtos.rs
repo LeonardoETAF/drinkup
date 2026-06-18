@@ -2,7 +2,7 @@ use leptos::prelude::*;
 use leptos_router::hooks::use_query_map;
 
 use crate::api::catalogo::{listar_categorias, listar_produtos};
-use crate::components::{FilterBar, Pagination, ProductCard};
+use crate::components::{FilterBar, Pagination, ProductCard, Seo};
 use crate::domain::FiltroProdutos;
 
 /// Catálogo: filtros, busca e paginação resolvidos no servidor via query params.
@@ -39,6 +39,12 @@ pub fn ProdutosPage() -> impl IntoView {
     };
 
     view! {
+        <Seo
+            titulo="Catálogo de copos personalizados"
+            descricao="Long drinks, taças, calderetas e mais — copos acrílicos personalizáveis \
+            para o seu evento. Veja o catálogo da DRINK UP e peça seu orçamento."
+            caminho="/produtos"
+        />
         <section class="page-hero">
             <div class="container">
                 <span class="page-hero__kicker">"Catálogo"</span>

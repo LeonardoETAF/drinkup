@@ -3,7 +3,7 @@ use leptos::prelude::*;
 use leptos_meta::{provide_meta_context, MetaTags, Stylesheet, Title};
 use leptos_router::{
     components::{Outlet, ParentRoute, Route, Router, Routes},
-    ParamSegment, StaticSegment,
+    ParamSegment, SsrMode, StaticSegment,
 };
 
 use crate::admin::{
@@ -52,17 +52,28 @@ pub fn App() -> impl IntoView {
                 <ParentRoute path=StaticSegment("") view=PublicLayout>
                     <Route path=StaticSegment("") view=HomePage/>
                     <Route path=StaticSegment("produtos") view=ProdutosPage/>
+                    // SsrMode::Async: aguarda o produto no servidor antes do <head>,
+                    // garantindo título/OG/canonical corretos no HTML (SEO e compartilhamento).
                     <Route
                         path=(StaticSegment("produtos"), ParamSegment("slug"))
                         view=ProdutoPage
+                        ssr=SsrMode::Async
                     />
                     <Route
                         path=StaticSegment("quem-somos")
-                        view=|| view! { <EmBrevePage kicker="Sobre" titulo="Quem Somos"/> }
+                        view=|| {
+                            view! {
+                                <EmBrevePage kicker="Sobre" titulo="Quem Somos" caminho="/quem-somos"/>
+                            }
+                        }
                     />
                     <Route
                         path=StaticSegment("parceiros")
-                        view=|| view! { <EmBrevePage kicker="Rede" titulo="Parceiros"/> }
+                        view=|| {
+                            view! {
+                                <EmBrevePage kicker="Rede" titulo="Parceiros" caminho="/parceiros"/>
+                            }
+                        }
                     />
                     <Route path=StaticSegment("contato") view=ContatoPage/>
                 </ParentRoute>
@@ -163,7 +174,9 @@ fn PublicLayout() -> impl IntoView {
 /// Página 404 (com cabeçalho/rodapé do site).
 #[component]
 fn NotFound() -> impl IntoView {
+    definir_status_404();
     view! {
+        <Title text="Página não encontrada | DRINK UP"/>
         <SiteHeader/>
         <main id="conteudo">
             <section class="container detalhe-status">
@@ -174,3 +187,15 @@ fn NotFound() -> impl IntoView {
         <SiteFooter/>
     }
 }
+
+/// Define o status HTTP 404 na resposta (SSR) para não servir "soft 404".
+#[cfg(feature = "ssr")]
+fn definir_status_404() {
+    if let Some(resp) = use_context::<leptos_axum::ResponseOptions>() {
+        resp.set_status(axum::http::StatusCode::NOT_FOUND);
+    }
+}
+
+/// No-op na hidratação (cliente).
+#[cfg(not(feature = "ssr"))]
+fn definir_status_404() {}
