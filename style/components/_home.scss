@@ -40,9 +40,9 @@
 .hero__title {
   font-family: var(--font-title);
   font-weight: 400;
-  font-size: clamp(2.9rem, 7.4vw, 5.6rem);
+  font-size: clamp(2.4rem, 5.6vw, 4.4rem);
   line-height: 0.9;
-  letter-spacing: 0.015em;
+  letter-spacing: 0.02em;
   white-space: nowrap;
 }
 
@@ -82,7 +82,7 @@
 
 /* Slogan como imagem (substitui o texto) */
 img.hero__slogan {
-  height: clamp(8px, 1vw, 13px);
+  height: clamp(11px, 1.3vw, 16px);
   width: auto;
   display: block;
 }
@@ -102,7 +102,7 @@ img.hero__slogan {
   top: 50%;
   right: 0;
   transform: translateY(-50%);
-  width: clamp(150px, 19vw, 320px);
+  width: clamp(170px, 21vw, 280px);
   height: auto;
   object-fit: contain;
   z-index: 0;
