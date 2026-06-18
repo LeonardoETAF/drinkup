@@ -22,8 +22,8 @@ fn normaliza(c: char) -> Option<char> {
     })
 }
 
-/// Gera um slug a partir do nome.
-fn slugify(s: &str) -> String {
+/// Gera um slug a partir do nome (reutilizado por outras seções do painel).
+pub(crate) fn slugify(s: &str) -> String {
     let mut out = String::new();
     let mut traco = false;
     for c in s.chars() {

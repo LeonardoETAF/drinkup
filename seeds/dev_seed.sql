@@ -27,10 +27,15 @@ INSERT INTO parceiros (nome, slug, ordem) VALUES
     ('Parceiro Exemplo B', 'parceiro-b', 2)
 ON CONFLICT (slug) DO NOTHING;
 
--- Eventos
-INSERT INTO eventos (titulo, slug, descricao, tipo, destaque) VALUES
-    ('Formatura Medicina 2025', 'formatura-medicina-2025', 'Copos personalizados para formatura', 'formatura', true),
-    ('Casamento Marina & João', 'casamento-marina-joao',   'Taças personalizadas',                'casamento', false)
+-- Eventos = categorias do carrossel da home (nome via titulo, cor, ordem, visível via ativo)
+INSERT INTO eventos (titulo, slug, cor, ordem) VALUES
+    ('Formaturas',   'formaturas',   '#c8d400', 1),
+    ('Casamentos',   'casamentos',   '#ff0070', 2),
+    ('Aniversários', 'aniversarios', '#00c8ef', 3),
+    ('Shows',        'shows',        '#7c3aed', 4),
+    ('Baladas',      'baladas',      '#f5821f', 5),
+    ('Corporativo',  'corporativo',  '#1f2933', 6),
+    ('Restaurantes', 'restaurantes', '#2a9d8f', 7)
 ON CONFLICT (slug) DO NOTHING;
 
 -- Usuário admin de desenvolvimento.

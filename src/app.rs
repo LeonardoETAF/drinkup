@@ -7,8 +7,9 @@ use leptos_router::{
 };
 
 use crate::admin::{
-    AdminDashboard, AdminEmBreve, AdminLayout, AdminLeads, AdminLoginPage, AdminProdutoForm,
-    AdminProdutos, AdminRecuperarSenhaPage,
+    AdminDashboard, AdminEmBreve, AdminEventoForm, AdminEventos, AdminLayout, AdminLeads,
+    AdminLoginPage, AdminParceiroForm, AdminParceiros, AdminProdutoForm, AdminProdutos,
+    AdminRecuperarSenhaPage,
 };
 use crate::components::{SiteFooter, SiteHeader};
 use crate::pages::{ContatoPage, EmBrevePage, HomePage, ProdutoPage, ProdutosPage};
@@ -86,13 +87,23 @@ pub fn App() -> impl IntoView {
                         path=(StaticSegment("produtos"), ParamSegment("id"))
                         view=AdminProdutoForm
                     />
+                    <Route path=StaticSegment("parceiros") view=AdminParceiros/>
                     <Route
-                        path=StaticSegment("parceiros")
-                        view=|| view! { <AdminEmBreve titulo="Parceiros"/> }
+                        path=(StaticSegment("parceiros"), StaticSegment("novo"))
+                        view=AdminParceiroForm
                     />
                     <Route
-                        path=StaticSegment("eventos")
-                        view=|| view! { <AdminEmBreve titulo="Eventos"/> }
+                        path=(StaticSegment("parceiros"), ParamSegment("id"))
+                        view=AdminParceiroForm
+                    />
+                    <Route path=StaticSegment("eventos") view=AdminEventos/>
+                    <Route
+                        path=(StaticSegment("eventos"), StaticSegment("novo"))
+                        view=AdminEventoForm
+                    />
+                    <Route
+                        path=(StaticSegment("eventos"), ParamSegment("id"))
+                        view=AdminEventoForm
                     />
                     <Route
                         path=StaticSegment("configuracoes")

@@ -2,6 +2,7 @@ use leptos::prelude::*;
 use leptos::task::spawn_local;
 use uuid::Uuid;
 
+use super::confirmar::confirmar;
 use crate::api::produtos_admin::{excluir_produto, listar_produtos_admin};
 use crate::domain::ProdutoLista;
 
@@ -146,18 +147,4 @@ fn tabela(itens: Vec<ProdutoLista>, excluir: AcaoExcluir) -> AnyView {
         </div>
     }
     .into_any()
-}
-
-/// Confirmação nativa do navegador (no cliente).
-#[cfg(feature = "hydrate")]
-fn confirmar(msg: &str) -> bool {
-    web_sys::window()
-        .and_then(|w| w.confirm_with_message(msg).ok())
-        .unwrap_or(false)
-}
-
-/// No SSR não há confirmação (o handler de clique só roda no cliente).
-#[cfg(not(feature = "hydrate"))]
-fn confirmar(_msg: &str) -> bool {
-    false
 }

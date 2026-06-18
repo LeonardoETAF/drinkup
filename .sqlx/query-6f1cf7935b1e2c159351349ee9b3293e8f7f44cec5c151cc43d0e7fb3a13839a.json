@@ -1,0 +1,44 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT id AS \"id!\", titulo AS \"titulo!\", cor, ordem AS \"ordem!\", ativo AS \"ativo!\"\n           FROM eventos ORDER BY ordem, titulo",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "titulo!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "cor",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "ordem!",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "ativo!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "6f1cf7935b1e2c159351349ee9b3293e8f7f44cec5c151cc43d0e7fb3a13839a"
+}

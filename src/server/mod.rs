@@ -6,7 +6,9 @@
 pub mod auth;
 pub mod dashboard;
 pub mod db;
+pub mod eventos_admin;
 pub mod leads;
+pub mod parceiros_admin;
 pub mod products;
 pub mod produtos_admin;
 pub mod quotes;

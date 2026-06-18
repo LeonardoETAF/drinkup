@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT id, nome, logo_url, site_url, descricao, ordem, ativo\n           FROM parceiros WHERE id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "nome",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "logo_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "site_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "descricao",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "ordem",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 6,
+        "name": "ativo",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "e6a46baca1ca7dfe957e61eb496c5b0c09d22fbdfb9f87ea2c2948c07230b98c"
+}

@@ -47,6 +47,47 @@ pub struct ProdutoLista {
     pub imagem_url: Option<String>,
 }
 
+/// Evento = categoria do carrossel da home (listagem do painel).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct EventoLista {
+    pub id: Uuid,
+    pub titulo: String,
+    pub cor: Option<String>,
+    pub ordem: i32,
+    pub ativo: bool,
+}
+
+/// Formulário de evento/categoria (criar/editar). `id = None` => criação.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
+pub struct EventoForm {
+    pub id: Option<Uuid>,
+    pub titulo: String,
+    pub cor: Option<String>,
+    pub ordem: i32,
+    pub ativo: bool,
+}
+
+/// Parceiro na listagem (grade de cards) do painel.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ParceiroLista {
+    pub id: Uuid,
+    pub nome: String,
+    pub logo_url: Option<String>,
+    pub ativo: bool,
+}
+
+/// Formulário de parceiro (criar/editar). `id = None` => criação.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
+pub struct ParceiroForm {
+    pub id: Option<Uuid>,
+    pub nome: String,
+    pub logo_url: Option<String>,
+    pub site_url: Option<String>,
+    pub descricao: Option<String>,
+    pub ordem: i32,
+    pub ativo: bool,
+}
+
 /// Formulário de produto (criar/editar). `id = None` => criação.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
 pub struct ProdutoForm {

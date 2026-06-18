@@ -581,6 +581,106 @@
   }
 }
 
+/* Lista de eventos (categorias do carrossel) */
+.evt-lista {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.evt-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.evt-item:first-child {
+  border-top: none;
+}
+
+.evt-ordem {
+  width: 1.5rem;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-weight: var(--fw-bold);
+}
+
+.evt-cor {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+}
+
+.evt-nome {
+  flex: 1;
+  font-weight: var(--fw-semibold);
+}
+
+.evt-acoes {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.admin-input--cor {
+  height: 46px;
+  padding: 0.25rem;
+  cursor: pointer;
+}
+
+/* Grade de parceiros */
+.parceiro-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-4);
+}
+
+.parceiro-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  display: grid;
+  gap: var(--space-3);
+}
+
+.parceiro-card.is-inativo {
+  opacity: 0.55;
+}
+
+.parceiro-card__logo {
+  height: 110px;
+  display: grid;
+  place-content: center;
+  background: var(--color-surface-2);
+  border-radius: var(--radius);
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font-weight: var(--fw-bold);
+}
+
+.parceiro-card__logo img {
+  max-width: 80%;
+  max-height: 80px;
+  object-fit: contain;
+}
+
+.parceiro-card__nome {
+  text-align: center;
+  font-size: var(--text-base);
+}
+
+.parceiro-card__acoes {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.parceiro-card__acoes .btn {
+  flex: 1;
+}
+
 /* Toolbar */
 .admin-toolbar {
   display: flex;

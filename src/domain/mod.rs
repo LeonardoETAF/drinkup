@@ -6,7 +6,10 @@ mod orcamento;
 mod produto;
 mod usuario;
 
-pub use admin::{DashboardResumo, FiltroLeads, LeadResumo, PaginaLeads, ProdutoForm, ProdutoLista};
+pub use admin::{
+    DashboardResumo, EventoForm, EventoLista, FiltroLeads, LeadResumo, PaginaLeads, ParceiroForm,
+    ParceiroLista, ProdutoForm, ProdutoLista,
+};
 pub use categoria::Categoria;
 pub use orcamento::{ItemOrcamento, NovoOrcamento};
 pub use produto::{FiltroProdutos, PaginaProdutos, ProdutoDetalhe, ProdutoImagem, ProdutoResumo};

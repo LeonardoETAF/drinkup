@@ -100,6 +100,11 @@ lib-features = ["hydrate"]
 lib-default-features = false
 lib-profile-release = "wasm-release"
 
+# Dev: reduz debug info (line tables) para evitar overflow de relocação no link.
+[profile.dev]
+debug = 1
+split-debuginfo = "unpacked"
+
 # Perfil de release do bundle wasm: o menor possível.
 [profile.wasm-release]
 inherits = "release"
