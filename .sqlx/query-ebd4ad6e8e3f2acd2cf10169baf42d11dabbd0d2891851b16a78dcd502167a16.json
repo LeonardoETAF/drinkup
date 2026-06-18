@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO audit_log (usuario_id, acao) VALUES ($1, $2)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "ebd4ad6e8e3f2acd2cf10169baf42d11dabbd0d2891851b16a78dcd502167a16"
+}

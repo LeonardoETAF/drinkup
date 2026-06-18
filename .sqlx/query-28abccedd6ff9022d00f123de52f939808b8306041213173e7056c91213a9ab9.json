@@ -1,0 +1,46 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT id, nome, senha_hash, papel, ativo FROM usuarios WHERE lower(email) = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "nome",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "senha_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "papel",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "ativo",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "28abccedd6ff9022d00f123de52f939808b8306041213173e7056c91213a9ab9"
+}

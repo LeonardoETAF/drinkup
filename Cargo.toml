@@ -39,9 +39,12 @@ sqlx = { version = "0.8", default-features = false, features = [
     "chrono",
     "uuid",
 ], optional = true }
-argon2 = { version = "0.5", optional = true }
+argon2 = { version = "0.5", features = ["std"], optional = true }
 dotenvy = { version = "0.15", optional = true }
-# tower-sessions / tower-http: adicionados nas Fases 6 e 8/9.
+tower-sessions = { version = "0.14", optional = true }
+tower-sessions-sqlx-store = { version = "0.15", features = ["postgres"], optional = true }
+time = { version = "0.3", optional = true }
+# tower-http: adicionado na Fase 8/9 (headers de segurança).
 
 [features]
 hydrate = [
@@ -58,6 +61,9 @@ ssr = [
     "dep:sqlx",
     "dep:argon2",
     "dep:dotenvy",
+    "dep:tower-sessions",
+    "dep:tower-sessions-sqlx-store",
+    "dep:time",
     "leptos/ssr",
     "leptos_meta/ssr",
     "leptos_router/ssr",
@@ -65,6 +71,7 @@ ssr = [
 
 [package.metadata.leptos]
 output-name = "drinkup"
+bin-target = "drinkup"
 site-root = "target/site"
 site-pkg-dir = "pkg"
 style-file = "style/main.scss"

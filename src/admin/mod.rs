@@ -1,3 +1,9 @@
-//! Painel administrativo (rotas protegidas). Toda autorização é verificada no
-//! servidor (RBAC). A UI aqui é apresentação; ela não é controle de acesso.
-//! Implementado a partir da Fase 7.
+//! Painel administrativo (rotas protegidas). A autorização é SEMPRE verificada
+//! no servidor (sessão + RBAC); a UI aqui é apresentação, não controle de acesso.
+mod dashboard;
+mod layout;
+mod login;
+
+pub use dashboard::AdminDashboard;
+pub use layout::AdminLayout;
+pub use login::AdminLoginPage;

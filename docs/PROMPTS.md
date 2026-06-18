@@ -18,7 +18,7 @@ telas (Fases 4 e 7) devem cobrir essas entidades. O escopo continua **sem pagame
 
 ---
 
-## Status (atualizado em 2026-06-18)
+## Status (atualizado em 2026-06-18, após Fase 6)
 
 | Fase | Estado | Notas |
 |------|--------|-------|
@@ -28,15 +28,17 @@ telas (Fases 4 e 7) devem cobrir essas entidades. O escopo continua **sem pagame
 | 3 — Domínio + server functions | ✅ feito | DTOs em `domain/`; repositórios em `server/` com `query!`/`query_as!`; camada `api/` `#[server]`; cache `.sqlx` commitável. |
 | 4 — Vitrine (catálogo) | ✅ feito | Home (hero+destaques+CTA), `/produtos` (filtros/busca/paginação via query params, SSR), `/produtos/:slug` (galeria+atributos). Placeholders p/ quem-somos/parceiros. |
 | 5 — Orçamento/contato | ✅ feito | `/contato` com validação cliente+servidor, honeypot + throttle, prefill por produto; teste de integração passando. |
-| 6 — Auth + RBAC | ⏳ próximo | Argon2id, tower-sessions (store Postgres), rate limit no login, guarda de papel. |
-| 7 — Painel admin | ⬜ pendente | dashboard, produtos, leads, eventos, parceiros, configurações, uploads. |
+| 6 — Auth + RBAC | ✅ feito | Argon2id; sessão `tower-sessions` (store Postgres, cookie HttpOnly/SameSite/Secure-em-prod); rate limit no login; guarda `exigir_papel`; middleware 303 em `/admin/*`; auditoria de login/logout. CLI `src/bin/admin.rs` cria o admin. |
+| 7 — Painel admin | ⏳ próximo | dashboard, produtos, leads, eventos, parceiros, configurações, uploads (cada ação chama `exigir_papel`). |
 | 8 — Endurecimento de segurança | ⬜ pendente | CSP/HSTS, CSRF, rate limit por IP, auditoria do bundle. |
 | 9 — SEO + desempenho | ⬜ pendente | meta tags, sitemap, otimização de imagens, cache. |
 | 10 — Deploy (VPS/Docker) | ⬜ pendente | Dockerfile multi-stage, compose de produção. |
 
 **Pendências de decisão registradas:** fonte oficial da marca (usando Montserrat); provedor de e-mail/notificação de leads (hoje só registra no banco); imagens reais de produto (placeholder até o painel).
 
-**Saúde do código (último check):** `cargo leptos build`, `clippy` (ssr+wasm), `fmt` e o teste de integração limpos. **Sem repositório git ainda** — recomendado `git init` + primeiro commit.
+**Saúde do código (último check):** `cargo leptos build`, `clippy` (ssr+wasm), `fmt` e **3 testes** (auth × 2, orçamento × 1) limpos. Repositório git inicializado (branch `main`); **Fase 6 ainda não commitada**.
+
+**Criar admin (dev/prod):** `cargo run --bin admin --no-default-features --features ssr -- <email> <nome> <senha> [papel]`.
 
 ---
 

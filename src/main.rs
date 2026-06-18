@@ -10,6 +10,10 @@ async fn main() {
     use leptos::logging::log;
     use leptos::prelude::*;
     use leptos_axum::{generate_route_list, LeptosRoutes};
+    use time::Duration;
+    use tower_sessions::cookie::SameSite;
+    use tower_sessions::{Expiry, SessionManagerLayer};
+    use tower_sessions_sqlx_store::PostgresStore;
     use tracing_subscriber::EnvFilter;
 
     // Em desenvolvimento, carrega variáveis de um arquivo .env (se existir).
@@ -32,6 +36,18 @@ async fn main() {
         .expect("falha ao aplicar migrations");
     log!("PostgreSQL conectado e migrations aplicadas");
 
+    // Sessões server-side em Postgres (a store cria/migra sua própria tabela).
+    let session_store = PostgresStore::new(pool.clone());
+    session_store
+        .migrate()
+        .await
+        .expect("falha ao migrar a tabela de sessões");
+    let session_layer = SessionManagerLayer::new(session_store)
+        .with_http_only(true)
+        .with_same_site(SameSite::Lax)
+        .with_secure(!cfg!(debug_assertions)) // Secure em release (HTTPS), liberado em dev
+        .with_expiry(Expiry::OnInactivity(Duration::days(7)));
+
     let conf = get_configuration(None).expect("falha ao ler a configuração do Leptos");
     let leptos_options = conf.leptos_options;
     let addr = leptos_options.site_addr;
@@ -52,6 +68,8 @@ async fn main() {
             },
         )
         .fallback(leptos_axum::file_and_error_handler(shell))
+        .layer(axum::middleware::from_fn(guarda_admin))
+        .layer(session_layer)
         .with_state(leptos_options);
 
     log!("DRINKUP ouvindo em http://{addr}");
@@ -61,6 +79,32 @@ async fn main() {
     axum::serve(listener, app.into_make_service())
         .await
         .expect("falha ao iniciar o servidor");
+}
+
+/// Guarda de rota server-side: barra acesso não autenticado a `/admin/*`
+/// (exceto `/admin/login`) com um 302, antes de o Leptos renderizar.
+/// Defesa em profundidade — a autorização real das ações fica nas server functions.
+#[cfg(feature = "ssr")]
+async fn guarda_admin(
+    session: tower_sessions::Session,
+    req: axum::extract::Request,
+    next: axum::middleware::Next,
+) -> axum::response::Response {
+    use axum::response::{IntoResponse, Redirect};
+
+    let path = req.uri().path();
+    let protegido = (path == "/admin" || path.starts_with("/admin/")) && path != "/admin/login";
+    if protegido {
+        let autenticado = session
+            .get::<uuid::Uuid>("uid")
+            .await
+            .unwrap_or(None)
+            .is_some();
+        if !autenticado {
+            return Redirect::to("/admin/login").into_response();
+        }
+    }
+    next.run(req).await
 }
 
 #[cfg(not(feature = "ssr"))]
