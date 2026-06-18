@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "INSERT INTO parceiros (nome, slug, logo_url, site_url, descricao, ordem, ativo)\n                   VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id",
+  "query": "INSERT INTO parceiros\n                     (nome, slug, logo_url, site_url, descricao, cor, tagline, itens, ordem, ativo)\n                   VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id",
   "describe": {
     "columns": [
       {
@@ -16,6 +16,9 @@
         "Text",
         "Text",
         "Text",
+        "Text",
+        "Text",
+        "TextArray",
         "Int4",
         "Bool"
       ]
@@ -24,5 +27,5 @@
       false
     ]
   },
-  "hash": "b106ebff0f8e784d937aa2b0456dc1bc283ff1ae40b7b410a447da61819061f4"
+  "hash": "fc2504cf09bf93bc9bc386416392c9f8c59023d0523efca9ddcb0eb43d8c7881"
 }

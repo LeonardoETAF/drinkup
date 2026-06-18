@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT id, nome, logo_url, site_url, descricao, ordem, ativo\n           FROM parceiros WHERE id = $1",
+  "query": "SELECT id, nome, logo_url, site_url, descricao, cor, tagline,\n                  itens AS \"itens!: Vec<String>\", ordem, ativo\n           FROM parceiros WHERE id = $1",
   "describe": {
     "columns": [
       {
@@ -30,11 +30,26 @@
       },
       {
         "ordinal": 5,
+        "name": "cor",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "tagline",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "itens!: Vec<String>",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 8,
         "name": "ordem",
         "type_info": "Int4"
       },
       {
-        "ordinal": 6,
+        "ordinal": 9,
         "name": "ativo",
         "type_info": "Bool"
       }
@@ -50,9 +65,12 @@
       true,
       true,
       true,
+      true,
+      true,
+      false,
       false,
       false
     ]
   },
-  "hash": "e6a46baca1ca7dfe957e61eb496c5b0c09d22fbdfb9f87ea2c2948c07230b98c"
+  "hash": "30286e3d9c1532b0a19228e7938156a0f7b54177be043bb6cbf2ad56bbc93a2a"
 }

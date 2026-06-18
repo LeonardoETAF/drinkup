@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE parceiros SET nome = $2, logo_url = $3, site_url = $4,\n                    descricao = $5, cor = $6, tagline = $7, itens = $8,\n                    ordem = $9, ativo = $10 WHERE id = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "TextArray",
+        "Int4",
+        "Bool"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "cf210083e221e58e67518b4c990dd1f952a8e2eaa3562ebb1c593e74dbc2ef5b"
+}

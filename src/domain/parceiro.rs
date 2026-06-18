@@ -7,4 +7,10 @@ pub struct ParceiroPublico {
     pub logo_url: Option<String>,
     pub site_url: Option<String>,
     pub descricao: Option<String>,
+    /// Cor da marca (showcase). `None` => cor padrão cíclica.
+    pub cor: Option<String>,
+    /// Segmento/assinatura curta (ex.: "Tecnologia em delivery").
+    pub tagline: Option<String>,
+    /// Produtos-exemplo (nomes) exibidos na vitrine da marca.
+    pub itens: Vec<String>,
 }

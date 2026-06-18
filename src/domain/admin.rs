@@ -118,6 +118,9 @@ pub struct ParceiroForm {
     pub logo_url: Option<String>,
     pub site_url: Option<String>,
     pub descricao: Option<String>,
+    pub cor: Option<String>,
+    pub tagline: Option<String>,
+    pub itens: Vec<String>,
     pub ordem: i32,
     pub ativo: bool,
 }

@@ -26,6 +26,9 @@ pub fn AdminParceiroForm() -> impl IntoView {
     let logo_url = RwSignal::new(None::<String>);
     let enviando_img = RwSignal::new(false);
     let erro_img = RwSignal::new(None::<String>);
+    let cor = RwSignal::new("#ff0070".to_string());
+    let tagline = RwSignal::new(String::new());
+    let itens = RwSignal::new(String::new());
 
     Effect::new(move |_| {
         let Some(pid) = id() else { return };
@@ -37,6 +40,9 @@ pub fn AdminParceiroForm() -> impl IntoView {
                 ordem.set(f.ordem.to_string());
                 ativo.set(f.ativo);
                 logo_url.set(f.logo_url);
+                cor.set(f.cor.unwrap_or_else(|| "#ff0070".to_string()));
+                tagline.set(f.tagline.unwrap_or_default());
+                itens.set(f.itens.join("\n"));
             }
         });
     });
@@ -71,6 +77,14 @@ pub fn AdminParceiroForm() -> impl IntoView {
             logo_url: logo_url.get_untracked(),
             site_url: opt(site_url.get_untracked()),
             descricao: opt(descricao.get_untracked()),
+            cor: opt(cor.get_untracked()),
+            tagline: opt(tagline.get_untracked()),
+            itens: itens
+                .get_untracked()
+                .lines()
+                .map(|l| l.trim().to_string())
+                .filter(|l| !l.is_empty())
+                .collect(),
             ordem: ordem.get_untracked().trim().parse::<i32>().unwrap_or(0),
             ativo: ativo.get_untracked(),
         };
@@ -184,6 +198,39 @@ pub fn AdminParceiroForm() -> impl IntoView {
                     rows="3"
                     prop:value=move || descricao.get()
                     on:input=move |ev| descricao.set(event_target_value(&ev))
+                ></textarea>
+            </label>
+
+            <p class="admin-fieldset__titulo">"Showcase da marca"</p>
+            <div class="admin-form__grid">
+                <label class="field">
+                    <span class="field__label">"Cor da marca"</span>
+                    <input
+                        class="admin-input admin-input--cor"
+                        type="color"
+                        prop:value=move || cor.get()
+                        on:input=move |ev| cor.set(event_target_value(&ev))
+                    />
+                </label>
+                <label class="field">
+                    <span class="field__label">"Segmento (tagline)"</span>
+                    <input
+                        class="admin-input"
+                        type="text"
+                        placeholder="Ex.: Tecnologia em delivery"
+                        prop:value=move || tagline.get()
+                        on:input=move |ev| tagline.set(event_target_value(&ev))
+                    />
+                </label>
+            </div>
+            <label class="field">
+                <span class="field__label">"Produtos-exemplo (um por linha)"</span>
+                <textarea
+                    class="admin-input"
+                    rows="4"
+                    placeholder="Caldereta Full Color 550ML&#10;Long Drink Personalizado"
+                    prop:value=move || itens.get()
+                    on:input=move |ev| itens.set(event_target_value(&ev))
                 ></textarea>
             </label>
 

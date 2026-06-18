@@ -10,7 +10,8 @@ use crate::server::produtos_admin::slugify;
 pub async fn listar_publicos(pool: &PgPool) -> Result<Vec<ParceiroPublico>, sqlx::Error> {
     sqlx::query_as!(
         ParceiroPublico,
-        r#"SELECT nome AS "nome!", logo_url, site_url, descricao
+        r#"SELECT nome AS "nome!", logo_url, site_url, descricao, cor, tagline,
+                  itens AS "itens!: Vec<String>"
            FROM parceiros WHERE ativo = true ORDER BY ordem, nome"#
     )
     .fetch_all(pool)
@@ -36,7 +37,8 @@ pub async fn listar(pool: &PgPool, busca: Option<&str>) -> Result<Vec<ParceiroLi
 /// Carrega um parceiro para edição.
 pub async fn obter_form(pool: &PgPool, id: Uuid) -> Result<Option<ParceiroForm>, sqlx::Error> {
     let row = sqlx::query!(
-        r#"SELECT id, nome, logo_url, site_url, descricao, ordem, ativo
+        r#"SELECT id, nome, logo_url, site_url, descricao, cor, tagline,
+                  itens AS "itens!: Vec<String>", ordem, ativo
            FROM parceiros WHERE id = $1"#,
         id
     )
@@ -49,6 +51,9 @@ pub async fn obter_form(pool: &PgPool, id: Uuid) -> Result<Option<ParceiroForm>,
         logo_url: r.logo_url,
         site_url: r.site_url,
         descricao: r.descricao,
+        cor: r.cor,
+        tagline: r.tagline,
+        itens: r.itens,
         ordem: r.ordem,
         ativo: r.ativo,
     }))
@@ -60,17 +65,34 @@ pub async fn salvar(pool: &PgPool, form: &ParceiroForm) -> Result<Uuid, AppError
     if nome.is_empty() || nome.chars().count() > 160 {
         return Err(AppError::Validation);
     }
+    let cor = form.cor.as_deref().map(str::trim).filter(|s| !s.is_empty());
+    let tagline = form
+        .tagline
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty());
+    // Limpa os produtos-exemplo: trim + remove linhas vazias.
+    let itens: Vec<String> = form
+        .itens
+        .iter()
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+        .collect();
 
     let id = match form.id {
         Some(id) => {
             sqlx::query!(
                 r#"UPDATE parceiros SET nome = $2, logo_url = $3, site_url = $4,
-                    descricao = $5, ordem = $6, ativo = $7 WHERE id = $1"#,
+                    descricao = $5, cor = $6, tagline = $7, itens = $8,
+                    ordem = $9, ativo = $10 WHERE id = $1"#,
                 id,
                 nome,
                 form.logo_url.as_deref(),
                 form.site_url.as_deref(),
                 form.descricao.as_deref(),
+                cor,
+                tagline,
+                &itens[..],
                 form.ordem,
                 form.ativo,
             )
@@ -82,13 +104,17 @@ pub async fn salvar(pool: &PgPool, form: &ParceiroForm) -> Result<Uuid, AppError
         None => {
             let slug = slug_unico(pool, &slugify(nome)).await?;
             sqlx::query_scalar!(
-                r#"INSERT INTO parceiros (nome, slug, logo_url, site_url, descricao, ordem, ativo)
-                   VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id"#,
+                r#"INSERT INTO parceiros
+                     (nome, slug, logo_url, site_url, descricao, cor, tagline, itens, ordem, ativo)
+                   VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id"#,
                 nome,
                 slug,
                 form.logo_url.as_deref(),
                 form.site_url.as_deref(),
                 form.descricao.as_deref(),
+                cor,
+                tagline,
+                &itens[..],
                 form.ordem,
                 form.ativo,
             )
