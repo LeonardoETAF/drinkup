@@ -14,15 +14,25 @@ leptos_meta = { version = "0.8.0" }
 
 # --- Servidor (feature `ssr`) ---
 leptos_axum = { version = "0.8.0", optional = true }
-axum = { version = "0.8.0", optional = true }
-tokio = { version = "1", features = ["rt-multi-thread", "macros"], optional = true }
+axum = { version = "0.8.0", features = ["multipart"], optional = true }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "fs"], optional = true }
+tower-http = { version = "0.6", features = ["fs"], optional = true }
 tracing = { version = "0.1", optional = true }
 tracing-subscriber = { version = "0.3", features = ["env-filter"], optional = true }
 
 # --- Cliente (feature `hydrate`) ---
 wasm-bindgen = { version = "=0.2.106", optional = true }
 console_error_panic_hook = { version = "0.1", optional = true }
-web-sys = { version = "0.3", optional = true, features = ["Window", "Storage"] }
+gloo-net = { version = "0.6", optional = true }
+web-sys = { version = "0.3", optional = true, features = [
+    "Window",
+    "Storage",
+    "Event",
+    "HtmlInputElement",
+    "File",
+    "FileList",
+    "FormData",
+] }
 
 # --- Compartilhado (cliente + servidor) ---
 serde = { version = "1", features = ["derive"] }
@@ -53,6 +63,7 @@ hydrate = [
     "dep:console_error_panic_hook",
     "dep:wasm-bindgen",
     "dep:web-sys",
+    "dep:gloo-net",
 ]
 ssr = [
     "dep:axum",
@@ -65,6 +76,7 @@ ssr = [
     "dep:dotenvy",
     "dep:tower-sessions",
     "dep:tower-sessions-sqlx-store",
+    "dep:tower-http",
     "dep:time",
     "leptos/ssr",
     "leptos_meta/ssr",

@@ -4,13 +4,16 @@
 #[cfg(feature = "ssr")]
 #[tokio::main]
 async fn main() {
+    use axum::extract::DefaultBodyLimit;
+    use axum::routing::post;
     use axum::Router;
     use drinkup::app::{shell, App};
-    use drinkup::server::db;
+    use drinkup::server::{db, uploads};
     use leptos::logging::log;
     use leptos::prelude::*;
     use leptos_axum::{generate_route_list, LeptosRoutes};
     use time::Duration;
+    use tower_http::services::ServeDir;
     use tower_sessions::cookie::SameSite;
     use tower_sessions::{Expiry, SessionManagerLayer};
     use tower_sessions_sqlx_store::PostgresStore;
@@ -48,12 +51,17 @@ async fn main() {
         .with_secure(!cfg!(debug_assertions)) // Secure em release (HTTPS), liberado em dev
         .with_expiry(Expiry::OnInactivity(Duration::days(7)));
 
+    // Garante o diretório de uploads (servido em /uploads).
+    let _ = tokio::fs::create_dir_all(uploads::DIR_UPLOADS).await;
+
     let conf = get_configuration(None).expect("falha ao ler a configuração do Leptos");
     let leptos_options = conf.leptos_options;
     let addr = leptos_options.site_addr;
     let routes = generate_route_list(App);
 
     let app = Router::new()
+        .route("/upload-imagem", post(upload_handler))
+        .nest_service("/uploads", ServeDir::new(uploads::DIR_UPLOADS))
         .leptos_routes_with_context(
             &leptos_options,
             routes,
@@ -68,6 +76,7 @@ async fn main() {
             },
         )
         .fallback(leptos_axum::file_and_error_handler(shell))
+        .layer(DefaultBodyLimit::max(6 * 1024 * 1024))
         .layer(axum::middleware::from_fn(guarda_admin))
         .layer(session_layer)
         .with_state(leptos_options);
@@ -106,6 +115,44 @@ async fn guarda_admin(
         }
     }
     next.run(req).await
+}
+
+/// Recebe upload de imagem (multipart). Exige login; valida tipo/tamanho no
+/// servidor e grava num caminho controlado. Responde com a URL pública (texto).
+#[cfg(feature = "ssr")]
+async fn upload_handler(
+    session: tower_sessions::Session,
+    mut multipart: axum::extract::Multipart,
+) -> axum::response::Response {
+    use axum::http::StatusCode;
+    use axum::response::IntoResponse;
+
+    let autenticado = session
+        .get::<uuid::Uuid>("uid")
+        .await
+        .unwrap_or(None)
+        .is_some();
+    if !autenticado {
+        return (StatusCode::UNAUTHORIZED, "Não autenticado.").into_response();
+    }
+
+    while let Ok(Some(field)) = multipart.next_field().await {
+        if field.name() != Some("imagem") {
+            continue;
+        }
+        let Ok(bytes) = field.bytes().await else {
+            return (StatusCode::BAD_REQUEST, "Falha ao ler o arquivo.").into_response();
+        };
+        return match drinkup::server::uploads::salvar_imagem(&bytes).await {
+            Ok(url) => (StatusCode::OK, url).into_response(),
+            Err(_) => (
+                StatusCode::BAD_REQUEST,
+                "Imagem inválida (use JPG, PNG ou WEBP até 5MB).",
+            )
+                .into_response(),
+        };
+    }
+    (StatusCode::BAD_REQUEST, "Nenhum arquivo enviado.").into_response()
 }
 
 #[cfg(not(feature = "ssr"))]
