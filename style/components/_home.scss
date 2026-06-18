@@ -44,6 +44,7 @@
   line-height: 0.9;
   letter-spacing: 0.02em;
   white-space: nowrap;
+  -webkit-text-stroke: 0.9px currentColor;
 }
 
 .hero__kicker {
@@ -85,6 +86,7 @@ img.hero__slogan {
   height: clamp(11px, 1.3vw, 16px);
   width: auto;
   display: block;
+  margin-top: var(--space-4);
 }
 
 .btn--link {
@@ -102,7 +104,7 @@ img.hero__slogan {
   top: 50%;
   right: 0;
   transform: translateY(-50%);
-  width: clamp(170px, 21vw, 280px);
+  width: clamp(130px, 16vw, 220px);
   height: auto;
   object-fit: contain;
   z-index: 0;
