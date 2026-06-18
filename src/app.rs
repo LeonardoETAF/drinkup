@@ -41,6 +41,7 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
 #[component]
 pub fn App() -> impl IntoView {
     provide_meta_context();
+    definir_csp();
 
     view! {
         <Stylesheet id="leptos" href="/pkg/drinkup.css"/>
@@ -120,6 +121,31 @@ pub fn App() -> impl IntoView {
         </Router>
     }
 }
+
+/// Define a Content-Security-Policy (baseada em nonce) na resposta — apenas em
+/// SSR/release. Em dev é no-op para não interferir no live-reload do cargo-leptos.
+/// O nonce é o mesmo que o Leptos injeta nos `<script>` da hidratação.
+#[cfg(all(feature = "ssr", not(debug_assertions)))]
+fn definir_csp() {
+    use leptos::nonce::use_nonce;
+    use leptos_axum::ResponseOptions;
+
+    let Some(nonce) = use_nonce() else { return };
+    let csp = format!(
+        "default-src 'self'; base-uri 'self'; object-src 'none'; \
+         frame-ancestors 'none'; form-action 'self'; img-src 'self' data:; \
+         font-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; \
+         script-src 'self' 'wasm-unsafe-eval' 'nonce-{nonce}'"
+    );
+    if let Ok(valor) = axum::http::HeaderValue::from_str(&csp) {
+        expect_context::<ResponseOptions>()
+            .insert_header(axum::http::header::CONTENT_SECURITY_POLICY, valor);
+    }
+}
+
+/// No-op em hidratação (cliente) e em dev.
+#[cfg(not(all(feature = "ssr", not(debug_assertions))))]
+fn definir_csp() {}
 
 /// Layout do site público: cabeçalho + conteúdo (Outlet) + rodapé.
 #[component]

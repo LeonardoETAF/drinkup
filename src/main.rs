@@ -79,6 +79,8 @@ async fn main() {
         .layer(DefaultBodyLimit::max(6 * 1024 * 1024))
         .layer(axum::middleware::from_fn(guarda_admin))
         .layer(session_layer)
+        .layer(axum::middleware::from_fn(verifica_origem))
+        .layer(axum::middleware::from_fn(cabecalhos_seguranca))
         .with_state(leptos_options);
 
     log!("DRINKUP ouvindo em http://{addr}");
@@ -88,6 +90,83 @@ async fn main() {
     axum::serve(listener, app.into_make_service())
         .await
         .expect("falha ao iniciar o servidor");
+}
+
+/// Adiciona cabeçalhos de segurança a todas as respostas. HSTS só em release
+/// (produção/HTTPS). A CSP é definida no render (com nonce), não aqui.
+#[cfg(feature = "ssr")]
+async fn cabecalhos_seguranca(
+    req: axum::extract::Request,
+    next: axum::middleware::Next,
+) -> axum::response::Response {
+    use axum::http::{header, HeaderName, HeaderValue};
+
+    let mut resp = next.run(req).await;
+    let h = resp.headers_mut();
+    h.insert(
+        header::X_CONTENT_TYPE_OPTIONS,
+        HeaderValue::from_static("nosniff"),
+    );
+    h.insert(
+        header::REFERRER_POLICY,
+        HeaderValue::from_static("strict-origin-when-cross-origin"),
+    );
+    h.insert(header::X_FRAME_OPTIONS, HeaderValue::from_static("DENY"));
+    h.insert(
+        HeaderName::from_static("permissions-policy"),
+        HeaderValue::from_static("camera=(), microphone=(), geolocation=(), browsing-topics=()"),
+    );
+    h.insert(
+        HeaderName::from_static("cross-origin-opener-policy"),
+        HeaderValue::from_static("same-origin"),
+    );
+    if !cfg!(debug_assertions) {
+        h.insert(
+            header::STRICT_TRANSPORT_SECURITY,
+            HeaderValue::from_static("max-age=63072000; includeSubDomains"),
+        );
+    }
+    resp
+}
+
+/// Mitiga CSRF (defesa em profundidade, além do cookie `SameSite=Lax`): em
+/// requisições mutáveis para `/api/*` e `/upload-imagem`, se houver cabeçalho
+/// `Origin`, ele precisa casar com o `Host`. Sem `Origin` (ex.: clientes não-
+/// navegador) segue normalmente.
+#[cfg(feature = "ssr")]
+async fn verifica_origem(
+    req: axum::extract::Request,
+    next: axum::middleware::Next,
+) -> axum::response::Response {
+    use axum::http::{header, Method, StatusCode};
+    use axum::response::IntoResponse;
+
+    let mutavel = matches!(
+        *req.method(),
+        Method::POST | Method::PUT | Method::PATCH | Method::DELETE
+    );
+    let path = req.uri().path();
+    let alvo = path.starts_with("/api/") || path == "/upload-imagem";
+
+    if mutavel && alvo {
+        if let Some(origin) = req
+            .headers()
+            .get(header::ORIGIN)
+            .and_then(|v| v.to_str().ok())
+        {
+            let host = req
+                .headers()
+                .get(header::HOST)
+                .and_then(|v| v.to_str().ok())
+                .unwrap_or_default();
+            let autoridade = origin.split_once("://").map(|(_, a)| a).unwrap_or_default();
+            if host.is_empty() || autoridade != host {
+                tracing::warn!(%origin, %host, "origem rejeitada (possível CSRF)");
+                return (StatusCode::FORBIDDEN, "Origem inválida.").into_response();
+            }
+        }
+    }
+    next.run(req).await
 }
 
 /// Guarda de rota server-side: barra acesso não autenticado a `/admin/*`
