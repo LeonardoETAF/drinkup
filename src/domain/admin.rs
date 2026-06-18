@@ -35,3 +35,32 @@ pub struct PaginaLeads {
     pub itens: Vec<LeadResumo>,
     pub total: i64,
 }
+
+/// Produto na listagem do painel.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ProdutoLista {
+    pub id: Uuid,
+    pub nome: String,
+    pub categoria: Option<String>,
+    pub capacidade_ml: Option<i32>,
+    pub ativo: bool,
+    pub imagem_url: Option<String>,
+}
+
+/// Formulário de produto (criar/editar). `id = None` => criação.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
+pub struct ProdutoForm {
+    pub id: Option<Uuid>,
+    pub nome: String,
+    pub categoria_id: Option<Uuid>,
+    pub descricao: Option<String>,
+    pub capacidade_ml: Option<i32>,
+    pub material: Option<String>,
+    pub cor: Option<String>,
+    pub altura_mm: Option<i32>,
+    pub diametro_mm: Option<i32>,
+    pub personalizavel: bool,
+    pub destaque: bool,
+    pub ativo: bool,
+    pub imagem_url: Option<String>,
+}

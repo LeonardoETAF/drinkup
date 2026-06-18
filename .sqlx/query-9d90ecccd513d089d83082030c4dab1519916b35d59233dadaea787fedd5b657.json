@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT p.id AS \"id!\", p.nome AS \"nome!\", c.nome AS \"categoria?\",\n               p.capacidade_ml, p.ativo AS \"ativo!\",\n               (SELECT url FROM produto_imagens pi\n                  WHERE pi.produto_id = p.id AND pi.principal LIMIT 1) AS \"imagem_url?\"\n        FROM produtos p\n        LEFT JOIN categorias c ON c.id = p.categoria_id\n        WHERE ($1::text IS NULL OR p.nome ILIKE '%' || $1 || '%')\n        ORDER BY p.nome\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "nome!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "categoria?",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "capacidade_ml",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "ativo!",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "imagem_url?",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      null
+    ]
+  },
+  "hash": "9d90ecccd513d089d83082030c4dab1519916b35d59233dadaea787fedd5b657"
+}

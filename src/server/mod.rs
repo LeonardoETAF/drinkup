@@ -8,5 +8,6 @@ pub mod dashboard;
 pub mod db;
 pub mod leads;
 pub mod products;
+pub mod produtos_admin;
 pub mod quotes;
 pub mod rbac;

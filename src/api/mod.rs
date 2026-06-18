@@ -5,3 +5,4 @@ pub mod admin;
 pub mod auth;
 pub mod catalogo;
 pub mod orcamento;
+pub mod produtos_admin;

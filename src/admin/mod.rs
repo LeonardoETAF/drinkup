@@ -5,6 +5,8 @@ mod em_construcao;
 mod layout;
 mod leads;
 mod login;
+mod produto_form;
+mod produtos;
 mod recuperar;
 mod util;
 
@@ -13,4 +15,6 @@ pub use em_construcao::AdminEmBreve;
 pub use layout::AdminLayout;
 pub use leads::AdminLeads;
 pub use login::AdminLoginPage;
+pub use produto_form::AdminProdutoForm;
+pub use produtos::AdminProdutos;
 pub use recuperar::AdminRecuperarSenhaPage;

@@ -32,20 +32,8 @@ pub fn AdminLayout() -> impl IntoView {
     let saiu = move || matches!(sair.value().get(), Some(Ok(())));
     let nao_auth = move || matches!(usuario.get(), Some(None));
 
-    let nome = move || {
-        usuario
-            .get()
-            .flatten()
-            .map(|u| u.nome)
-            .unwrap_or_default()
-    };
-    let papel = move || {
-        usuario
-            .get()
-            .flatten()
-            .map(|u| u.papel)
-            .unwrap_or_default()
-    };
+    let nome = move || usuario.get().flatten().map(|u| u.nome).unwrap_or_default();
+    let papel = move || usuario.get().flatten().map(|u| u.papel).unwrap_or_default();
     let avatar = move || {
         usuario
             .get()
