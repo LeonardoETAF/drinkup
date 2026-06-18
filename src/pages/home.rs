@@ -100,36 +100,40 @@ fn Hero() -> impl IntoView {
 
 #[component]
 fn DoSeuJeito(eventos: Resource<Result<Vec<EventoCarrossel>, ServerFnError>>) -> impl IntoView {
-    let trilho = NodeRef::<leptos::html::Div>::new();
-    let rolar = move |dx: f64| {
-        let _ = dx;
-        #[cfg(feature = "hydrate")]
-        if let Some(el) = trilho.get() {
-            el.scroll_by_with_x_and_y(dx, 0.0);
-        }
-    };
+    let ativo = RwSignal::new(1usize);
+    let total = RwSignal::new(0usize);
 
     view! {
         <section class="jeito">
-            <div class="container jeito__head">
-                <span class="kicker kicker--center">"Do seu jeito"</span>
-                <h2 class="secao__titulo">"Para cada momento"</h2>
+            <div class="jeito__head">
+                <span class="jeito__dash jeito__dash--lime"></span>
+                <h2 class="jeito__titulo">"Do seu jeito"</h2>
+                <span class="jeito__dash jeito__dash--cyan"></span>
             </div>
-            <div class="jeito__wrap container">
+            <div class="jeito__palco">
                 <button
                     class="carrossel-seta carrossel-seta--prev"
                     aria-label="Anterior"
                     inner_html=IC_PREV
-                    on:click=move |_| rolar(-320.0)
+                    on:click=move |_| ativo.update(|a| if *a > 0 { *a -= 1 })
                 ></button>
-                <div class="jeito__trilho" node_ref=trilho>
+                <div class="jeito__stage">
                     <Suspense fallback=move || {
                         view! { <p class="catalog-status">"Carregando..."</p> }
                     }>
                         {move || Suspend::new(async move {
                             match eventos.await {
                                 Ok(itens) if !itens.is_empty() => {
-                                    itens.into_iter().map(carrossel_card).collect_view().into_any()
+                                    total.set(itens.len());
+                                    if ativo.get_untracked() >= itens.len() {
+                                        ativo.set(itens.len() / 2);
+                                    }
+                                    itens
+                                        .into_iter()
+                                        .enumerate()
+                                        .map(|(i, e)| carrossel_card(i, e, ativo))
+                                        .collect_view()
+                                        .into_any()
                                 }
                                 _ => ().into_any(),
                             }
@@ -140,23 +144,42 @@ fn DoSeuJeito(eventos: Resource<Result<Vec<EventoCarrossel>, ServerFnError>>) ->
                     class="carrossel-seta carrossel-seta--next"
                     aria-label="Próximo"
                     inner_html=IC_NEXT
-                    on:click=move |_| rolar(320.0)
+                    on:click=move |_| ativo.update(|a| if *a + 1 < total.get() { *a += 1 })
                 ></button>
             </div>
         </section>
     }
 }
 
-fn carrossel_card(e: EventoCarrossel) -> impl IntoView {
+fn carrossel_card(i: usize, e: EventoCarrossel, ativo: RwSignal<usize>) -> impl IntoView {
     let cor = e.cor.clone().unwrap_or_else(|| "#262626".to_string());
-    let estilo = match &e.imagem_url {
+    let fundo = match &e.imagem_url {
         Some(u) => format!("background-image:url('{}')", crate::components::responsiva(u).0),
         None => format!("background:{cor}"),
     };
+    let estilo = move || {
+        let off = i as i32 - ativo.get() as i32;
+        let a = off.abs();
+        let x = off as f64 * 58.0;
+        let escala = if off == 0 { 1.0 } else { 0.8 };
+        let op = if a == 0 {
+            1.0
+        } else if a == 1 {
+            0.5
+        } else {
+            0.0
+        };
+        let vis = if a <= 1 { "visible" } else { "hidden" };
+        let z = 5 - a;
+        format!(
+            "{fundo}; transform: translate(-50%, -50%) translateX({x}%) scale({escala}); \
+             opacity: {op}; z-index: {z}; visibility: {vis};"
+        )
+    };
     view! {
-        <a class="evt-card" href="/contato" style=estilo>
-            <span class="evt-card__label" style=format!("--cor:{cor}")>{e.titulo}</span>
-        </a>
+        <div class="jeito-card" style=estilo on:click=move |_| ativo.set(i)>
+            <span class="jeito-card__label">{e.titulo}</span>
+        </div>
     }
 }
 
