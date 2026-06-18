@@ -172,7 +172,8 @@ fn carrossel_card(i: usize, e: EventoCarrossel, ativo: RwSignal<usize>) -> impl 
         let vis = if a <= 1 { "visible" } else { "hidden" };
         let z = 5 - a;
         format!(
-            "{fundo}; transform: translate(-50%, -50%) translateX({x}%) scale({escala}); \
+            "{fundo}; --cor: {cor}; \
+             transform: translate(-50%, -50%) translateX({x}%) scale({escala}); \
              opacity: {op}; z-index: {z}; visibility: {vis};"
         )
     };

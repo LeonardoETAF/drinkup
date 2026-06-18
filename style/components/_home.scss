@@ -221,7 +221,12 @@ img.hero__slogan {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, transparent 45%, rgba(0, 0, 0, 0.5));
+  background: linear-gradient(
+    180deg,
+    transparent 38%,
+    color-mix(in srgb, var(--cor, #000) 70%, transparent) 70%,
+    var(--cor, rgba(0, 0, 0, 0.6)) 100%
+  );
 }
 
 .jeito-card__label {
