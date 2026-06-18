@@ -1,0 +1,13 @@
+# Mantém o contexto de build pequeno. NÃO ignorar `.sqlx/` nem `migrations/`
+# (necessários para o build offline e para as migrations embutidas).
+/target
+/.git
+/.github
+.env
+.env.*
+!.env.example
+/uploads
+/tmp
+*.log
+/.vscode
+/.idea

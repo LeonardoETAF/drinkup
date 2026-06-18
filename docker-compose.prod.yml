@@ -1,0 +1,43 @@
+# Produção: app (DRINKUP) + PostgreSQL. Use com um arquivo `.env` ao lado.
+#   docker compose -f docker-compose.prod.yml up -d --build
+#
+# O app fica atrás de um proxy reverso (TLS/HTTPS + rate-limit) — por isso a
+# porta é publicada só em 127.0.0.1. Veja docs/DEPLOY.md.
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: drinkup_db_prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: drinkup
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
+      POSTGRES_DB: drinkup
+    volumes:
+      - drinkup_prod_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U drinkup"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    image: drinkup:latest
+    container_name: drinkup_app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://drinkup:${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}@db:5432/drinkup
+      SESSION_SECRET: ${SESSION_SECRET:?defina SESSION_SECRET no .env}
+      RUST_LOG: ${RUST_LOG:-info}
+    # Exposto apenas no loopback do host; o proxy reverso encaminha para cá.
+    ports:
+      - "127.0.0.1:${DRINKUP_APP_PORT:-3000}:3000"
+    volumes:
+      - drinkup_prod_uploads:/app/uploads
+
+volumes:
+  drinkup_prod_db_data:
+  drinkup_prod_uploads:
