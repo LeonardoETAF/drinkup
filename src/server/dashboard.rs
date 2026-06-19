@@ -206,6 +206,7 @@ pub async fn resumo(
         SELECT caminho AS "caminho!", count(*) AS "total!"
         FROM visitas, per
         WHERE created_at >= per.d0 AND created_at < per.d0 + per.passo
+          AND caminho IN ('/', '/quem-somos', '/produtos', '/parceiros', '/contato')
         GROUP BY caminho ORDER BY count(*) DESC LIMIT 5
         "#,
         ano,
