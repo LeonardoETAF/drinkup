@@ -46,3 +46,19 @@
 [data-theme="light"] .admin-side {
   background: var(--color-surface);
 }
+
+/* ===== Seções de fundo escuro no tema claro ===== */
+
+/* O hero segue um banner escuro (doodles + marca "//"); só garantimos que o
+   texto continue claro no tema light. */
+[data-theme="light"] .hero {
+  --color-text: #f5f5f5;
+  --color-text-muted: #b9bdc6;
+}
+
+/* Depoimentos: vira seção clara no tema claro (sem o overlay escuro);
+   título/cards já usam tokens e ficam legíveis. */
+[data-theme="light"] .depo-secao {
+  background-image: none;
+  background-color: var(--color-bg);
+}
