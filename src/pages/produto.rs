@@ -97,7 +97,7 @@ fn DetalheProduto(produto: ProdutoDetalhe) -> impl IntoView {
             .capacidade_ml
             .map(|v| ("Capacidade", format!("{v} ml"))),
         produto.material.clone().map(|v| ("Material", v)),
-        produto.cor.clone().map(|v| ("Cor", v)),
+        produto.cor.clone().map(|v| ("Cores", v)),
         produto.altura_mm.map(|v| ("Altura", format!("{v} mm"))),
         produto.diametro_mm.map(|v| ("Diâmetro", format!("{v} mm"))),
         Some((
