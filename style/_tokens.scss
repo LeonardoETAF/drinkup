@@ -69,7 +69,26 @@
   /* === Layout === */
   --container-max: 1200px;
   --header-h: 76px;
+  --header-bg: rgba(10, 10, 10, 0.85);
 
   /* === Movimento === */
   --transition: 160ms ease;
+}
+
+/* ===== Tema claro (o escuro acima é o padrão) ===== */
+[data-theme="light"] {
+  --color-bg: #f2f3f5;
+  --color-surface: #ffffff;
+  --color-surface-2: #f4f5f7;
+  --color-surface-3: #eceef2;
+  --color-border: #e1e4ea;
+
+  --color-text: #15171c;
+  --color-text-muted: #5b636f;
+
+  --shadow-sm: 0 1px 2px rgba(20, 23, 33, 0.06);
+  --shadow: 0 10px 28px rgba(20, 23, 33, 0.1);
+  --shadow-lime: 0 8px 30px rgba(200, 212, 0, 0.3);
+
+  --header-bg: rgba(255, 255, 255, 0.88);
 }

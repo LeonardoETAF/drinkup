@@ -1,5 +1,6 @@
 use leptos::prelude::*;
 
+use super::tema::BotaoTema;
 use crate::api::config::obter_contato;
 use crate::domain::link_whatsapp;
 
@@ -30,7 +31,20 @@ pub fn SiteHeader() -> impl IntoView {
         <header class="site-header">
             <div class="container site-header__inner">
                 <a href="/" class="site-header__logo" aria-label="DRINK UP — início">
-                    <img src="/brand/logo-branca.png" alt="DRINK UP" width="135" height="30"/>
+                    <img
+                        class="logo-dark"
+                        src="/brand/logo-branca.png"
+                        alt="DRINK UP"
+                        width="135"
+                        height="30"
+                    />
+                    <img
+                        class="logo-light"
+                        src="/brand/logo-preta.png"
+                        alt="DRINK UP"
+                        width="135"
+                        height="30"
+                    />
                 </a>
 
                 <button
@@ -52,6 +66,7 @@ pub fn SiteHeader() -> impl IntoView {
                         <a href="/contato" on:click=move |_| close()>"Contato"</a>
                     </nav>
                     <div class="site-header__actions">
+                        <BotaoTema/>
                         <a
                             href=link_orcamento
                             class="btn btn--primary btn--sm"

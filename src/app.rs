@@ -17,8 +17,16 @@ use crate::pages::{
     ContatoPage, HomePage, ParceirosPage, ProdutoPage, ProdutosPage, QuemSomosPage,
 };
 
+/// Script (inline) que aplica o tema salvo antes da primeira pintura, evitando
+/// "flash" do tema padrão. Sem `<`/`>`/`&` para passar intacto no HTML.
+const TEMA_INIT: &str = "(function(){try{if(localStorage.getItem('tema')==='light'){document.documentElement.setAttribute('data-theme','light')}}catch(e){}})()";
+
 /// Documento HTML renderizado no servidor (SSR).
 pub fn shell(options: LeptosOptions) -> impl IntoView {
+    #[cfg(feature = "ssr")]
+    let nonce = leptos::nonce::use_nonce().map(|n| n.to_string());
+    #[cfg(not(feature = "ssr"))]
+    let nonce: Option<String> = None;
     view! {
         <!DOCTYPE html>
         <html lang="pt-BR">
@@ -26,6 +34,7 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
                 <meta charset="utf-8"/>
                 <meta name="viewport" content="width=device-width, initial-scale=1"/>
                 <link rel="icon" href="/favicon.png?v=2"/>
+                <script nonce=nonce>{TEMA_INIT}</script>
                 <AutoReload options=options.clone()/>
                 <HydrationScripts options/>
                 <MetaTags/>
@@ -47,7 +56,7 @@ pub fn App() -> impl IntoView {
     definir_csp();
 
     view! {
-        <Stylesheet id="leptos" href="/pkg/drinkup.css?v=32"/>
+        <Stylesheet id="leptos" href="/pkg/drinkup.css?v=33"/>
         <Title text="DRINK UP — Copos personalizados"/>
         <Router>
             <Routes fallback=NotFound>

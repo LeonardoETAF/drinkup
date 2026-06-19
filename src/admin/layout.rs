@@ -6,6 +6,7 @@ use leptos_router::hooks::use_location;
 use super::modal::ModalConfirmacao;
 use super::util::iniciais;
 use crate::api::auth::{logout, usuario_atual};
+use crate::components::BotaoTema;
 use crate::domain::UsuarioSessao;
 
 const IC_DASH: &str = r#"<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>"#;
@@ -57,7 +58,20 @@ pub fn AdminLayout() -> impl IntoView {
         <div class="admin">
             <aside class="admin-side">
                 <div class="admin-side__brand">
-                    <img src="/brand/logo-branca.png" alt="DRINK UP" width="120" height="27"/>
+                    <img
+                        class="logo-dark"
+                        src="/brand/logo-branca.png"
+                        alt="DRINK UP"
+                        width="120"
+                        height="27"
+                    />
+                    <img
+                        class="logo-light"
+                        src="/brand/logo-preta.png"
+                        alt="DRINK UP"
+                        width="120"
+                        height="27"
+                    />
                     <span class="admin-side__tag">"Admin"</span>
                 </div>
                 <nav class="admin-nav">
@@ -132,6 +146,7 @@ pub fn AdminLayout() -> impl IntoView {
                             <span class="admin-top__papel">{papel}</span>
                         </span>
                     </div>
+                    <BotaoTema/>
                 </header>
                 <main class="admin-main">
                     <Outlet/>

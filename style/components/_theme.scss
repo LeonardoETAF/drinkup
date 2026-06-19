@@ -1,0 +1,48 @@
+/* ===== Tema: botão de alternância e ajustes do tema claro ===== */
+
+/* Botão sol/lua (header público e topo do admin). */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  padding: 0;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  transition:
+    color var(--transition),
+    border-color var(--transition),
+    background var(--transition);
+}
+
+.theme-toggle:hover {
+  color: var(--color-lime);
+  border-color: var(--color-lime);
+}
+
+.theme-toggle svg {
+  display: block;
+}
+
+/* Troca de logo conforme o tema: escuro mostra a branca; claro, a preta. */
+.logo-light {
+  display: none;
+}
+
+[data-theme="light"] .logo-dark {
+  display: none;
+}
+
+[data-theme="light"] .logo-light {
+  display: block;
+}
+
+/* Painel admin no tema claro: sidebar clara (o texto/ícones já usam tokens). */
+[data-theme="light"] .admin-side {
+  background: var(--color-surface);
+}

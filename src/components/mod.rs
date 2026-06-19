@@ -9,6 +9,7 @@ pub(crate) mod product_card;
 mod seo;
 mod site_footer;
 mod site_header;
+mod tema;
 
 pub use filter_bar::FilterBar;
 pub use gallery::Gallery;
@@ -19,3 +20,4 @@ pub use product_card::ProductCard;
 pub use seo::{Seo, SITE_URL};
 pub use site_footer::SiteFooter;
 pub use site_header::SiteHeader;
+pub use tema::BotaoTema;
