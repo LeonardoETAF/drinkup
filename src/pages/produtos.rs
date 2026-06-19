@@ -45,8 +45,19 @@ pub fn ProdutosPage() -> impl IntoView {
         |f| async move { listar_produtos(f).await },
     );
 
-    // O título do catálogo não reflete a busca.
-    let titulo = "Todos";
+    // Título do catálogo: muda conforme a categoria selecionada (a busca não
+    // altera o título). Sem categoria → "Todos".
+    let titulo = move || match filtro.get().categoria_slug {
+        None => "Todos".to_string(),
+        Some(slug) => {
+            let bonito = slug.replace('-', " ");
+            categorias
+                .get()
+                .and_then(Result::ok)
+                .and_then(|cats| cats.into_iter().find(|c| c.slug == slug).map(|c| c.nome))
+                .unwrap_or(bonito)
+        }
+    };
 
     view! {
         <Seo
@@ -55,7 +66,7 @@ pub fn ProdutosPage() -> impl IntoView {
             para o seu evento. Veja o catálogo da DRINK UP e peça seu orçamento."
             caminho="/produtos"
         />
-        <section class="page-hero">
+        <section class="page-hero page-hero--doodles">
             <div class="container">
                 <span class="page-hero__kicker">"Catálogo"</span>
                 <h1 class="page-hero__title">{titulo}</h1>

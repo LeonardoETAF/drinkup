@@ -20,6 +20,25 @@
   margin-top: var(--space-2);
 }
 
+/* Variante com wallpaper de doodles (catálogo): banner escuro, texto claro. */
+.page-hero--doodles {
+  background-color: #141414;
+  background-image:
+    linear-gradient(rgba(10, 10, 10, 0.55), rgba(10, 10, 10, 0.68)),
+    url("/backgrounds/doodles3b.webp");
+  background-size: cover;
+  background-position: center;
+}
+
+.page-hero--doodles .page-hero__title {
+  color: #ffffff;
+}
+
+.page-hero--doodles .page-hero__kicker {
+  color: var(--color-lime);
+  opacity: 1;
+}
+
 /* ===== Barra de filtros ===== */
 .filter-bar {
   display: flex;
