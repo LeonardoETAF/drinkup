@@ -2,6 +2,7 @@ use leptos::prelude::*;
 use leptos::task::spawn_local;
 use uuid::Uuid;
 
+use super::modal::ModalConfirmacao;
 use crate::api::categorias_admin::{criar_categoria, excluir_categoria, listar_categorias_admin};
 use crate::domain::Categoria;
 
@@ -13,6 +14,8 @@ pub fn ModalCategorias(aberto: RwSignal<bool>) -> impl IntoView {
     let versao = RwSignal::new(0u32);
     let cats = RwSignal::new(None::<Vec<Categoria>>);
     let novo = RwSignal::new(String::new());
+    // Categoria aguardando confirmação de exclusão, ou None.
+    let cat_pendente = RwSignal::new(None::<Uuid>);
 
     Effect::new(move |_| {
         if !aberto.get() {
@@ -93,9 +96,7 @@ pub fn ModalCategorias(aberto: RwSignal<bool>) -> impl IntoView {
                                                     class="icon-btn icon-btn--danger"
                                                     title="Excluir"
                                                     inner_html=IC_DEL
-                                                    on:click=move |_| {
-                                                        excluir.dispatch(id);
-                                                    }
+                                                    on:click=move |_| cat_pendente.set(Some(id))
                                                 ></button>
                                             </li>
                                         }
@@ -118,5 +119,17 @@ pub fn ModalCategorias(aberto: RwSignal<bool>) -> impl IntoView {
                 </div>
             </div>
         </Show>
+        <ModalConfirmacao
+            aberto=Signal::derive(move || cat_pendente.get().is_some())
+            mensagem="Deseja excluir esta categoria?"
+            confirmar_texto="Excluir"
+            ao_cancelar=Callback::new(move |()| cat_pendente.set(None))
+            ao_confirmar=Callback::new(move |()| {
+                if let Some(id) = cat_pendente.get_untracked() {
+                    excluir.dispatch(id);
+                }
+                cat_pendente.set(None);
+            })
+        />
     }
 }

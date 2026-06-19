@@ -1,5 +1,7 @@
 use leptos::prelude::*;
 
+use super::modal::ModalConfirmacao;
+
 const IC_UPLOAD: &str = r#"<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>"#;
 
 /// Card de upload de imagem reutilizado no painel: mostra a dica de formato/tamanho,
@@ -14,6 +16,7 @@ pub fn CartaoUpload(
 ) -> impl IntoView {
     let enviando = RwSignal::new(false);
     let erro = RwSignal::new(false);
+    let rm_aberto = RwSignal::new(false);
 
     view! {
         <label class="upload-card" class:is-cheio=move || url.get().is_some()>
@@ -94,7 +97,7 @@ pub fn CartaoUpload(
                                 on:click=move |ev| {
                                     ev.prevent_default();
                                     ev.stop_propagation();
-                                    url.set(None);
+                                    rm_aberto.set(true);
                                 }
                             >
                                 "×"
@@ -103,5 +106,15 @@ pub fn CartaoUpload(
                     })
             }}
         </label>
+        <ModalConfirmacao
+            aberto=Signal::derive(move || rm_aberto.get())
+            mensagem="Deseja remover esta imagem?"
+            confirmar_texto="Remover"
+            ao_cancelar=Callback::new(move |()| rm_aberto.set(false))
+            ao_confirmar=Callback::new(move |()| {
+                rm_aberto.set(false);
+                url.set(None);
+            })
+        />
     }
 }

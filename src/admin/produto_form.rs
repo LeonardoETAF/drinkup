@@ -3,6 +3,7 @@ use leptos::task::spawn_local;
 use leptos_router::hooks::{use_navigate, use_params_map};
 use uuid::Uuid;
 
+use super::modal::ModalConfirmacao;
 use crate::api::catalogo::listar_categorias;
 use crate::api::produtos_admin::{obter_produto_admin, salvar_produto};
 use crate::domain::{Categoria, ProdutoForm};
@@ -40,6 +41,8 @@ pub fn AdminProdutoForm() -> impl IntoView {
     let destaque = RwSignal::new(false);
     let ativo = RwSignal::new(true);
     let imagens = RwSignal::new(Vec::<String>::new());
+    // Índice da imagem da galeria aguardando confirmação de remoção, ou None.
+    let img_pendente = RwSignal::new(None::<usize>);
     let enviando_prod = RwSignal::new(false);
 
     // Carrega os dados ao editar.
@@ -227,14 +230,7 @@ pub fn AdminProdutoForm() -> impl IntoView {
                                             type="button"
                                             class="form-galeria__rm"
                                             aria-label="Remover imagem"
-                                            on:click=move |_| {
-                                                imagens
-                                                    .update(|v| {
-                                                        if i < v.len() {
-                                                            v.remove(i);
-                                                        }
-                                                    })
-                                            }
+                                            on:click=move |_| img_pendente.set(Some(i))
                                         >
                                             "×"
                                         </button>
@@ -331,6 +327,23 @@ pub fn AdminProdutoForm() -> impl IntoView {
                     {move || if salvando.get() { "Salvando..." } else { "Salvar produto" }}
                 </button>
             </div>
+
+            <ModalConfirmacao
+                aberto=Signal::derive(move || img_pendente.get().is_some())
+                mensagem="Deseja remover esta imagem?"
+                confirmar_texto="Remover"
+                ao_cancelar=Callback::new(move |()| img_pendente.set(None))
+                ao_confirmar=Callback::new(move |()| {
+                    if let Some(i) = img_pendente.get_untracked() {
+                        imagens.update(|v| {
+                            if i < v.len() {
+                                v.remove(i);
+                            }
+                        });
+                    }
+                    img_pendente.set(None);
+                })
+            />
         </form>
     }
 }

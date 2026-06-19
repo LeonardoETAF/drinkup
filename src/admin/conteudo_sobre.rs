@@ -1,6 +1,7 @@
 use leptos::prelude::*;
 use leptos::task::spawn_local;
 
+use super::modal::ModalConfirmacao;
 use crate::admin::upload_card::CartaoUpload;
 use crate::api::quem_somos_admin::{obter_quem_somos_form, salvar_quem_somos};
 use crate::domain::QuemSomosForm;
@@ -25,6 +26,8 @@ pub fn AdminConteudoQuemSomos() -> impl IntoView {
     // Lista de depoimentos separados (cada um com seus próprios sinais).
     let depoimentos = RwSignal::new(Vec::<Depoimento>::new());
     let proximo_id = RwSignal::new(0usize);
+    // Depoimento aguardando confirmação de remoção (id), ou None.
+    let dep_pendente = RwSignal::new(None::<usize>);
 
     let adicionar = move |texto: String, autor: String| {
         let id = proximo_id.get_untracked();
@@ -177,10 +180,7 @@ pub fn AdminConteudoQuemSomos() -> impl IntoView {
                                                 class="icon-btn icon-btn--danger"
                                                 title="Remover depoimento"
                                                 inner_html=IC_DEL
-                                                on:click=move |_| {
-                                                    depoimentos
-                                                        .update(|v| v.retain(|(i, _, _)| *i != id))
-                                                }
+                                                on:click=move |_| dep_pendente.set(Some(id))
                                             ></button>
                                         </div>
                                     </div>
@@ -197,6 +197,19 @@ pub fn AdminConteudoQuemSomos() -> impl IntoView {
                     </button>
                 </div>
             </fieldset>
+
+            <ModalConfirmacao
+                aberto=Signal::derive(move || dep_pendente.get().is_some())
+                mensagem="Deseja remover este depoimento?"
+                confirmar_texto="Remover"
+                ao_cancelar=Callback::new(move |()| dep_pendente.set(None))
+                ao_confirmar=Callback::new(move |()| {
+                    if let Some(id) = dep_pendente.get_untracked() {
+                        depoimentos.update(|v| v.retain(|(i, _, _)| *i != id));
+                    }
+                    dep_pendente.set(None);
+                })
+            />
 
             {move || erro().map(|m| view! { <p class="orc-form__erro">{m}</p> })}
             {move || {
