@@ -1,5 +1,8 @@
 use leptos::prelude::*;
 
+use crate::api::config::obter_contato;
+use crate::domain::link_whatsapp;
+
 const ICON_MENU: &str = r#"<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>"#;
 
 const ICON_CLOSE: &str = r#"<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>"#;
@@ -13,6 +16,15 @@ const ICON_WHATS: &str = r#"<svg viewBox="0 0 24 24" fill="currentColor" aria-hi
 pub fn SiteHeader() -> impl IntoView {
     let (open, set_open) = signal(false);
     let close = move || set_open.set(false);
+
+    // Botão "Orçamento" abre o WhatsApp cadastrado (fallback: página de contato).
+    let info = Resource::new(|| (), |_| async move { obter_contato().await });
+    let link_orcamento = move || {
+        info.get()
+            .and_then(Result::ok)
+            .and_then(|c| link_whatsapp(&c.telefone))
+            .unwrap_or_else(|| "/contato".to_string())
+    };
 
     view! {
         <header class="site-header">
@@ -41,8 +53,10 @@ pub fn SiteHeader() -> impl IntoView {
                     </nav>
                     <div class="site-header__actions">
                         <a
-                            href="/contato"
+                            href=link_orcamento
                             class="btn btn--primary btn--sm"
+                            target="_blank"
+                            rel="noopener noreferrer"
                             on:click=move |_| close()
                         >
                             <span class="btn__ic" inner_html=ICON_WHATS></span>

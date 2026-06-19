@@ -52,7 +52,9 @@ INSERT INTO configuracoes (chave, valor) VALUES
     ('endereco',         'Rua Rodolfo Cremm, 6436 · Jd. Andrade, Maringá – PR'),
     ('horario_semana',   '8h às 18h'),
     ('horario_sabado',   '8h às 12h'),
-    ('horario_domingo',  'Fechado')
+    ('horario_domingo',  'Fechado'),
+    ('social_facebook',  'https://facebook.com/drinkup'),
+    ('social_instagram', 'https://instagram.com/drinkup')
 ON CONFLICT (chave) DO NOTHING;
 
 -- Conteúdo editável da home (faixa de números e bento "Sua marca").

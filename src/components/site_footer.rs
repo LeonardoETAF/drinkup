@@ -1,7 +1,7 @@
 use leptos::prelude::*;
 
 use crate::api::config::obter_contato;
-use crate::domain::mascara_telefone;
+use crate::domain::{link_whatsapp, mascara_telefone, Configuracoes};
 
 const ICON_INSTAGRAM: &str = r#"<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>"#;
 
@@ -55,11 +55,11 @@ pub fn SiteFooter() -> impl IntoView {
                             })}
                         </Suspense>
                     </p>
-                    <div class="social">
-                        <a href="#" aria-label="Facebook" inner_html=ICON_FACEBOOK></a>
-                        <a href="#" aria-label="Instagram" inner_html=ICON_INSTAGRAM></a>
-                        <a href="#" aria-label="WhatsApp" inner_html=ICON_WHATSAPP></a>
-                    </div>
+                    <Suspense fallback=|| ()>
+                        {move || Suspend::new(async move {
+                            redes_sociais(info.await.unwrap_or_default())
+                        })}
+                    </Suspense>
                 </div>
 
                 <div class="site-footer__news">
@@ -114,6 +114,41 @@ pub fn SiteFooter() -> impl IntoView {
                 <div class="container">"© 2026 DRINK UP · Todos os direitos reservados"</div>
             </div>
         </footer>
+    }
+}
+
+/// Botões de redes sociais com os links cadastrados. Facebook/Instagram vêm das
+/// configurações; o WhatsApp é montado a partir do telefone. Sem destino, o
+/// botão fica inerte ("#").
+fn redes_sociais(c: Configuracoes) -> impl IntoView {
+    let ou_hash = |s: String| if s.trim().is_empty() { "#".to_string() } else { s };
+    let fb = ou_hash(c.facebook);
+    let ig = ou_hash(c.instagram);
+    let wa = link_whatsapp(&c.telefone).unwrap_or_else(|| "#".to_string());
+    view! {
+        <div class="social">
+            <a
+                href=fb
+                aria-label="Facebook"
+                target="_blank"
+                rel="noopener noreferrer"
+                inner_html=ICON_FACEBOOK
+            ></a>
+            <a
+                href=ig
+                aria-label="Instagram"
+                target="_blank"
+                rel="noopener noreferrer"
+                inner_html=ICON_INSTAGRAM
+            ></a>
+            <a
+                href=wa
+                aria-label="WhatsApp"
+                target="_blank"
+                rel="noopener noreferrer"
+                inner_html=ICON_WHATSAPP
+            ></a>
+        </div>
     }
 }
 

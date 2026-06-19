@@ -14,6 +14,8 @@ pub fn AdminConfiguracoes() -> impl IntoView {
     let h_semana = RwSignal::new(String::new());
     let h_sabado = RwSignal::new(String::new());
     let h_domingo = RwSignal::new(String::new());
+    let facebook = RwSignal::new(String::new());
+    let instagram = RwSignal::new(String::new());
     let carregado = RwSignal::new(false);
 
     Effect::new(move |_| {
@@ -26,6 +28,8 @@ pub fn AdminConfiguracoes() -> impl IntoView {
                 h_semana.set(c.horario_semana);
                 h_sabado.set(c.horario_sabado);
                 h_domingo.set(c.horario_domingo);
+                facebook.set(c.facebook);
+                instagram.set(c.instagram);
             }
             carregado.set(true);
         });
@@ -52,6 +56,8 @@ pub fn AdminConfiguracoes() -> impl IntoView {
             horario_semana: h_semana.get_untracked(),
             horario_sabado: h_sabado.get_untracked(),
             horario_domingo: h_domingo.get_untracked(),
+            facebook: facebook.get_untracked(),
+            instagram: instagram.get_untracked(),
         };
         salvar.dispatch(cfg);
     };
@@ -80,6 +86,16 @@ pub fn AdminConfiguracoes() -> impl IntoView {
                 <div class="admin-form__grid admin-form__grid--3">
                     {campo("Segunda a sexta", h_semana)} {campo("Sábado", h_sabado)}
                     {campo("Domingo", h_domingo)}
+                </div>
+            </fieldset>
+
+            <fieldset class="admin-card admin-fieldset">
+                <legend class="admin-fieldset__titulo">"Redes sociais"</legend>
+                <p class="admin-head__sub">
+                    "Links abertos pelos botões do rodapé. O WhatsApp usa o telefone acima."
+                </p>
+                <div class="admin-form__grid">
+                    {campo("Facebook (URL)", facebook)} {campo("Instagram (URL)", instagram)}
                 </div>
             </fieldset>
 

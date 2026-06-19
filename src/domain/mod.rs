@@ -22,5 +22,5 @@ pub use orcamento::{ItemOrcamento, NovoOrcamento};
 pub use parceiro::ParceiroPublico;
 pub use produto::{FiltroProdutos, PaginaProdutos, ProdutoDetalhe, ProdutoImagem, ProdutoResumo};
 pub use quem_somos::{QuemSomosConteudo, QuemSomosForm};
-pub use telefone::mascara_telefone;
+pub use telefone::{link_whatsapp, mascara_telefone};
 pub use usuario::UsuarioSessao;

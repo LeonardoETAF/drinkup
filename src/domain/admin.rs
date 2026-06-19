@@ -57,6 +57,8 @@ pub struct Configuracoes {
     pub horario_semana: String,
     pub horario_sabado: String,
     pub horario_domingo: String,
+    pub facebook: String,
+    pub instagram: String,
 }
 
 /// Usuário do painel na listagem.

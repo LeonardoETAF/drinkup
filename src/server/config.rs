@@ -22,6 +22,8 @@ pub async fn obter(pool: &PgPool) -> Result<Configuracoes, sqlx::Error> {
         horario_semana: get("horario_semana"),
         horario_sabado: get("horario_sabado"),
         horario_domingo: get("horario_domingo"),
+        facebook: get("social_facebook"),
+        instagram: get("social_instagram"),
     })
 }
 
@@ -35,6 +37,8 @@ pub async fn salvar(pool: &PgPool, c: &Configuracoes) -> Result<(), AppError> {
         ("horario_semana", c.horario_semana.trim()),
         ("horario_sabado", c.horario_sabado.trim()),
         ("horario_domingo", c.horario_domingo.trim()),
+        ("social_facebook", c.facebook.trim()),
+        ("social_instagram", c.instagram.trim()),
     ];
     for (chave, valor) in pares {
         if valor.chars().count() > 300 {

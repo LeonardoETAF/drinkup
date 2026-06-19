@@ -12,9 +12,25 @@ pub fn mascara_telefone(bruto: &str) -> String {
     }
 }
 
+/// Monta o link `wa.me` a partir do telefone cadastrado (só dígitos, com DDI 55).
+/// Retorna `None` quando não há dígitos suficientes para um número válido.
+#[must_use]
+pub fn link_whatsapp(telefone: &str) -> Option<String> {
+    let d: String = telefone.chars().filter(|c| c.is_ascii_digit()).collect();
+    if d.len() < 10 {
+        return None;
+    }
+    let numero = if d.starts_with("55") && d.len() >= 12 {
+        d
+    } else {
+        format!("55{d}")
+    };
+    Some(format!("https://wa.me/{numero}"))
+}
+
 #[cfg(test)]
 mod tests {
-    use super::mascara_telefone;
+    use super::{link_whatsapp, mascara_telefone};
 
     #[test]
     fn mascara_remove_nao_digitos_e_formata() {
@@ -28,5 +44,20 @@ mod tests {
         assert_eq!(mascara_telefone("44998124366"), "(44) 99812-4366");
         // Letras intercaladas são descartadas; excedente é truncado em 11.
         assert_eq!(mascara_telefone("k4j4l9k9d8j1l2f4k3j6l6"), "(44) 99812-4366");
+    }
+
+    #[test]
+    fn link_whatsapp_adiciona_ddi_e_valida() {
+        assert_eq!(link_whatsapp(""), None);
+        assert_eq!(link_whatsapp("123"), None);
+        assert_eq!(
+            link_whatsapp("(44) 9 9812-4366"),
+            Some("https://wa.me/5544998124366".to_string())
+        );
+        // Já com DDI 55 não duplica.
+        assert_eq!(
+            link_whatsapp("55 44 99812-4366"),
+            Some("https://wa.me/5544998124366".to_string())
+        );
     }
 }
