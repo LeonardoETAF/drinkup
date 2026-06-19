@@ -168,14 +168,13 @@
 
 .site-footer__inner {
   display: grid;
-  /* Colunas iguais: marca à esquerda, Novidades ao centro, Legal à direita. */
+  /* Colunas iguais: marca à esquerda, Novidades ao centro, Legal à direita.
+     Mantém a largura do container (.container) para alinhar com o resto da
+     página — a marca e a seção Legal não saem do alinhamento. */
   grid-template-columns: 1fr 1fr 1fr;
   align-items: start;
   gap: var(--space-8);
   padding-block: var(--space-10);
-  /* Rodapé em largura total: colunas vão até as bordas (LEGAL na direita). */
-  max-width: none;
-  padding-inline: clamp(2rem, 7vw, 7rem);
 }
 
 /* Novidades centralizado (alinhado ao texto de copyright, que é centralizado). */
