@@ -168,12 +168,20 @@
 
 .site-footer__inner {
   display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr;
+  /* Colunas iguais: marca à esquerda, Novidades ao centro, Legal à direita. */
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: start;
   gap: var(--space-8);
   padding-block: var(--space-10);
   /* Rodapé em largura total: colunas vão até as bordas (LEGAL na direita). */
   max-width: none;
   padding-inline: clamp(2rem, 7vw, 7rem);
+}
+
+/* Novidades centralizado (alinhado ao texto de copyright, que é centralizado). */
+.site-footer__news {
+  text-align: center;
+  justify-self: center;
 }
 
 /* Seção "Legal" alinhada à direita do rodapé. */
@@ -247,6 +255,7 @@
 .newsletter {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: var(--space-3);
   margin-top: var(--space-3);
 }
@@ -257,6 +266,7 @@
 
 .newsletter input {
   width: 100%;
+  max-width: 340px;
   min-width: 0;
   padding: 0.7rem 1rem;
   border-radius: var(--radius-pill);
