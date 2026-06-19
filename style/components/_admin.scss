@@ -915,6 +915,15 @@
   margin-top: var(--space-5);
 }
 
+/* Espaço após o texto de apoio e antes dos checkboxes dentro de um fieldset. */
+.admin-fieldset > .admin-head__sub {
+  margin-bottom: var(--space-4);
+}
+
+.admin-fieldset > .admin-form__checks {
+  margin-top: var(--space-4);
+}
+
 /* Checkboxes de permissão de menu (várias colunas). */
 .admin-form__checks--menus {
   display: grid;
