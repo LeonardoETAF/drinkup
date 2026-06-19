@@ -17,5 +17,8 @@ pub struct NovoOrcamento {
     pub contato: String,
     pub email: Option<String>,
     pub mensagem: Option<String>,
+    // Codificações de form (URL) omitem coleções vazias; o default evita o erro
+    // "missing field `itens`" quando o pedido não traz produtos selecionados.
+    #[serde(default)]
     pub itens: Vec<ItemOrcamento>,
 }

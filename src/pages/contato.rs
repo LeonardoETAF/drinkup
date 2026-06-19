@@ -34,6 +34,7 @@ pub fn ContatoPage() -> impl IntoView {
     let honeypot = RwSignal::new(String::new());
     let erro_nome = RwSignal::new(false);
     let erro_contato = RwSignal::new(false);
+    let erro_mensagem = RwSignal::new(false);
 
     let enviar = Action::new(|input: &(NovoOrcamento, String)| {
         let (dados, hp) = input.clone();
@@ -46,12 +47,15 @@ pub fn ContatoPage() -> impl IntoView {
         ev.prevent_default();
         let n = nome.get().trim().to_string();
         let c = contato.get().trim().to_string();
+        let m = mensagem.get().trim().to_string();
+        let digitos = c.chars().filter(char::is_ascii_digit).count();
         erro_nome.set(n.chars().count() < 2);
-        erro_contato.set(c.chars().count() < 8);
-        if erro_nome.get_untracked() || erro_contato.get_untracked() {
+        erro_contato.set(digitos < 10);
+        erro_mensagem.set(m.is_empty());
+        if erro_nome.get_untracked() || erro_contato.get_untracked() || erro_mensagem.get_untracked()
+        {
             return;
         }
-        let m = mensagem.get().trim().to_string();
         let (pid, desc) = pre.get_value();
         let itens = if pid.is_some() || desc.is_some() {
             vec![ItemOrcamento {
@@ -145,9 +149,13 @@ pub fn ContatoPage() -> impl IntoView {
                                     <textarea
                                         rows="5"
                                         placeholder="Conte pra gente o que você precisa..."
+                                        class:field--erro=move || erro_mensagem.get()
                                         prop:value=move || mensagem.get()
                                         on:input=move |ev| mensagem.set(event_target_value(&ev))
                                     ></textarea>
+                                    <Show when=move || erro_mensagem.get()>
+                                        <span class="field__erro">"Escreva sua mensagem."</span>
+                                    </Show>
                                 </label>
                                 <input
                                     class="hp-field"
