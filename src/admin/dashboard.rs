@@ -295,12 +295,7 @@ fn grafico_barras(dias: Vec<DiaAcesso>) -> AnyView {
                         <div class="chart-col">
                             <div class="chart-col__track">
                                 <div class="chart-col__fill" style=format!("height:{h:.1}%")>
-                                    {(!muitos)
-                                        .then(|| {
-                                            view! {
-                                                <span class="chart-col__v">{fmt_milhar(total)}</span>
-                                            }
-                                        })}
+                                    <span class="chart-col__v">{fmt_milhar(total)}</span>
                                     <span class="chart-col__bar" class:is-alta=alta></span>
                                 </div>
                             </div>
