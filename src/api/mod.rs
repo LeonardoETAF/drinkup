@@ -7,6 +7,8 @@ pub mod catalogo;
 pub mod config;
 pub mod eventos;
 pub mod eventos_admin;
+pub mod home;
+pub mod home_admin;
 pub mod orcamento;
 pub mod parceiros;
 pub mod parceiros_admin;

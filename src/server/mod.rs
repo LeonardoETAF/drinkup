@@ -9,6 +9,7 @@ pub mod dashboard;
 pub mod db;
 pub mod email;
 pub mod eventos_admin;
+pub mod home_content;
 pub mod leads;
 pub mod parceiros_admin;
 pub mod products;

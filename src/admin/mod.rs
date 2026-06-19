@@ -2,6 +2,7 @@
 //! no servidor (sessão + RBAC); a UI aqui é apresentação, não controle de acesso.
 mod configuracoes;
 mod confirmar;
+mod conteudo;
 mod dashboard;
 mod em_construcao;
 mod evento_form;
@@ -20,6 +21,7 @@ mod usuarios;
 mod util;
 
 pub use configuracoes::AdminConfiguracoes;
+pub use conteudo::AdminConteudoHome;
 pub use dashboard::AdminDashboard;
 pub use em_construcao::AdminEmBreve;
 pub use evento_form::AdminEventoForm;

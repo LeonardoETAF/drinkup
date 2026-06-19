@@ -99,6 +99,14 @@ pub fn AdminConfiguracoes() -> impl IntoView {
 
         <section class="admin-card admin-acesso">
             <div>
+                <h2 class="admin-fieldset__titulo">"Conteúdo da Home"</h2>
+                <p class="admin-head__sub">"Edite a faixa de números e a seção \"Sua marca\"."</p>
+            </div>
+            <a class="btn btn--ghost" href="/admin/conteudo">"Editar conteúdo"</a>
+        </section>
+
+        <section class="admin-card admin-acesso">
+            <div>
                 <h2 class="admin-fieldset__titulo">"Usuários do painel"</h2>
                 <p class="admin-head__sub">"Gerencie quem acessa o painel e seus papéis."</p>
             </div>

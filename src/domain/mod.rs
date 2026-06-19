@@ -3,6 +3,7 @@
 mod admin;
 mod categoria;
 mod evento;
+mod home;
 mod orcamento;
 mod parceiro;
 mod produto;
@@ -14,6 +15,7 @@ pub use admin::{
 };
 pub use categoria::Categoria;
 pub use evento::EventoCarrossel;
+pub use home::{HomeConteudo, HomeForm};
 pub use orcamento::{ItemOrcamento, NovoOrcamento};
 pub use parceiro::ParceiroPublico;
 pub use produto::{FiltroProdutos, PaginaProdutos, ProdutoDetalhe, ProdutoImagem, ProdutoResumo};

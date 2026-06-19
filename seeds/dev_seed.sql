@@ -55,6 +55,14 @@ INSERT INTO configuracoes (chave, valor) VALUES
     ('horario_domingo',  'Fechado')
 ON CONFLICT (chave) DO NOTHING;
 
+-- Conteúdo editável da home (faixa de números e bento "Sua marca").
+INSERT INTO configuracoes (chave, valor) VALUES
+    ('home_numeros', E'+500 | Clientes satisfeitos\n+25 mil | Unidades por dia\n+4 | Anos no mercado\n+2 mil | Eventos atendidos'),
+    ('home_marca_titulo', 'Sua marca'),
+    ('home_marca_sub', 'No olhar e na memória'),
+    ('home_bento', E'+25K | Unidades por dia\n+4 | Anos no mercado\n+500 | Clientes satisfeitos\n+2K | Eventos atendidos\n100% | Personalizável')
+ON CONFLICT (chave) DO NOTHING;
+
 -- Usuário admin de desenvolvimento.
 -- A senha real (hash Argon2id) é definida na Fase 6; aqui é só um placeholder.
 INSERT INTO usuarios (nome, email, senha_hash, papel)

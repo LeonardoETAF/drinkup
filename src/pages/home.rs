@@ -1,9 +1,10 @@
 use leptos::prelude::*;
 
 use crate::api::eventos::listar_eventos;
+use crate::api::home::obter_home_conteudo;
 use crate::api::parceiros::listar_parceiros;
 use crate::components::Seo;
-use crate::domain::{EventoCarrossel, ParceiroPublico};
+use crate::domain::{EventoCarrossel, HomeConteudo, ParceiroPublico};
 
 const IC_WHATS: &str = r#"<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.821 11.821 0 0 1 8.413 3.488 11.824 11.824 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>"#;
 const IC_PREV: &str = r#"<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>"#;
@@ -41,11 +42,21 @@ const NUMEROS: [(&str, &str); 4] = [
     ("+2 mil", "Eventos atendidos"),
 ];
 
+/// Valores padrão do bento "Sua marca" (usados quando não há conteúdo no painel).
+const BENTO: [(&str, &str); 5] = [
+    ("+25K", "Unidades por dia"),
+    ("+4", "Anos no mercado"),
+    ("+500", "Clientes satisfeitos"),
+    ("+2K", "Eventos atendidos"),
+    ("100%", "Personalizável"),
+];
+
 /// Home da vitrine.
 #[component]
 pub fn HomePage() -> impl IntoView {
     let eventos = Resource::new(|| (), |_| async move { listar_eventos().await });
     let parceiros = Resource::new(|| (), |_| async move { listar_parceiros().await });
+    let conteudo = Resource::new(|| (), |_| async move { obter_home_conteudo().await });
 
     view! {
         <Seo
@@ -59,9 +70,9 @@ pub fn HomePage() -> impl IntoView {
         <DoSeuJeito eventos/>
         <FaixaLogos parceiros/>
         <PassoAPasso/>
-        <Numeros/>
+        <Numeros conteudo/>
         <Emocao/>
-        <SuaMarca/>
+        <SuaMarca conteudo/>
         <Depoimentos/>
     }
 }
@@ -154,7 +165,10 @@ fn DoSeuJeito(eventos: Resource<Result<Vec<EventoCarrossel>, ServerFnError>>) ->
 fn carrossel_card(i: usize, e: EventoCarrossel, ativo: RwSignal<usize>) -> impl IntoView {
     let cor = e.cor.clone().unwrap_or_else(|| "#262626".to_string());
     let fundo = match &e.imagem_url {
-        Some(u) => format!("background-image:url('{}')", crate::components::responsiva(u).0),
+        Some(u) => format!(
+            "background-image:url('{}')",
+            crate::components::responsiva(u).0
+        ),
         None => format!("background:{cor}"),
     };
     let estilo = move || {
@@ -263,24 +277,43 @@ fn PassoAPasso() -> impl IntoView {
 }
 
 #[component]
-fn Numeros() -> impl IntoView {
+fn Numeros(conteudo: Resource<Result<HomeConteudo, ServerFnError>>) -> impl IntoView {
     view! {
         <section class="numeros">
             <div class="container numeros__grid">
-                {NUMEROS
-                    .iter()
-                    .map(|(valor, rotulo)| {
-                        view! {
-                            <div class="numero">
-                                <span class="numero__valor">{*valor}</span>
-                                <span class="numero__rotulo">{*rotulo}</span>
-                            </div>
-                        }
-                    })
-                    .collect_view()}
+                <Suspense fallback=|| numeros_cards(numeros_padrao())>
+                    {move || Suspend::new(async move {
+                        let itens = match conteudo.await {
+                            Ok(c) if !c.numeros.is_empty() => c.numeros,
+                            _ => numeros_padrao(),
+                        };
+                        numeros_cards(itens)
+                    })}
+                </Suspense>
             </div>
         </section>
     }
+}
+
+fn numeros_padrao() -> Vec<(String, String)> {
+    NUMEROS
+        .iter()
+        .map(|(v, r)| (v.to_string(), r.to_string()))
+        .collect()
+}
+
+fn numeros_cards(itens: Vec<(String, String)>) -> impl IntoView {
+    itens
+        .into_iter()
+        .map(|(valor, rotulo)| {
+            view! {
+                <div class="numero">
+                    <span class="numero__valor">{valor}</span>
+                    <span class="numero__rotulo">{rotulo}</span>
+                </div>
+            }
+        })
+        .collect_view()
 }
 
 #[component]
@@ -295,54 +328,106 @@ fn Emocao() -> impl IntoView {
                 <p class="emocao__texto">
                     "Cada copo carrega uma história. Sua marca permanente na memória de quem celebra."
                 </p>
-                <a class="btn btn--pink" href="/contato">"Quero um orçamento"</a>
             </div>
         </section>
     }
 }
 
 #[component]
-fn SuaMarca() -> impl IntoView {
+fn SuaMarca(conteudo: Resource<Result<HomeConteudo, ServerFnError>>) -> impl IntoView {
+    view! {
+        <Suspense fallback=|| sua_marca_view(HomeConteudo::default())>
+            {move || Suspend::new(async move {
+                sua_marca_view(conteudo.await.unwrap_or_default())
+            })}
+        </Suspense>
+    }
+}
+
+fn bento_item(bento: &[(String, String)], i: usize) -> (String, String) {
+    bento.get(i).cloned().unwrap_or_else(|| {
+        let (v, r) = BENTO[i];
+        (v.to_string(), r.to_string())
+    })
+}
+
+fn foto_bento(classe: &'static str, url: &Option<String>, label: &'static str) -> AnyView {
+    match url {
+        Some(u) => {
+            let src = crate::components::responsiva(u).0;
+            view! {
+                <div
+                    class=format!("bento__foto {classe} bento__foto--img")
+                    style=format!("background-image:url('{src}')")
+                    role="img"
+                    aria-label=label
+                ></div>
+            }
+            .into_any()
+        }
+        None => view! {
+            <div class=format!("bento__foto {classe}") role="img" aria-label=label>
+                <span class="bento__cap">{format!("[ {label} ]")}</span>
+            </div>
+        }
+        .into_any(),
+    }
+}
+
+fn sua_marca_view(c: HomeConteudo) -> AnyView {
+    let titulo = if c.marca_titulo.trim().is_empty() {
+        "Sua marca".to_string()
+    } else {
+        c.marca_titulo.clone()
+    };
+    let sub = if c.marca_sub.trim().is_empty() {
+        "No olhar e na memória".to_string()
+    } else {
+        c.marca_sub.clone()
+    };
+    let (v0, r0) = bento_item(&c.bento, 0);
+    let (v1, r1) = bento_item(&c.bento, 1);
+    let (v2, r2) = bento_item(&c.bento, 2);
+    let (v3, r3) = bento_item(&c.bento, 3);
+    let (v4, r4) = bento_item(&c.bento, 4);
+
     view! {
         <section class="marca-bento container">
             <header class="marca-bento__head">
                 <div>
-                    <h2 class="secao__titulo secao__titulo--left">"Sua marca"</h2>
-                    <p class="marca-bento__sub">"No olhar e na memória"</p>
+                    <h2 class="secao__titulo secao__titulo--left">{titulo}</h2>
+                    <p class="marca-bento__sub">{sub}</p>
                 </div>
                 <a class="btn btn--ghost" href="/produtos">"Personalize agora"</a>
             </header>
 
             <div class="bento">
-                <div class="bento__foto bento__foto--grande" role="img" aria-label="Growler personalizado">
-                    <span class="bento__cap">"[ growler personalizado ]"</span>
-                </div>
+                {foto_bento("bento__foto--grande", &c.foto1_url, "growler personalizado")}
                 <div class="bento__stat bento__stat--lime">
-                    <span class="bento__num">"+25K"</span>
-                    <span class="bento__lbl">"Unidades por dia"</span>
+                    <span class="bento__num">{v0}</span>
+                    <span class="bento__lbl">{r0}</span>
                 </div>
-                <div class="bento__foto bento__foto--orange" role="img" aria-label="Caneca personalizada">
-                    <span class="bento__cap">"[ caneca personalizada ]"</span>
-                </div>
+                {foto_bento("bento__foto--orange", &c.foto2_url, "caneca personalizada")}
                 <div class="bento__stat bento__stat--cyan">
-                    <span class="bento__num">"+4"</span>
-                    <span class="bento__lbl">"Anos no mercado"</span>
+                    <span class="bento__num">{v1}</span>
+                    <span class="bento__lbl">{r1}</span>
                 </div>
                 <div class="bento__stat bento__stat--pink">
-                    <span class="bento__num">"+500"</span>
-                    <span class="bento__lbl">"Clientes satisfeitos"</span>
+                    <span class="bento__num">{v2}</span>
+                    <span class="bento__lbl">{r2}</span>
                 </div>
                 <div class="bento__stat bento__stat--dark">
-                    <span class="bento__num">"+2K"</span>
-                    <span class="bento__lbl">"Eventos atendidos"</span>
+                    <span class="bento__num">{v3}</span>
+                    <span class="bento__lbl">{r3}</span>
                 </div>
                 <div class="bento__stat bento__stat--dark">
-                    <span class="bento__num">"100%"</span>
-                    <span class="bento__lbl">"Personalizável"</span>
+                    <span class="bento__num">{v4}</span>
+                    <span class="bento__lbl">{r4}</span>
                 </div>
             </div>
         </section>
     }
+    .into_any()
 }
 
 #[component]

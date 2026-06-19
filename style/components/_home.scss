@@ -454,6 +454,12 @@ img.hero__slogan {
   font-family: monospace;
 }
 
+.bento__foto--img {
+  background-size: cover;
+  background-position: center;
+  border: none;
+}
+
 .bento__foto--grande {
   grid-column: span 2;
   grid-row: span 2;
