@@ -111,7 +111,7 @@ pub fn AdminParceiroForm() -> impl IntoView {
 
             <div class="field">
                 <span class="field__label">"Logo do parceiro"</span>
-                <CartaoUpload url=logo_url dica="PNG/JPG/WEBP · fundo transparente · até 5MB"/>
+                <CartaoUpload url=logo_url dica="PNG/JPG/WEBP · quadrada (1:1), fundo transparente · até 5MB"/>
             </div>
 
             <div class="admin-form__grid">
@@ -169,7 +169,7 @@ pub fn AdminParceiroForm() -> impl IntoView {
             </div>
             <div class="field">
                 <span class="field__label">
-                    "Imagens dos produtos — swipe na página (PNG/JPG/WEBP, até 5MB)"
+                    "Imagens dos produtos — swipe na página (PNG/JPG/WEBP, quadradas 1:1, até 5MB)"
                 </span>
                 <div class="form-galeria">
                     {move || {
