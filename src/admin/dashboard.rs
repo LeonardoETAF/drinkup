@@ -3,10 +3,15 @@ use leptos::task::spawn_local;
 
 use super::util::{status_classe, status_label};
 use crate::api::admin::resumo_dashboard;
-use crate::domain::{DashboardResumo, LeadResumo};
+use crate::domain::{DashboardResumo, DiaAcesso, ItemRanking, LeadResumo, OrigemFatia};
 
-/// Dashboard do painel: KPIs + leads recentes. Os dados são buscados no cliente
-/// (após a hidratação), evitando acesso a sessão/banco durante o SSR.
+const IC_OLHO: &str = r#"<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>"#;
+const IC_CHAT: &str = r#"<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-9 8 9 9 0 0 1-4-1L3 20l1.5-4.5A8.4 8.4 0 1 1 21 11.5z"/></svg>"#;
+const IC_COPO: &str = r#"<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4h12l-1.2 15A2 2 0 0 1 14.8 21H9.2a2 2 0 0 1-2-1.9zM5 4h14"/></svg>"#;
+const IC_TREND: &str = r#"<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M17 7h4v4"/></svg>"#;
+
+/// Dashboard do painel: KPIs + gráficos + leads recentes, tudo em tempo real.
+/// Dados buscados no cliente (após a hidratação), sem acessar sessão/banco no SSR.
 #[component]
 pub fn AdminDashboard() -> impl IntoView {
     let dados = RwSignal::new(None::<Result<DashboardResumo, ServerFnError>>);
@@ -19,7 +24,7 @@ pub fn AdminDashboard() -> impl IntoView {
     view! {
         <header class="admin-head">
             <h1 class="admin-head__title">"Dashboard"</h1>
-            <p class="admin-head__sub">"Visão geral do DRINK UP"</p>
+            <p class="admin-head__sub">"Visão geral do negócio (tempo real)"</p>
         </header>
 
         {move || match dados.get() {
@@ -28,33 +33,216 @@ pub fn AdminDashboard() -> impl IntoView {
                 view! { <p class="admin-status">"Não foi possível carregar o dashboard."</p> }
                     .into_any()
             }
-            Some(Ok(r)) => {
-                view! {
-                    <div class="kpi-grid">
-                        <Kpi rotulo="Produtos" valor=r.total_produtos/>
-                        <Kpi rotulo="Leads" valor=r.total_leads/>
-                        <Kpi rotulo="Leads novos" valor=r.leads_novos destaque=true/>
-                        <Kpi rotulo="Eventos" valor=r.total_eventos/>
-                    </div>
-                    <section class="admin-card">
-                        <h2 class="admin-card__title">"Leads recentes"</h2>
-                        {tabela_recentes(r.recentes)}
-                    </section>
-                }
-                    .into_any()
-            }
+            Some(Ok(r)) => painel(r),
         }}
     }
 }
 
-#[component]
-fn Kpi(rotulo: &'static str, valor: i64, #[prop(optional)] destaque: bool) -> impl IntoView {
+fn painel(r: DashboardResumo) -> AnyView {
+    let total7: i64 = r.acessos_7dias.iter().map(|d| d.total).sum();
     view! {
-        <div class="kpi" class:kpi--destaque=destaque>
-            <span class="kpi__valor">{valor}</span>
-            <span class="kpi__rotulo">{rotulo}</span>
+        <div class="dash-cards">
+            {card(IC_OLHO, &fmt_milhar(r.acessos_mes), "Acessos no mês", badge_delta(r.acessos_delta))}
+            {card(IC_CHAT, &fmt_milhar(r.total_leads), "Leads (WhatsApp)", badge_delta(r.leads_delta))}
+            {card(
+                IC_COPO,
+                &fmt_milhar(r.produtos_total),
+                "Produtos cadastrados",
+                badge_neutro(&format!("{} ativos", r.produtos_ativos)),
+            )}
+            {card(
+                IC_TREND,
+                &fmt_pct1(r.taxa_conversao),
+                "Taxa de conversão",
+                badge_delta(r.conversao_delta),
+            )}
+        </div>
+
+        <div class="dash-row dash-row--2-1">
+            <section class="admin-card dash-chart">
+                <div class="dash-chart__head">
+                    <div>
+                        <h2 class="dash-card__head-title">"Acessos ao site"</h2>
+                        <p class="admin-card__meta">"Últimos 7 dias"</p>
+                    </div>
+                    <span class="dash-chart__total">{fmt_milhar(total7)}</span>
+                </div>
+                {grafico_barras(r.acessos_7dias)}
+            </section>
+
+            <section class="admin-card">
+                <h2 class="dash-card__head-title">"Origem do tráfego"</h2>
+                {lista_origem(r.origem_trafego)}
+            </section>
+        </div>
+
+        <div class="dash-row dash-row--1-1">
+            <section class="admin-card">
+                <h2 class="dash-card__head-title">"Páginas mais visitadas"</h2>
+                {ranking_barras(r.paginas)}
+            </section>
+
+            <section class="admin-card">
+                <h2 class="dash-card__head-title">"Produtos mais vistos"</h2>
+                {produtos_vistos(r.produtos_vistos)}
+            </section>
+        </div>
+
+        <section class="admin-card">
+            <h2 class="dash-card__head-title">"Leads recentes"</h2>
+            {tabela_recentes(r.recentes)}
+        </section>
+    }
+    .into_any()
+}
+
+fn card(icone: &'static str, valor: &str, rotulo: &'static str, badge: AnyView) -> AnyView {
+    let valor = valor.to_string();
+    view! {
+        <div class="dash-card">
+            <div class="dash-card__top">
+                <span class="dash-card__ic" inner_html=icone></span>
+                {badge}
+            </div>
+            <span class="dash-card__num">{valor}</span>
+            <span class="dash-card__lbl">{rotulo}</span>
         </div>
     }
+    .into_any()
+}
+
+fn badge_delta(d: Option<i32>) -> AnyView {
+    match d {
+        Some(v) if v >= 0 => {
+            view! { <span class="dash-badge dash-badge--up">{format!("+{v}%")}</span> }.into_any()
+        }
+        Some(v) => {
+            view! { <span class="dash-badge dash-badge--down">{format!("{v}%")}</span> }.into_any()
+        }
+        None => view! { <span class="dash-badge">"—"</span> }.into_any(),
+    }
+}
+
+fn badge_neutro(texto: &str) -> AnyView {
+    let texto = texto.to_string();
+    view! { <span class="dash-badge">{texto}</span> }.into_any()
+}
+
+fn grafico_barras(dias: Vec<DiaAcesso>) -> AnyView {
+    let max = dias.iter().map(|d| d.total).max().unwrap_or(0).max(1);
+    view! {
+        <div class="chart-bars">
+            {dias
+                .into_iter()
+                .map(|d| {
+                    let alta = d.total == max && d.total > 0;
+                    let h = (d.total as f64 / max as f64 * 100.0).max(3.0);
+                    view! {
+                        <div class="chart-col">
+                            <div class="chart-col__track">
+                                <div class="chart-col__fill" style=format!("height:{h:.1}%")>
+                                    <span class="chart-col__v">{fmt_milhar(d.total)}</span>
+                                    <span class="chart-col__bar" class:is-alta=alta></span>
+                                </div>
+                            </div>
+                            <span class="chart-col__d">{d.rotulo}</span>
+                        </div>
+                    }
+                })
+                .collect_view()}
+        </div>
+    }
+    .into_any()
+}
+
+fn lista_origem(itens: Vec<OrigemFatia>) -> AnyView {
+    if itens.is_empty() {
+        return vazio();
+    }
+    view! {
+        <ul class="bar-list">
+            {itens
+                .into_iter()
+                .enumerate()
+                .map(|(i, o)| {
+                    view! {
+                        <li class="bar-row" class:is-top=(i == 0)>
+                            <span class="bar-row__dot"></span>
+                            <span class="bar-row__lbl">{cap(&o.origem)}</span>
+                            <span class="bar-row__pct">{format!("{}%", o.pct)}</span>
+                            <div class="bar-row__track">
+                                <div
+                                    class="bar-row__fill"
+                                    style=format!("width:{}%", o.pct.max(2))
+                                ></div>
+                            </div>
+                        </li>
+                    }
+                })
+                .collect_view()}
+        </ul>
+    }
+    .into_any()
+}
+
+fn ranking_barras(itens: Vec<ItemRanking>) -> AnyView {
+    if itens.is_empty() {
+        return vazio();
+    }
+    let max = itens.iter().map(|i| i.total).max().unwrap_or(0).max(1);
+    view! {
+        <ul class="bar-list">
+            {itens
+                .into_iter()
+                .enumerate()
+                .map(|(i, it)| {
+                    let w = (it.total as f64 / max as f64 * 100.0).max(2.0);
+                    view! {
+                        <li class="bar-row" class:is-top=(i == 0)>
+                            <span class="bar-row__lbl">{it.rotulo}</span>
+                            <span class="bar-row__pct">{fmt_milhar(it.total)}</span>
+                            <div class="bar-row__track">
+                                <div class="bar-row__fill" style=format!("width:{w:.1}%")></div>
+                            </div>
+                        </li>
+                    }
+                })
+                .collect_view()}
+        </ul>
+    }
+    .into_any()
+}
+
+fn produtos_vistos(itens: Vec<ItemRanking>) -> AnyView {
+    if itens.is_empty() {
+        return vazio();
+    }
+    view! {
+        <ul class="prod-list">
+            {itens
+                .into_iter()
+                .enumerate()
+                .map(|(i, it)| {
+                    view! {
+                        <li class="prod-row">
+                            <span class=format!("prod-row__sw prod-row__sw--{}", i % 4)></span>
+                            <span class="prod-row__info">
+                                <strong>{it.rotulo}</strong>
+                                <span class="prod-row__sub">
+                                    {format!("{} visualizações", fmt_milhar(it.total))}
+                                </span>
+                            </span>
+                        </li>
+                    }
+                })
+                .collect_view()}
+        </ul>
+    }
+    .into_any()
+}
+
+fn vazio() -> AnyView {
+    view! { <p class="admin-status">"Sem dados ainda."</p> }.into_any()
 }
 
 fn tabela_recentes(itens: Vec<LeadResumo>) -> AnyView {
@@ -97,4 +285,36 @@ fn tabela_recentes(itens: Vec<LeadResumo>) -> AnyView {
         </div>
     }
     .into_any()
+}
+
+/// Inteiro com separador de milhar (pt-BR: 8.420).
+fn fmt_milhar(n: i64) -> String {
+    let neg = n < 0;
+    let digitos: Vec<char> = n.abs().to_string().chars().collect();
+    let mut rev = String::new();
+    for (i, c) in digitos.iter().rev().enumerate() {
+        if i > 0 && i % 3 == 0 {
+            rev.push('.');
+        }
+        rev.push(*c);
+    }
+    let mut s: String = rev.chars().rev().collect();
+    if neg {
+        s.insert(0, '-');
+    }
+    s
+}
+
+/// Percentual com uma casa decimal (pt-BR: 6,1%).
+fn fmt_pct1(v: f64) -> String {
+    format!("{v:.1}%").replace('.', ",")
+}
+
+/// Primeira letra maiúscula (para os rótulos de origem).
+fn cap(s: &str) -> String {
+    let mut c = s.chars();
+    match c.next() {
+        Some(p) => p.to_uppercase().collect::<String>() + c.as_str(),
+        None => String::new(),
+    }
 }

@@ -22,3 +22,4 @@ pub mod recuperacao;
 pub mod sitemap;
 pub mod uploads;
 pub mod usuarios_admin;
+pub mod visitas;

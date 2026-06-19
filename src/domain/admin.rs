@@ -12,13 +12,45 @@ pub struct LeadResumo {
     pub inscricao: String,
 }
 
-/// Resumo para o dashboard.
+/// Uma barra do gráfico de acessos por dia.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct DiaAcesso {
+    pub rotulo: String,
+    pub total: i64,
+}
+
+/// Fatia da origem do tráfego (com percentual já calculado).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct OrigemFatia {
+    pub origem: String,
+    pub total: i64,
+    pub pct: i32,
+}
+
+/// Linha de "páginas mais visitadas" / "produtos mais vistos".
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ItemRanking {
+    pub rotulo: String,
+    pub total: i64,
+}
+
+/// Resumo para o dashboard (todos os números vêm do banco em tempo real).
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct DashboardResumo {
-    pub total_produtos: i64,
+    pub acessos_mes: i64,
+    pub acessos_delta: Option<i32>,
     pub total_leads: i64,
+    pub leads_delta: Option<i32>,
     pub leads_novos: i64,
+    pub produtos_total: i64,
+    pub produtos_ativos: i64,
     pub total_eventos: i64,
+    pub taxa_conversao: f64,
+    pub conversao_delta: Option<i32>,
+    pub acessos_7dias: Vec<DiaAcesso>,
+    pub origem_trafego: Vec<OrigemFatia>,
+    pub paginas: Vec<ItemRanking>,
+    pub produtos_vistos: Vec<ItemRanking>,
     pub recentes: Vec<LeadResumo>,
 }
 

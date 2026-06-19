@@ -84,6 +84,10 @@ async fn main() {
         )
         .fallback(leptos_axum::file_and_error_handler(shell))
         .layer(DefaultBodyLimit::max(6 * 1024 * 1024))
+        .layer(axum::middleware::from_fn_with_state(
+            pool.clone(),
+            registra_visita,
+        ))
         .layer(axum::middleware::from_fn(guarda_admin))
         .layer(session_layer)
         .layer(axum::middleware::from_fn(verifica_origem))
@@ -206,6 +210,58 @@ async fn sitemap_handler(pool: sqlx::PgPool) -> axum::response::Response {
             StatusCode::INTERNAL_SERVER_ERROR.into_response()
         }
     }
+}
+
+/// Caminhos públicos (páginas HTML) contabilizados como acesso. Exclui
+/// `/api`, `/pkg`, `/uploads`, `/admin` e assets automaticamente.
+#[cfg(feature = "ssr")]
+fn caminho_publico(p: &str) -> bool {
+    p == "/"
+        || p == "/produtos"
+        || p == "/quem-somos"
+        || p == "/parceiros"
+        || p == "/contato"
+        || (p.starts_with("/produtos/") && p.len() > "/produtos/".len())
+}
+
+/// Registra um acesso (page view) das páginas públicas, em background, sem
+/// bloquear a resposta. Só conta GET de página HTML com resposta de sucesso.
+#[cfg(feature = "ssr")]
+async fn registra_visita(
+    axum::extract::State(pool): axum::extract::State<sqlx::PgPool>,
+    req: axum::extract::Request,
+    next: axum::middleware::Next,
+) -> axum::response::Response {
+    use axum::http::{header, Method};
+
+    let dados = (*req.method() == Method::GET && caminho_publico(req.uri().path())).then(|| {
+        let caminho = req.uri().path().to_string();
+        let referer = req
+            .headers()
+            .get(header::REFERER)
+            .and_then(|v| v.to_str().ok())
+            .map(str::to_string);
+        let host = req
+            .headers()
+            .get(header::HOST)
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or_default()
+            .to_string();
+        (caminho, referer, host)
+    });
+
+    let resp = next.run(req).await;
+
+    if let Some((caminho, referer, host)) = dados {
+        if resp.status().is_success() {
+            tokio::spawn(async move {
+                let origem =
+                    drinkup::server::visitas::origem_do_referer(referer.as_deref(), &host);
+                drinkup::server::visitas::registrar(&pool, &caminho, origem).await;
+            });
+        }
+    }
+    resp
 }
 
 /// Guarda de rota server-side: barra acesso não autenticado a `/admin/*`

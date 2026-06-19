@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT origem AS \"origem!\", count(*) AS \"total!\"\n           FROM visitas GROUP BY origem ORDER BY count(*) DESC",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "origem!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "total!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      null
+    ]
+  },
+  "hash": "f282354a5f98068b5136eec36c14ad69a0ca736cab962feb878635253f068690"
+}

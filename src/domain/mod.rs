@@ -12,8 +12,9 @@ mod telefone;
 mod usuario;
 
 pub use admin::{
-    Configuracoes, DashboardResumo, EventoForm, EventoLista, FiltroLeads, LeadResumo, PaginaLeads,
-    ParceiroForm, ParceiroLista, ProdutoForm, ProdutoLista, UsuarioForm, UsuarioLista,
+    Configuracoes, DashboardResumo, DiaAcesso, EventoForm, EventoLista, FiltroLeads, ItemRanking,
+    LeadResumo, OrigemFatia, PaginaLeads, ParceiroForm, ParceiroLista, ProdutoForm, ProdutoLista,
+    UsuarioForm, UsuarioLista,
 };
 pub use categoria::Categoria;
 pub use evento::EventoCarrossel;

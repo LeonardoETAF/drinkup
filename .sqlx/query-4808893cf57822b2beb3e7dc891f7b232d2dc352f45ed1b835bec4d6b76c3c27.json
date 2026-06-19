@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT p.nome AS \"rotulo!\", count(v.id) AS \"total!\"\n        FROM produtos p\n        JOIN visitas v ON v.caminho = '/produtos/' || p.slug\n        GROUP BY p.id, p.nome\n        ORDER BY count(v.id) DESC\n        LIMIT 4\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "rotulo!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "total!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      null
+    ]
+  },
+  "hash": "4808893cf57822b2beb3e7dc891f7b232d2dc352f45ed1b835bec4d6b76c3c27"
+}
