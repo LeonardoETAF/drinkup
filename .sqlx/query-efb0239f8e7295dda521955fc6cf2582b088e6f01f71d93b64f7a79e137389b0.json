@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT id AS \"id!\", telefone AS \"telefone!\", classificacao AS \"classificacao!\",\n               to_char(created_at, 'DD/MM/YYYY') AS \"inscricao!\"\n        FROM novidades_inscritos\n        WHERE ($1::text IS NULL OR telefone ILIKE '%' || $1 || '%')\n        ORDER BY created_at DESC\n        LIMIT 200\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "telefone!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "classificacao!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "inscricao!",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      null
+    ]
+  },
+  "hash": "efb0239f8e7295dda521955fc6cf2582b088e6f01f71d93b64f7a79e137389b0"
+}

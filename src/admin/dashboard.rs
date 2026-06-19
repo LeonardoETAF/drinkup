@@ -3,10 +3,10 @@ use leptos::task::spawn_local;
 
 use super::util::{status_classe, status_label};
 use crate::api::admin::resumo_dashboard;
-use crate::domain::{DashboardResumo, DiaAcesso, ItemRanking, LeadResumo, OrigemFatia};
+use crate::domain::{DashboardResumo, DiaAcesso, ItemRanking, LeadResumo};
 
 const IC_OLHO: &str = r#"<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>"#;
-const IC_CHAT: &str = r#"<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-9 8 9 9 0 0 1-4-1L3 20l1.5-4.5A8.4 8.4 0 1 1 21 11.5z"/></svg>"#;
+const IC_CHAT: &str = r#"<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg>"#;
 const IC_COPO: &str = r#"<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4h12l-1.2 15A2 2 0 0 1 14.8 21H9.2a2 2 0 0 1-2-1.9zM5 4h14"/></svg>"#;
 const IC_TREND: &str = r#"<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M17 7h4v4"/></svg>"#;
 
@@ -209,23 +209,16 @@ fn painel(r: DashboardResumo) -> AnyView {
             )}
         </div>
 
-        <div class="dash-row dash-row--2-1">
-            <section class="admin-card dash-chart">
-                <div class="dash-chart__head">
-                    <div>
-                        <h2 class="dash-card__head-title">"Acessos ao site"</h2>
-                        <p class="admin-card__meta">{chart_meta}</p>
-                    </div>
-                    <span class="dash-chart__total">{fmt_milhar(total)}</span>
+        <section class="admin-card dash-chart">
+            <div class="dash-chart__head">
+                <div>
+                    <h2 class="dash-card__head-title">"Acessos ao site"</h2>
+                    <p class="admin-card__meta">{chart_meta}</p>
                 </div>
-                {grafico_barras(r.acessos_serie)}
-            </section>
-
-            <section class="admin-card">
-                <h2 class="dash-card__head-title">"Origem do tráfego"</h2>
-                {lista_origem(r.origem_trafego)}
-            </section>
-        </div>
+                <span class="dash-chart__total">{fmt_milhar(total)}</span>
+            </div>
+            {grafico_barras(r.acessos_serie)}
+        </section>
 
         <div class="dash-row dash-row--2-1">
             <section class="admin-card">
@@ -305,36 +298,6 @@ fn grafico_barras(dias: Vec<DiaAcesso>) -> AnyView {
                 })
                 .collect_view()}
         </div>
-    }
-    .into_any()
-}
-
-fn lista_origem(itens: Vec<OrigemFatia>) -> AnyView {
-    if itens.is_empty() {
-        return vazio();
-    }
-    view! {
-        <ul class="bar-list">
-            {itens
-                .into_iter()
-                .enumerate()
-                .map(|(i, o)| {
-                    view! {
-                        <li class="bar-row" class:is-top=(i == 0)>
-                            <span class="bar-row__dot"></span>
-                            <span class="bar-row__lbl">{cap(&o.origem)}</span>
-                            <span class="bar-row__pct">{format!("{}%", o.pct)}</span>
-                            <div class="bar-row__track">
-                                <div
-                                    class="bar-row__fill"
-                                    style=format!("width:{}%", o.pct.max(2))
-                                ></div>
-                            </div>
-                        </li>
-                    }
-                })
-                .collect_view()}
-        </ul>
     }
     .into_any()
 }
@@ -462,13 +425,4 @@ fn fmt_milhar(n: i64) -> String {
 /// Percentual com uma casa decimal (pt-BR: 6,1%).
 fn fmt_pct1(v: f64) -> String {
     format!("{v:.1}%").replace('.', ",")
-}
-
-/// Primeira letra maiúscula (para os rótulos de origem).
-fn cap(s: &str) -> String {
-    let mut c = s.chars();
-    match c.next() {
-        Some(p) => p.to_uppercase().collect::<String>() + c.as_str(),
-        None => String::new(),
-    }
 }

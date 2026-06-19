@@ -6,6 +6,9 @@ use uuid::Uuid;
 use crate::domain::{InscritoResumo, PaginaInscritos};
 use crate::error::AppError;
 
+/// Classificações válidas de um inscrito (espelham o CHECK da tabela).
+pub const CLASSIFICACOES: [&str; 4] = ["novo", "cliente", "potencial", "inativo"];
+
 fn interno(e: sqlx::Error, ctx: &str) -> AppError {
     tracing::error!(error = %e, "{ctx}");
     AppError::Internal
@@ -33,7 +36,7 @@ pub async fn listar(pool: &PgPool, busca: Option<&str>) -> Result<PaginaInscrito
     let itens = sqlx::query_as!(
         InscritoResumo,
         r#"
-        SELECT id AS "id!", telefone AS "telefone!",
+        SELECT id AS "id!", telefone AS "telefone!", classificacao AS "classificacao!",
                to_char(created_at, 'DD/MM/YYYY') AS "inscricao!"
         FROM novidades_inscritos
         WHERE ($1::text IS NULL OR telefone ILIKE '%' || $1 || '%')
@@ -54,6 +57,26 @@ pub async fn listar(pool: &PgPool, busca: Option<&str>) -> Result<PaginaInscrito
     .await?;
 
     Ok(PaginaInscritos { itens, total })
+}
+
+/// Atualiza a classificação de um inscrito (valida o valor no servidor).
+pub async fn atualizar_classificacao(
+    pool: &PgPool,
+    id: Uuid,
+    classificacao: &str,
+) -> Result<(), AppError> {
+    if !CLASSIFICACOES.contains(&classificacao) {
+        return Err(AppError::Validation);
+    }
+    sqlx::query!(
+        "UPDATE novidades_inscritos SET classificacao = $2 WHERE id = $1",
+        id,
+        classificacao,
+    )
+    .execute(pool)
+    .await
+    .map_err(|e| interno(e, "falha ao atualizar classificação"))?;
+    Ok(())
 }
 
 /// Remove um inscrito.

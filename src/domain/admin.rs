@@ -19,14 +19,6 @@ pub struct DiaAcesso {
     pub total: i64,
 }
 
-/// Fatia da origem do tráfego (com percentual já calculado).
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct OrigemFatia {
-    pub origem: String,
-    pub total: i64,
-    pub pct: i32,
-}
-
 /// Linha de "páginas mais visitadas" / "produtos mais vistos".
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ItemRanking {
@@ -48,7 +40,6 @@ pub struct DashboardResumo {
     pub taxa_conversao: f64,
     pub conversao_delta: Option<i32>,
     pub acessos_serie: Vec<DiaAcesso>,
-    pub origem_trafego: Vec<OrigemFatia>,
     pub paginas: Vec<ItemRanking>,
     pub produtos_vistos: Vec<ItemRanking>,
     pub recentes: Vec<LeadResumo>,
@@ -64,6 +55,7 @@ pub struct DashboardResumo {
 pub struct InscritoResumo {
     pub id: Uuid,
     pub telefone: String,
+    pub classificacao: String,
     pub inscricao: String,
 }
 

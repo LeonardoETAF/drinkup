@@ -2,7 +2,7 @@
 //! Tudo é filtrado pelo período (ano / mês / dia) escolhido no painel.
 use sqlx::PgPool;
 
-use crate::domain::{DashboardResumo, DiaAcesso, ItemRanking, LeadResumo, OrigemFatia};
+use crate::domain::{DashboardResumo, DiaAcesso, ItemRanking, LeadResumo};
 
 const MESES: [&str; 12] = [
     "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez",
@@ -95,7 +95,11 @@ pub async fn resumo(
                WHEN $2 IS NOT NULL THEN interval '1 month' ELSE interval '1 year' END AS passo)
         SELECT
           count(*) FILTER (WHERE created_at >= per.d0 AND created_at < per.d0 + per.passo) AS "atual!",
-          count(*) FILTER (WHERE created_at >= per.d0 - per.passo AND created_at < per.d0) AS "prev!"
+          count(*) FILTER (WHERE created_at >= per.d0 - per.passo AND created_at < per.d0) AS "prev!",
+          count(*) FILTER (WHERE status = 'convertido'
+                             AND created_at >= per.d0 AND created_at < per.d0 + per.passo) AS "conv_atual!",
+          count(*) FILTER (WHERE status = 'convertido'
+                             AND created_at >= per.d0 - per.passo AND created_at < per.d0) AS "conv_prev!"
         FROM leads, per
         "#,
         ano,
@@ -115,10 +119,10 @@ pub async fn resumo(
     .fetch_one(pool)
     .await?;
 
-    // --- Conversão (leads/acessos no período) ---
-    let conv = |l: i64, a: i64| if a > 0 { l as f64 / a as f64 * 100.0 } else { 0.0 };
-    let taxa_conversao = conv(leads.atual, acessos.atual);
-    let conversao_delta = delta_pct(taxa_conversao, conv(leads.prev, acessos.prev));
+    // --- Conversão (leads convertidos / leads no período) ---
+    let conv = |c: i64, base: i64| if base > 0 { c as f64 / base as f64 * 100.0 } else { 0.0 };
+    let taxa_conversao = conv(leads.conv_atual, leads.atual);
+    let conversao_delta = delta_pct(taxa_conversao, conv(leads.conv_prev, leads.prev));
 
     // --- Série de acessos (por hora no dia / por dia no mês / por mês no ano) ---
     let serie_rows = sqlx::query!(
@@ -166,38 +170,7 @@ pub async fn resumo(
         })
         .collect();
 
-    // --- Origem do tráfego no período (percentuais no servidor) ---
-    let origem_rows = sqlx::query!(
-        r#"
-        WITH per AS (SELECT make_date($1, coalesce($2,1), coalesce($3,1))::timestamptz AS d0,
-          CASE WHEN $3 IS NOT NULL THEN interval '1 day'
-               WHEN $2 IS NOT NULL THEN interval '1 month' ELSE interval '1 year' END AS passo)
-        SELECT origem AS "origem!", count(*) AS "total!"
-        FROM visitas, per
-        WHERE created_at >= per.d0 AND created_at < per.d0 + per.passo
-        GROUP BY origem ORDER BY count(*) DESC
-        "#,
-        ano,
-        mes,
-        dia,
-    )
-    .fetch_all(pool)
-    .await?;
-    let soma_origem: i64 = origem_rows.iter().map(|r| r.total).sum();
-    let origem_trafego = origem_rows
-        .into_iter()
-        .map(|r| OrigemFatia {
-            pct: if soma_origem > 0 {
-                (r.total as f64 / soma_origem as f64 * 100.0).round() as i32
-            } else {
-                0
-            },
-            origem: r.origem,
-            total: r.total,
-        })
-        .collect();
-
-    // --- Páginas mais visitadas no período ---
+    // --- Páginas mais visitadas no período (sem a Início) ---
     let paginas = sqlx::query!(
         r#"
         WITH per AS (SELECT make_date($1, coalesce($2,1), coalesce($3,1))::timestamptz AS d0,
@@ -206,7 +179,7 @@ pub async fn resumo(
         SELECT caminho AS "caminho!", count(*) AS "total!"
         FROM visitas, per
         WHERE created_at >= per.d0 AND created_at < per.d0 + per.passo
-          AND caminho IN ('/', '/quem-somos', '/produtos', '/parceiros', '/contato')
+          AND caminho IN ('/quem-somos', '/produtos', '/parceiros', '/contato')
         GROUP BY caminho ORDER BY count(*) DESC LIMIT 5
         "#,
         ano,
@@ -274,7 +247,6 @@ pub async fn resumo(
         taxa_conversao,
         conversao_delta,
         acessos_serie,
-        origem_trafego,
         paginas,
         produtos_vistos,
         recentes,

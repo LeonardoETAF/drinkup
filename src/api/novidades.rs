@@ -31,6 +31,20 @@ pub async fn listar_inscritos(busca: Option<String>) -> Result<PaginaInscritos, 
         })
 }
 
+/// Atualiza a classificação de um inscrito (admin). Exige papel: editor.
+#[server]
+pub async fn classificar_inscrito(id: Uuid, classificacao: String) -> Result<(), ServerFnError> {
+    use crate::error::AppError;
+
+    let pool = expect_context::<sqlx::PgPool>();
+    crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Editor, "novidades").await?;
+    match crate::server::novidades::atualizar_classificacao(&pool, id, &classificacao).await {
+        Ok(()) => Ok(()),
+        Err(AppError::Validation) => Err(ServerFnError::new("Classificação inválida.")),
+        Err(_) => Err(ServerFnError::new("Não foi possível atualizar.")),
+    }
+}
+
 /// Remove um inscrito (admin). Exige autenticação (papel: editor).
 #[server]
 pub async fn excluir_inscrito(id: Uuid) -> Result<(), ServerFnError> {

@@ -3,8 +3,18 @@ use leptos::task::spawn_local;
 use uuid::Uuid;
 
 use super::modal::ModalConfirmacao;
-use crate::api::novidades::{excluir_inscrito, listar_inscritos};
+use crate::api::novidades::{classificar_inscrito, excluir_inscrito, listar_inscritos};
 use crate::domain::PaginaInscritos;
+
+/// Opções de classificação (valor no banco, rótulo na tela).
+const CLASSIFICACOES: [(&str, &str); 4] = [
+    ("novo", "Novo"),
+    ("cliente", "Cliente"),
+    ("potencial", "Potencial"),
+    ("inativo", "Inativo"),
+];
+
+type AcaoClassificar = Action<(Uuid, String), Result<(), ServerFnError>>;
 
 const IC_DEL: &str = r#"<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/></svg>"#;
 
@@ -41,6 +51,11 @@ pub fn AdminNovidades() -> impl IntoView {
         }
     });
 
+    let classificar = Action::new(|(id, cl): &(Uuid, String)| {
+        let (id, cl) = (*id, cl.clone());
+        async move { classificar_inscrito(id, cl).await }
+    });
+
     view! {
         <header class="admin-head">
             <h1 class="admin-head__title">"Novidades"</h1>
@@ -63,7 +78,7 @@ pub fn AdminNovidades() -> impl IntoView {
                 Some(Err(_)) => {
                     view! { <p class="admin-status">"Não foi possível carregar."</p> }.into_any()
                 }
-                Some(Ok(p)) => tabela(p, pendente).into_any(),
+                Some(Ok(p)) => tabela(p, pendente, classificar).into_any(),
             }}
         </section>
 
@@ -82,7 +97,11 @@ pub fn AdminNovidades() -> impl IntoView {
     }
 }
 
-fn tabela(p: PaginaInscritos, pendente: RwSignal<Option<Uuid>>) -> AnyView {
+fn tabela(
+    p: PaginaInscritos,
+    pendente: RwSignal<Option<Uuid>>,
+    classificar: AcaoClassificar,
+) -> AnyView {
     if p.itens.is_empty() {
         return view! { <p class="admin-status">"Nenhum inscrito ainda."</p> }.into_any();
     }
@@ -93,6 +112,7 @@ fn tabela(p: PaginaInscritos, pendente: RwSignal<Option<Uuid>>) -> AnyView {
                 <thead>
                     <tr>
                         <th>"WhatsApp"</th>
+                        <th>"Classificação"</th>
                         <th>"Inscrição"</th>
                         <th>"Ações"</th>
                     </tr>
@@ -103,9 +123,29 @@ fn tabela(p: PaginaInscritos, pendente: RwSignal<Option<Uuid>>) -> AnyView {
                         .into_iter()
                         .map(|i| {
                             let id = i.id;
+                            let atual = i.classificacao.clone();
                             view! {
                                 <tr>
                                     <td>{i.telefone}</td>
+                                    <td>
+                                        <select
+                                            class="status-select"
+                                            on:change=move |ev| {
+                                                classificar.dispatch((id, event_target_value(&ev)));
+                                            }
+                                        >
+                                            {CLASSIFICACOES
+                                                .iter()
+                                                .map(|&(valor, rotulo)| {
+                                                    view! {
+                                                        <option value=valor selected=atual == valor>
+                                                            {rotulo}
+                                                        </option>
+                                                    }
+                                                })
+                                                .collect_view()}
+                                        </select>
+                                    </td>
                                     <td>{i.inscricao}</td>
                                     <td>
                                         <button

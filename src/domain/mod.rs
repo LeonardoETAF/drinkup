@@ -13,8 +13,8 @@ mod usuario;
 
 pub use admin::{
     Configuracoes, DashboardResumo, DiaAcesso, EventoForm, EventoLista, FiltroLeads, InscritoResumo,
-    ItemRanking, LeadResumo, OrigemFatia, PaginaInscritos, PaginaLeads, ParceiroForm, ParceiroLista,
-    ProdutoForm, ProdutoLista, UsuarioForm, UsuarioLista,
+    ItemRanking, LeadResumo, PaginaInscritos, PaginaLeads, ParceiroForm, ParceiroLista, ProdutoForm,
+    ProdutoLista, UsuarioForm, UsuarioLista,
 };
 pub use categoria::Categoria;
 pub use evento::EventoCarrossel;
