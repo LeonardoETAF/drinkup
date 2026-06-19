@@ -2,13 +2,11 @@ use leptos::prelude::*;
 use leptos::task::spawn_local;
 use uuid::Uuid;
 
-use super::confirmar::confirmar;
+use super::modal::ModalConfirmacao;
 use crate::api::parceiros_admin::{excluir_parceiro, listar_parceiros_admin};
 use crate::domain::ParceiroLista;
 
 const IC_DEL: &str = r#"<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/></svg>"#;
-
-type AcaoExcluir = Action<Uuid, Result<(), ServerFnError>>;
 
 /// Grade de parceiros no painel (logo + nome + editar/excluir).
 #[component]
@@ -36,6 +34,8 @@ pub fn AdminParceiros() -> impl IntoView {
         }
     });
 
+    let pendente = RwSignal::new(None::<Uuid>);
+
     view! {
         <header class="admin-head admin-head--row">
             <div>
@@ -44,6 +44,19 @@ pub fn AdminParceiros() -> impl IntoView {
             </div>
             <a class="btn btn--primary" href="/admin/parceiros/novo">"+ Novo parceiro"</a>
         </header>
+
+        <ModalConfirmacao
+            aberto=Signal::derive(move || pendente.get().is_some())
+            mensagem="Excluir este parceiro?"
+            confirmar_texto="Excluir"
+            ao_cancelar=Callback::new(move |()| pendente.set(None))
+            ao_confirmar=Callback::new(move |()| {
+                if let Some(id) = pendente.get_untracked() {
+                    excluir.dispatch(id);
+                }
+                pendente.set(None);
+            })
+        />
 
         <div class="admin-toolbar">
             <input
@@ -63,12 +76,12 @@ pub fn AdminParceiros() -> impl IntoView {
             Some(Ok(itens)) if itens.is_empty() => {
                 view! { <p class="admin-status">"Nenhum parceiro. Crie o primeiro."</p> }.into_any()
             }
-            Some(Ok(itens)) => grade(itens, excluir).into_any(),
+            Some(Ok(itens)) => grade(itens, pendente).into_any(),
         }}
     }
 }
 
-fn grade(itens: Vec<ParceiroLista>, excluir: AcaoExcluir) -> AnyView {
+fn grade(itens: Vec<ParceiroLista>, pendente: RwSignal<Option<Uuid>>) -> AnyView {
     view! {
         <div class="parceiro-grid">
             {itens
@@ -93,11 +106,7 @@ fn grade(itens: Vec<ParceiroLista>, excluir: AcaoExcluir) -> AnyView {
                                 <button
                                     class="icon-btn icon-btn--danger"
                                     inner_html=IC_DEL
-                                    on:click=move |_| {
-                                        if confirmar("Excluir este parceiro?") {
-                                            excluir.dispatch(id);
-                                        }
-                                    }
+                                    on:click=move |_| pendente.set(Some(id))
                                 ></button>
                             </div>
                         </div>

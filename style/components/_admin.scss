@@ -644,6 +644,63 @@
   font-size: var(--text-xs);
 }
 
+/* ===== Modal de confirmação (próprio do sistema) ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  background: rgba(0, 0, 0, 0.62);
+  backdrop-filter: blur(2px);
+  animation: modal-fade 0.15s ease;
+}
+
+.modal {
+  width: 100%;
+  max-width: 440px;
+  padding: var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  animation: modal-pop 0.15s ease;
+}
+
+.modal__msg {
+  font-size: var(--text-lg);
+  font-weight: var(--fw-semibold);
+  line-height: 1.5;
+  margin-bottom: var(--space-6);
+}
+
+.modal__acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+@keyframes modal-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes modal-pop {
+  from {
+    transform: translateY(6px) scale(0.98);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-overlay,
+  .modal {
+    animation: none;
+  }
+}
+
 /* ===== Card de upload de imagem ===== */
 .upload-card {
   position: relative;

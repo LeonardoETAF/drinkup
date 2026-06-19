@@ -1,7 +1,6 @@
 //! Painel administrativo (rotas protegidas). A autorização é SEMPRE verificada
 //! no servidor (sessão + RBAC); a UI aqui é apresentação, não controle de acesso.
 mod configuracoes;
-mod confirmar;
 mod conteudo;
 mod conteudo_sobre;
 mod dashboard;
@@ -11,6 +10,7 @@ mod eventos;
 mod layout;
 mod leads;
 mod login;
+mod modal;
 mod parceiro_form;
 mod parceiros;
 mod produto_form;
