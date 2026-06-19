@@ -59,6 +59,21 @@ pub struct DashboardResumo {
     pub ano_atual: i32,
 }
 
+/// Inscrito em "Novidades" (newsletter por WhatsApp).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct InscritoResumo {
+    pub id: Uuid,
+    pub telefone: String,
+    pub inscricao: String,
+}
+
+/// Página de inscritos em novidades.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PaginaInscritos {
+    pub itens: Vec<InscritoResumo>,
+    pub total: i64,
+}
+
 /// Filtros da listagem de leads.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
 pub struct FiltroLeads {

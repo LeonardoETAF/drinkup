@@ -12,6 +12,7 @@ pub mod email;
 pub mod eventos_admin;
 pub mod home_content;
 pub mod leads;
+pub mod novidades;
 pub mod parceiros_admin;
 pub mod products;
 pub mod produtos_admin;

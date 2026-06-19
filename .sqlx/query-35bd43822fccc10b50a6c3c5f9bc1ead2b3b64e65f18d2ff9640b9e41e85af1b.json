@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM novidades_inscritos WHERE id = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "35bd43822fccc10b50a6c3c5f9bc1ead2b3b64e65f18d2ff9640b9e41e85af1b"
+}

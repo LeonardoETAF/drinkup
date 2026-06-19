@@ -9,8 +9,8 @@ use leptos_router::{
 use crate::admin::{
     AdminConfiguracoes, AdminConteudoHome, AdminConteudoQuemSomos, AdminDashboard, AdminEventoForm,
     AdminEventos, AdminLayout, AdminLeads, AdminLoginPage, AdminParceiroForm, AdminParceiros,
-    AdminProdutoForm, AdminProdutos, AdminRecuperarSenhaPage, AdminRedefinirSenhaPage,
-    AdminUsuarioForm, AdminUsuarios,
+    AdminNovidades, AdminProdutoForm, AdminProdutos, AdminRecuperarSenhaPage,
+    AdminRedefinirSenhaPage, AdminUsuarioForm, AdminUsuarios,
 };
 use crate::components::{SiteFooter, SiteHeader};
 use crate::pages::{
@@ -92,6 +92,7 @@ pub fn App() -> impl IntoView {
                 <ParentRoute path=StaticSegment("admin") view=AdminLayout>
                     <Route path=StaticSegment("") view=AdminDashboard/>
                     <Route path=StaticSegment("leads") view=AdminLeads/>
+                    <Route path=StaticSegment("novidades") view=AdminNovidades/>
                     <Route path=StaticSegment("produtos") view=AdminProdutos/>
                     <Route
                         path=(StaticSegment("produtos"), StaticSegment("novo"))

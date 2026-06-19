@@ -7,10 +7,11 @@ use crate::api::usuarios_admin::{obter_usuario_admin, salvar_usuario};
 use crate::domain::UsuarioForm;
 
 /// Menus (chave, rótulo) que podem ser liberados por usuário.
-const MENU_OPCOES: [(&str, &str); 8] = [
+const MENU_OPCOES: [(&str, &str); 9] = [
     ("dashboard", "Dashboard"),
     ("produtos", "Produtos"),
     ("leads", "Leads"),
+    ("novidades", "Novidades"),
     ("parceiros", "Parceiros"),
     ("eventos", "Eventos"),
     ("conteudo", "Conteúdo Home"),

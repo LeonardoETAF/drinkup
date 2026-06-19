@@ -18,18 +18,34 @@ pub fn SiteFooter() -> impl IntoView {
     // Feedback do envio: None = nada; Some((sucesso, texto)).
     let (mensagem, definir_mensagem) = signal::<Option<(bool, String)>>(None);
 
+    // A inscrição é persistida no servidor (validação/dedupe lá).
+    let inscrever = Action::new(|tel: &String| {
+        let tel = tel.clone();
+        async move { crate::api::novidades::inscrever_novidades(tel).await }
+    });
+
     let enviar = move |ev: leptos::ev::SubmitEvent| {
         ev.prevent_default();
-        let digitos = telefone.get_untracked().chars().filter(|c| c.is_ascii_digit()).count();
+        let bruto = telefone.get_untracked();
+        let digitos = bruto.chars().filter(|c| c.is_ascii_digit()).count();
         if digitos == 11 {
-            definir_telefone.set(String::new());
-            definir_mensagem
-                .set(Some((true, "Pronto! Em breve você receberá nossas novidades.".to_string())));
+            inscrever.dispatch(bruto);
         } else {
             definir_mensagem
                 .set(Some((false, "Informe um número de WhatsApp válido.".to_string())));
         }
     };
+
+    // Reflete o resultado da server function na mensagem de feedback.
+    Effect::new(move |_| match inscrever.value().get() {
+        Some(Ok(())) => {
+            definir_telefone.set(String::new());
+            definir_mensagem
+                .set(Some((true, "Pronto! Em breve você receberá nossas novidades.".to_string())));
+        }
+        Some(Err(e)) => definir_mensagem.set(Some((false, e.to_string()))),
+        None => {}
+    });
     view! {
         <footer class="site-footer">
             <div class="container site-footer__inner">

@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO novidades_inscritos (telefone) VALUES ($1) ON CONFLICT (telefone) DO NOTHING",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "791350082c460ec8f120aaa594ba5cf3f4855f11075e4be4e3d10d56332d7c39"
+}

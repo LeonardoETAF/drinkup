@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT count(*) AS \"c!\" FROM novidades_inscritos\n           WHERE ($1::text IS NULL OR telefone ILIKE '%' || $1 || '%')",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "c!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "1f6d87ae68fcb145787ac230c0a7c21fb82610816d630928386641d5a395ae0d"
+}

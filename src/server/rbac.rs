@@ -3,10 +3,11 @@
 //! papel e a hierarquia usada pelas server functions protegidas.
 
 /// Menus do painel sujeitos a permissão por usuário.
-pub const MENUS: [&str; 8] = [
+pub const MENUS: [&str; 9] = [
     "dashboard",
     "produtos",
     "leads",
+    "novidades",
     "parceiros",
     "eventos",
     "conteudo",
