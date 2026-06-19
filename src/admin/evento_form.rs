@@ -73,9 +73,9 @@ pub fn AdminEventoForm() -> impl IntoView {
         <header class="admin-head admin-head--row">
             <div>
                 <h1 class="admin-head__title">
-                    {move || if editando() { "Editar categoria" } else { "Nova categoria" }}
+                    {move || if editando() { "Editar evento" } else { "Novo evento" }}
                 </h1>
-                <p class="admin-head__sub">"Categoria do carrossel da home"</p>
+                <p class="admin-head__sub">"Evento do carrossel da home"</p>
             </div>
             <a class="btn btn--ghost" href="/admin/eventos">"Voltar"</a>
         </header>
@@ -93,7 +93,7 @@ pub fn AdminEventoForm() -> impl IntoView {
 
             <div class="field">
                 <span class="field__label">"Imagem do card"</span>
-                <CartaoUpload url=imagem_url dica="PNG/JPG/WEBP · paisagem (16:9) · até 5MB"/>
+                <CartaoUpload url=imagem_url dica="PNG/JPG/WEBP · retrato (3:4) · até 5MB"/>
             </div>
 
             <div class="admin-form__grid">
@@ -133,7 +133,7 @@ pub fn AdminEventoForm() -> impl IntoView {
             <div class="admin-form__acoes">
                 <a class="btn btn--ghost" href="/admin/eventos">"Cancelar"</a>
                 <button type="submit" class="btn btn--primary" prop:disabled=move || salvando.get()>
-                    {move || if salvando.get() { "Salvando..." } else { "Salvar categoria" }}
+                    {move || if salvando.get() { "Salvando..." } else { "Salvar evento" }}
                 </button>
             </div>
         </form>
