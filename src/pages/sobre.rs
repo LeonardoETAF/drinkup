@@ -218,17 +218,66 @@ fn depo_card(texto: String, autor: String) -> impl IntoView {
     }
 }
 
-/// Um depoimento = card único centralizado; mais de um = swipe horizontal.
+/// Um depoimento = card único centralizado; mais de um = swipe individual
+/// (um por vez) com bolinhas de navegação.
 fn depoimentos_view(deps: Vec<(String, String)>) -> AnyView {
-    if deps.len() == 1 {
-        let (t, a) = deps.into_iter().next().unwrap();
+    if deps.len() <= 1 {
+        let (t, a) = deps.into_iter().next().unwrap_or_default();
         depo_card(t, a).into_any()
     } else {
-        view! {
-            <div class="sobre-depo__track" tabindex="0" aria-label="Depoimentos (arraste para ver mais)">
-                {deps.into_iter().map(|(t, a)| depo_card(t, a)).collect_view()}
+        view! { <DepoimentosSwipe deps=deps/> }.into_any()
+    }
+}
+
+/// Carrossel de depoimentos: um card por slide (swipe nativo por scroll-snap)
+/// com bolinhas embaixo para alternar.
+#[component]
+fn DepoimentosSwipe(deps: Vec<(String, String)>) -> impl IntoView {
+    let total = deps.len();
+    let ativo = RwSignal::new(0usize);
+    let track = NodeRef::<leptos::html::Div>::new();
+
+    view! {
+        <div class="depo-swipe">
+            <div
+                class="depo-swipe__track"
+                node_ref=track
+                on:scroll=move |_| {
+                    #[cfg(feature = "hydrate")]
+                    if let Some(el) = track.get_untracked() {
+                        let w = el.client_width().max(1);
+                        ativo.set((f64::from(el.scroll_left()) / f64::from(w)).round() as usize);
+                    }
+                }
+            >
+                {deps
+                    .into_iter()
+                    .map(|(t, a)| {
+                        view! { <div class="depo-swipe__item">{depo_card(t, a)}</div> }
+                    })
+                    .collect_view()}
             </div>
-        }
-        .into_any()
+            <div class="depo-swipe__dots" aria-label="Selecionar depoimento">
+                {(0..total)
+                    .map(|i| {
+                        view! {
+                            <button
+                                type="button"
+                                class="depo-swipe__dot"
+                                class:is-active=move || ativo.get() == i
+                                aria-label=format!("Depoimento {}", i + 1)
+                                on:click=move |_| {
+                                    ativo.set(i);
+                                    #[cfg(feature = "hydrate")]
+                                    if let Some(el) = track.get_untracked() {
+                                        el.set_scroll_left(el.client_width() * i as i32);
+                                    }
+                                }
+                            ></button>
+                        }
+                    })
+                    .collect_view()}
+            </div>
+        </div>
     }
 }
