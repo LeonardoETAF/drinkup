@@ -127,7 +127,7 @@ fn Hero(link: Memo<String>) -> impl IntoView {
                 />
                 <img
                     class="hero__mark logo-light"
-                    src="/brand/icone-preto.png"
+                    src="/brand/logo-mark-preta.png"
                     alt=""
                     aria-hidden="true"
                 />

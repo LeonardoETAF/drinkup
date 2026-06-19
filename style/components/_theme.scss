@@ -51,8 +51,8 @@
 
 /* No tema claro o hero é claro: overlay claro sobre o wallpaper doodles 3b
    (textura sutil), texto escuro (tokens padrão) e esmaecer na base. A marca "//"
-   é branca, então no claro mostramos o ícone preto (mesma posição/tamanho via
-   .hero__mark + troca logo-dark/logo-light). */
+   é branca, então no claro mostramos a mesma marca em versão escura
+   (logo-mark-preta) — mesmo design, posição e tamanho via .hero__mark. */
 [data-theme="light"] .hero {
   background-image:
     linear-gradient(
@@ -62,13 +62,6 @@
       var(--color-bg) 100%
     ),
     url("/backgrounds/doodles3b.webp");
-}
-
-/* O ícone preto é mais alto que a marca branca; igualamos a ALTURA renderizada
-   à do tema escuro (largura da marca / proporção 0.638) para o mesmo tamanho. */
-[data-theme="light"] .hero__mark {
-  width: auto;
-  height: clamp(204px, 25.1vw, 345px);
 }
 
 /* Depoimentos: vira seção clara no tema claro (sem o overlay escuro);
