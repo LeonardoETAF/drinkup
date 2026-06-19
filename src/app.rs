@@ -47,7 +47,7 @@ pub fn App() -> impl IntoView {
     definir_csp();
 
     view! {
-        <Stylesheet id="leptos" href="/pkg/drinkup.css?v=14"/>
+        <Stylesheet id="leptos" href="/pkg/drinkup.css?v=15"/>
         <Title text="DRINK UP — Copos personalizados"/>
         <Router>
             <Routes fallback=NotFound>
