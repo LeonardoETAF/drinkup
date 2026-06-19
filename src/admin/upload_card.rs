@@ -81,6 +81,27 @@ pub fn CartaoUpload(
                 erro.get()
                     .then(|| view! { <span class="upload-card__erro">"Falha no envio."</span> })
             }}
+            {move || {
+                url.get()
+                    .is_some()
+                    .then(|| {
+                        view! {
+                            <button
+                                type="button"
+                                class="upload-card__rm"
+                                title="Remover imagem"
+                                aria-label="Remover imagem"
+                                on:click=move |ev| {
+                                    ev.prevent_default();
+                                    ev.stop_propagation();
+                                    url.set(None);
+                                }
+                            >
+                                "×"
+                            </button>
+                        }
+                    })
+            }}
         </label>
     }
 }

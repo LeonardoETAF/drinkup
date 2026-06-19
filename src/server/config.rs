@@ -24,6 +24,10 @@ pub async fn obter(pool: &PgPool) -> Result<Configuracoes, sqlx::Error> {
         horario_domingo: get("horario_domingo"),
         facebook: get("social_facebook"),
         instagram: get("social_instagram"),
+        // Ausente => ativo (preserva o comportamento anterior).
+        facebook_ativo: get("social_facebook_ativo") != "false",
+        instagram_ativo: get("social_instagram_ativo") != "false",
+        whatsapp_ativo: get("social_whatsapp_ativo") != "false",
     })
 }
 
@@ -39,6 +43,9 @@ pub async fn salvar(pool: &PgPool, c: &Configuracoes) -> Result<(), AppError> {
         ("horario_domingo", c.horario_domingo.trim()),
         ("social_facebook", c.facebook.trim()),
         ("social_instagram", c.instagram.trim()),
+        ("social_facebook_ativo", if c.facebook_ativo { "true" } else { "false" }),
+        ("social_instagram_ativo", if c.instagram_ativo { "true" } else { "false" }),
+        ("social_whatsapp_ativo", if c.whatsapp_ativo { "true" } else { "false" }),
     ];
     for (chave, valor) in pares {
         if valor.chars().count() > 300 {

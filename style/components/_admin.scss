@@ -869,6 +869,30 @@
   background: var(--color-pink);
 }
 
+/* Botão de remover a imagem já enviada (canto superior direito do card). */
+.upload-card__rm {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  z-index: 2;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+.upload-card__rm:hover {
+  background: var(--color-pink);
+}
+
 @media (max-width: 620px) {
   .admin-form__grid {
     grid-template-columns: 1fr;
@@ -884,6 +908,11 @@
 .admin-fieldset {
   border: none;
   margin: 0;
+}
+
+/* Espaço entre campos empilhados no mesmo fieldset (ex.: Telefone e Endereço). */
+.admin-fieldset > .field + .field {
+  margin-top: var(--space-5);
 }
 
 .admin-fieldset__titulo {

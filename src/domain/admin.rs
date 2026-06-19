@@ -59,6 +59,9 @@ pub struct Configuracoes {
     pub horario_domingo: String,
     pub facebook: String,
     pub instagram: String,
+    pub facebook_ativo: bool,
+    pub instagram_ativo: bool,
+    pub whatsapp_ativo: bool,
 }
 
 /// Usuário do painel na listagem.

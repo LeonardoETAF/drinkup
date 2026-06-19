@@ -121,33 +121,51 @@ pub fn SiteFooter() -> impl IntoView {
 /// configurações; o WhatsApp é montado a partir do telefone. Sem destino, o
 /// botão fica inerte ("#").
 fn redes_sociais(c: Configuracoes) -> impl IntoView {
-    let ou_hash = |s: String| if s.trim().is_empty() { "#".to_string() } else { s };
-    let fb = ou_hash(c.facebook);
-    let ig = ou_hash(c.instagram);
-    let wa = link_whatsapp(&c.telefone).unwrap_or_else(|| "#".to_string());
+    // Mostra cada rede só se estiver ativa e com destino configurado.
+    let fb = (c.facebook_ativo && !c.facebook.trim().is_empty()).then_some(c.facebook);
+    let ig = (c.instagram_ativo && !c.instagram.trim().is_empty()).then_some(c.instagram);
+    let wa = c
+        .whatsapp_ativo
+        .then(|| link_whatsapp(&c.telefone))
+        .flatten();
     view! {
         <div class="social">
-            <a
-                href=fb
-                aria-label="Facebook"
-                target="_blank"
-                rel="noopener noreferrer"
-                inner_html=ICON_FACEBOOK
-            ></a>
-            <a
-                href=ig
-                aria-label="Instagram"
-                target="_blank"
-                rel="noopener noreferrer"
-                inner_html=ICON_INSTAGRAM
-            ></a>
-            <a
-                href=wa
-                aria-label="WhatsApp"
-                target="_blank"
-                rel="noopener noreferrer"
-                inner_html=ICON_WHATSAPP
-            ></a>
+            {fb
+                .map(|u| {
+                    view! {
+                        <a
+                            href=u
+                            aria-label="Facebook"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            inner_html=ICON_FACEBOOK
+                        ></a>
+                    }
+                })}
+            {ig
+                .map(|u| {
+                    view! {
+                        <a
+                            href=u
+                            aria-label="Instagram"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            inner_html=ICON_INSTAGRAM
+                        ></a>
+                    }
+                })}
+            {wa
+                .map(|u| {
+                    view! {
+                        <a
+                            href=u
+                            aria-label="WhatsApp"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            inner_html=ICON_WHATSAPP
+                        ></a>
+                    }
+                })}
         </div>
     }
 }

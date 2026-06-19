@@ -16,6 +16,9 @@ pub fn AdminConfiguracoes() -> impl IntoView {
     let h_domingo = RwSignal::new(String::new());
     let facebook = RwSignal::new(String::new());
     let instagram = RwSignal::new(String::new());
+    let facebook_ativo = RwSignal::new(true);
+    let instagram_ativo = RwSignal::new(true);
+    let whatsapp_ativo = RwSignal::new(true);
     let carregado = RwSignal::new(false);
 
     Effect::new(move |_| {
@@ -30,6 +33,9 @@ pub fn AdminConfiguracoes() -> impl IntoView {
                 h_domingo.set(c.horario_domingo);
                 facebook.set(c.facebook);
                 instagram.set(c.instagram);
+                facebook_ativo.set(c.facebook_ativo);
+                instagram_ativo.set(c.instagram_ativo);
+                whatsapp_ativo.set(c.whatsapp_ativo);
             }
             carregado.set(true);
         });
@@ -58,6 +64,9 @@ pub fn AdminConfiguracoes() -> impl IntoView {
             horario_domingo: h_domingo.get_untracked(),
             facebook: facebook.get_untracked(),
             instagram: instagram.get_untracked(),
+            facebook_ativo: facebook_ativo.get_untracked(),
+            instagram_ativo: instagram_ativo.get_untracked(),
+            whatsapp_ativo: whatsapp_ativo.get_untracked(),
         };
         salvar.dispatch(cfg);
     };
@@ -72,7 +81,7 @@ pub fn AdminConfiguracoes() -> impl IntoView {
             <fieldset class="admin-card admin-fieldset">
                 <legend class="admin-fieldset__titulo">"Informações da loja"</legend>
                 <div class="admin-form__grid">
-                    {campo("Nome da loja", nome_loja)} {campo("CNPJ", cnpj)}
+                    {campo("Razão social", nome_loja)} {campo("CNPJ", cnpj)}
                 </div>
             </fieldset>
 
@@ -97,6 +106,11 @@ pub fn AdminConfiguracoes() -> impl IntoView {
                 <div class="admin-form__grid">
                     {campo("Facebook (URL)", facebook)} {campo("Instagram (URL)", instagram)}
                 </div>
+                <div class="admin-form__checks">
+                    {check("Mostrar Facebook", facebook_ativo)}
+                    {check("Mostrar Instagram", instagram_ativo)}
+                    {check("Mostrar WhatsApp", whatsapp_ativo)}
+                </div>
             </fieldset>
 
             {move || erro().map(|m| view! { <p class="orc-form__erro">{m}</p> })}
@@ -112,24 +126,6 @@ pub fn AdminConfiguracoes() -> impl IntoView {
                 </button>
             </div>
         </form>
-
-        <section class="admin-card admin-acesso">
-            <div>
-                <h2 class="admin-fieldset__titulo">"Conteúdo da Home"</h2>
-                <p class="admin-head__sub">"Edite a faixa de números e a seção \"Sua marca\"."</p>
-            </div>
-            <a class="btn btn--ghost" href="/admin/conteudo">"Editar conteúdo"</a>
-        </section>
-
-        <section class="admin-card admin-acesso">
-            <div>
-                <h2 class="admin-fieldset__titulo">"Conteúdo de Quem Somos"</h2>
-                <p class="admin-head__sub">
-                    "Destaque, vídeo, missão/visão/valores, fotos e depoimentos."
-                </p>
-            </div>
-            <a class="btn btn--ghost" href="/admin/conteudo-quem-somos">"Editar conteúdo"</a>
-        </section>
 
         <section class="admin-card admin-acesso">
             <div>
@@ -152,6 +148,20 @@ fn campo(rotulo: &'static str, sinal: RwSignal<String>) -> impl IntoView {
                 prop:value=move || sinal.get()
                 on:input=move |ev| sinal.set(event_target_value(&ev))
             />
+        </label>
+    }
+}
+
+/// Checkbox controlado ligado a um `RwSignal<bool>`.
+fn check(rotulo: &'static str, sinal: RwSignal<bool>) -> impl IntoView {
+    view! {
+        <label class="login-check">
+            <input
+                type="checkbox"
+                prop:checked=move || sinal.get()
+                on:change=move |ev| sinal.set(event_target_checked(&ev))
+            />
+            <span>{rotulo}</span>
         </label>
     }
 }
