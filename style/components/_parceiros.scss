@@ -124,8 +124,7 @@
 .marca {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  /* Altura fixa e uniforme para todos os parceiros (não cresce com a imagem). */
-  height: clamp(300px, 24vw, 360px);
+  min-height: clamp(280px, 24vw, 340px);
   /* Compensa o cabeçalho fixo ao rolar via âncora (clique nos logos do topo). */
   scroll-margin-top: var(--header-h);
 }
@@ -178,18 +177,14 @@
   background: var(--color-bg);
 }
 
-/* Swipe das imagens dos produtos (uma por slide, sem legenda). Preenche toda a
-   altura fixa do card; a imagem se adapta (object-fit: cover). */
+/* Swipe das imagens (quadradas, sem legenda): 2 por vez no desktop, 1 no mobile. */
 .marca-swipe {
-  position: relative;
-  flex: 1;
-  min-height: 0;
   width: 100%;
 }
 
 .marca-swipe__track {
   display: flex;
-  height: 100%;
+  gap: var(--space-3);
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
@@ -202,9 +197,9 @@
 }
 
 .marca-swipe__item {
-  flex: 0 0 100%;
-  height: 100%;
-  scroll-snap-align: center;
+  flex: 0 0 calc(50% - (var(--space-3) / 2));
+  aspect-ratio: 1;
+  scroll-snap-align: start;
 }
 
 .marca-swipe__img {
@@ -215,13 +210,10 @@
 }
 
 .marca-swipe__dots {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: var(--space-2);
   display: flex;
   justify-content: center;
   gap: var(--space-1);
+  margin-top: var(--space-3);
 }
 
 .marca-swipe__dot {
@@ -265,12 +257,8 @@
   .marca--rev .marca__brand {
     order: 0;
   }
-  /* Empilhado no mobile: altura automática e swipe com altura própria. */
-  .marca {
-    height: auto;
-  }
-  .marca-swipe {
-    flex: none;
-    height: clamp(220px, 60vw, 300px);
+  /* Mobile: 1 imagem (quadrada) por vez. */
+  .marca-swipe__item {
+    flex: 0 0 100%;
   }
 }

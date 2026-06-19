@@ -171,8 +171,8 @@ fn MarcaSwipe(imagens: Vec<String>) -> impl IntoView {
                 on:scroll=move |_| {
                     #[cfg(feature = "hydrate")]
                     if let Some(el) = track.get_untracked() {
-                        let w = el.client_width().max(1);
-                        ativo.set((f64::from(el.scroll_left()) / f64::from(w)).round() as usize);
+                        let passo = (f64::from(el.scroll_width()) / total.max(1) as f64).max(1.0);
+                        ativo.set((f64::from(el.scroll_left()) / passo).round() as usize);
                     }
                 }
             >
@@ -203,7 +203,9 @@ fn MarcaSwipe(imagens: Vec<String>) -> impl IntoView {
                                                 ativo.set(i);
                                                 #[cfg(feature = "hydrate")]
                                                 if let Some(el) = track.get_untracked() {
-                                                    el.set_scroll_left(el.client_width() * i as i32);
+                                                    let passo = f64::from(el.scroll_width())
+                                                        / total.max(1) as f64;
+                                                    el.set_scroll_left((passo * i as f64) as i32);
                                                 }
                                             }
                                         ></button>
