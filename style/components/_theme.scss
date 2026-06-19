@@ -64,6 +64,13 @@
     url("/backgrounds/doodles3b.webp");
 }
 
+/* O ícone preto é mais alto que a marca branca; igualamos a ALTURA renderizada
+   à do tema escuro (largura da marca / proporção 0.638) para o mesmo tamanho. */
+[data-theme="light"] .hero__mark {
+  width: auto;
+  height: clamp(204px, 25.1vw, 345px);
+}
+
 /* Depoimentos: vira seção clara no tema claro (sem o overlay escuro);
    título/cards já usam tokens e ficam legíveis. */
 [data-theme="light"] .depo-secao {
