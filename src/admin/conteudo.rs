@@ -85,7 +85,7 @@ pub fn AdminConteudoHome() -> impl IntoView {
                         proximo_id=bento_id
                         ph_valor="Valor (ex.: +25K)"
                         ph_rotulo="Rótulo (ex.: Unidades por dia)"
-                        add_texto="+ Adicionar número"
+                        fixo=true
                     />
                 </div>
                 <div class="admin-form__grid">

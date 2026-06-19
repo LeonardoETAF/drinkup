@@ -421,7 +421,6 @@ fn sua_marca_view(c: HomeConteudo) -> AnyView {
                     <h2 class="secao__titulo secao__titulo--left">{titulo}</h2>
                     <p class="marca-bento__sub">{sub}</p>
                 </div>
-                <a class="btn btn--ghost" href="/produtos">"Personalize agora"</a>
             </header>
 
             <div class="bento">
@@ -447,6 +446,12 @@ fn sua_marca_view(c: HomeConteudo) -> AnyView {
                     <span class="bento__num">{v4}</span>
                     <span class="bento__lbl">{r4}</span>
                 </div>
+                <div
+                    class="bento__foto bento__foto--img"
+                    style="background-image:url('/backgrounds/carbon.webp')"
+                    role="img"
+                    aria-label="Padrão carbono Drink Up"
+                ></div>
             </div>
         </section>
     }

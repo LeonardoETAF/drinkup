@@ -59,6 +59,8 @@ pub fn EditorPares(
     #[prop(into)] ph_valor: String,
     #[prop(into)] ph_rotulo: String,
     #[prop(into, default = "+ Adicionar".to_string())] add_texto: String,
+    /// Quando `true`, oculta os botões de adicionar e remover (lista fixa).
+    #[prop(optional)] fixo: bool,
 ) -> impl IntoView {
     let pendente = RwSignal::new(None::<usize>);
     let ph_valor = StoredValue::new(ph_valor);
@@ -88,37 +90,54 @@ pub fn EditorPares(
                                     prop:value=move || rotulo.get()
                                     on:input=move |ev| rotulo.set(event_target_value(&ev))
                                 />
-                                <button
-                                    type="button"
-                                    class="icon-btn icon-btn--danger"
-                                    title="Remover"
-                                    inner_html=IC_DEL
-                                    on:click=move |_| pendente.set(Some(id))
-                                ></button>
+                                {(!fixo)
+                                    .then(|| {
+                                        view! {
+                                            <button
+                                                type="button"
+                                                class="icon-btn icon-btn--danger"
+                                                title="Remover"
+                                                inner_html=IC_DEL
+                                                on:click=move |_| pendente.set(Some(id))
+                                            ></button>
+                                        }
+                                    })}
                             </div>
                         }
                     })
                     .collect_view()
             }}
-            <button
-                type="button"
-                class="btn btn--ghost pares-editor__add"
-                on:click=move |_| novo_par(itens, proximo_id, String::new(), String::new())
-            >
-                {move || add_texto.get_value()}
-            </button>
+            {(!fixo)
+                .then(|| {
+                    view! {
+                        <button
+                            type="button"
+                            class="btn btn--ghost pares-editor__add"
+                            on:click=move |_| {
+                                novo_par(itens, proximo_id, String::new(), String::new())
+                            }
+                        >
+                            {move || add_texto.get_value()}
+                        </button>
+                    }
+                })}
         </div>
-        <ModalConfirmacao
-            aberto=Signal::derive(move || pendente.get().is_some())
-            mensagem="Deseja remover este item?"
-            confirmar_texto="Remover"
-            ao_cancelar=Callback::new(move |()| pendente.set(None))
-            ao_confirmar=Callback::new(move |()| {
-                if let Some(id) = pendente.get_untracked() {
-                    itens.update(|v| v.retain(|(i, _, _)| *i != id));
+        {(!fixo)
+            .then(|| {
+                view! {
+                    <ModalConfirmacao
+                        aberto=Signal::derive(move || pendente.get().is_some())
+                        mensagem="Deseja remover este item?"
+                        confirmar_texto="Remover"
+                        ao_cancelar=Callback::new(move |()| pendente.set(None))
+                        ao_confirmar=Callback::new(move |()| {
+                            if let Some(id) = pendente.get_untracked() {
+                                itens.update(|v| v.retain(|(i, _, _)| *i != id));
+                            }
+                            pendente.set(None);
+                        })
+                    />
                 }
-                pendente.set(None);
-            })
-        />
+            })}
     }
 }
