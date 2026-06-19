@@ -3,6 +3,7 @@ use leptos::task::spawn_local;
 use leptos_router::components::{Outlet, Redirect};
 use leptos_router::hooks::use_location;
 
+use super::modal::ModalConfirmacao;
 use super::util::iniciais;
 use crate::api::auth::{logout, usuario_atual};
 use crate::domain::UsuarioSessao;
@@ -32,6 +33,7 @@ pub fn AdminLayout() -> impl IntoView {
 
     let sair = Action::new(|_: &()| async move { logout().await });
     let saiu = move || matches!(sair.value().get(), Some(Ok(())));
+    let sair_aberto = RwSignal::new(false);
     let nao_auth = move || matches!(usuario.get(), Some(None));
 
     let nome = move || usuario.get().flatten().map(|u| u.nome).unwrap_or_default();
@@ -104,16 +106,22 @@ pub fn AdminLayout() -> impl IntoView {
                         menus
                     />
                 </nav>
-                <button
-                    class="admin-nav__sair"
-                    on:click=move |_| {
-                        sair.dispatch(());
-                    }
-                >
+                <button class="admin-nav__sair" on:click=move |_| sair_aberto.set(true)>
                     <span class="admin-nav__icon" inner_html=IC_SAIR></span>
                     <span>"Sair"</span>
                 </button>
             </aside>
+
+            <ModalConfirmacao
+                aberto=Signal::derive(move || sair_aberto.get())
+                mensagem="Deseja sair do painel?"
+                confirmar_texto="Sair"
+                ao_cancelar=Callback::new(move |()| sair_aberto.set(false))
+                ao_confirmar=Callback::new(move |()| {
+                    sair_aberto.set(false);
+                    sair.dispatch(());
+                })
+            />
 
             <div class="admin-body">
                 <header class="admin-top">
