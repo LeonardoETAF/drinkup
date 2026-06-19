@@ -4,6 +4,9 @@ use crate::api::parceiros::listar_parceiros;
 use crate::components::Seo;
 use crate::domain::ParceiroPublico;
 
+const IC_PREV: &str = r#"<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>"#;
+const IC_NEXT: &str = r#"<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>"#;
+
 /// Cor da marca: a definida pelo parceiro ou uma cor padrão cíclica (tokens).
 fn cor_marca(cor: &Option<String>, i: usize) -> String {
     cor.clone().filter(|c| !c.is_empty()).unwrap_or_else(|| {
@@ -187,6 +190,41 @@ fn MarcaSwipe(imagens: Vec<String>) -> impl IntoView {
                     })
                     .collect_view()}
             </div>
+            {(total > 1)
+                .then(|| {
+                    view! {
+                        <button
+                            type="button"
+                            class="swipe-nav swipe-nav--prev"
+                            aria-label="Imagem anterior"
+                            on:click=move |_| {
+                                let novo = ativo.get_untracked().saturating_sub(1);
+                                ativo.set(novo);
+                                #[cfg(feature = "hydrate")]
+                                if let Some(el) = track.get_untracked() {
+                                    let passo = f64::from(el.scroll_width()) / total.max(1) as f64;
+                                    el.set_scroll_left((passo * novo as f64) as i32);
+                                }
+                            }
+                            inner_html=IC_PREV
+                        ></button>
+                        <button
+                            type="button"
+                            class="swipe-nav swipe-nav--next"
+                            aria-label="Próxima imagem"
+                            on:click=move |_| {
+                                let novo = (ativo.get_untracked() + 1).min(total - 1);
+                                ativo.set(novo);
+                                #[cfg(feature = "hydrate")]
+                                if let Some(el) = track.get_untracked() {
+                                    let passo = f64::from(el.scroll_width()) / total.max(1) as f64;
+                                    el.set_scroll_left((passo * novo as f64) as i32);
+                                }
+                            }
+                            inner_html=IC_NEXT
+                        ></button>
+                    }
+                })}
             {(total > 1)
                 .then(|| {
                     view! {

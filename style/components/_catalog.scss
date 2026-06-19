@@ -291,6 +291,7 @@
 
 /* ===== Galeria ===== */
 .gallery {
+  position: relative;
   display: grid;
   gap: var(--space-4);
 }

@@ -179,6 +179,7 @@
 
 /* Swipe das imagens (quadradas, sem legenda): 2 por vez no desktop, 1 no mobile. */
 .marca-swipe {
+  position: relative;
   width: 100%;
 }
 

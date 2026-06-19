@@ -3,6 +3,9 @@ use leptos::prelude::*;
 use crate::components::product_card::CUP_SVG;
 use crate::domain::ProdutoImagem;
 
+const IC_PREV: &str = r#"<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>"#;
+const IC_NEXT: &str = r#"<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>"#;
+
 /// Galeria de imagens do produto: swipe lateral (uma por vez) com bolinhas.
 #[component]
 pub fn Gallery(imagens: Vec<ProdutoImagem>, nome: String) -> impl IntoView {
@@ -55,6 +58,39 @@ pub fn Gallery(imagens: Vec<ProdutoImagem>, nome: String) -> impl IntoView {
             >
                 {slides}
             </div>
+            {(total > 1)
+                .then(|| {
+                    view! {
+                        <button
+                            type="button"
+                            class="swipe-nav swipe-nav--prev"
+                            aria-label="Imagem anterior"
+                            on:click=move |_| {
+                                let novo = ativo.get_untracked().saturating_sub(1);
+                                ativo.set(novo);
+                                #[cfg(feature = "hydrate")]
+                                if let Some(el) = track.get_untracked() {
+                                    el.set_scroll_left(el.client_width() * novo as i32);
+                                }
+                            }
+                            inner_html=IC_PREV
+                        ></button>
+                        <button
+                            type="button"
+                            class="swipe-nav swipe-nav--next"
+                            aria-label="Próxima imagem"
+                            on:click=move |_| {
+                                let novo = (ativo.get_untracked() + 1).min(total - 1);
+                                ativo.set(novo);
+                                #[cfg(feature = "hydrate")]
+                                if let Some(el) = track.get_untracked() {
+                                    el.set_scroll_left(el.client_width() * novo as i32);
+                                }
+                            }
+                            inner_html=IC_NEXT
+                        ></button>
+                    }
+                })}
             {(total > 1)
                 .then(|| {
                     view! {
