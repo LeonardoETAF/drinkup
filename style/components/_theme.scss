@@ -49,20 +49,22 @@
 
 /* ===== Seções de fundo escuro no tema claro ===== */
 
-/* No tema claro o hero usa o wallpaper de doodles 3b (com overlay escuro p/
-   legibilidade) e mantém o texto claro; o esmaecer na base emenda com a seção. */
+/* No tema claro o hero é claro: overlay claro sobre o wallpaper doodles 3b
+   (textura sutil), texto escuro (tokens padrão) e esmaecer na base. A marca "//"
+   é branca e sumiria no claro, então fica oculta. */
 [data-theme="light"] .hero {
-  --color-text: #f5f5f5;
-  --color-text-muted: #b9bdc6;
   background-image:
     linear-gradient(
       to bottom,
-      rgba(10, 10, 10, 0.62) 0%,
-      rgba(10, 10, 10, 0.78) 45%,
-      rgba(10, 10, 10, 0.95) 80%,
+      rgba(230, 232, 237, 0.78) 0%,
+      rgba(230, 232, 237, 0.88) 72%,
       var(--color-bg) 100%
     ),
     url("/backgrounds/doodles3b.webp");
+}
+
+[data-theme="light"] .hero__mark {
+  display: none;
 }
 
 /* Depoimentos: vira seção clara no tema claro (sem o overlay escuro);
