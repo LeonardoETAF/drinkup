@@ -978,11 +978,14 @@
 
 .parceiro-card__acoes {
   display: flex;
+  justify-content: center;
   gap: var(--space-2);
 }
 
-.parceiro-card__acoes .btn {
-  flex: 1;
+/* Toggle de visibilidade desativado (parceiro oculto). */
+.icon-btn--off {
+  color: var(--color-text-muted);
+  opacity: 0.7;
 }
 
 /* Toolbar */

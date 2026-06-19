@@ -135,6 +135,15 @@ pub async fn excluir(pool: &PgPool, id: Uuid) -> Result<(), AppError> {
     Ok(())
 }
 
+/// Inverte a visibilidade (campo `ativo`) de um parceiro.
+pub async fn alternar_ativo(pool: &PgPool, id: Uuid) -> Result<(), AppError> {
+    sqlx::query!("UPDATE parceiros SET ativo = NOT ativo WHERE id = $1", id)
+        .execute(pool)
+        .await
+        .map_err(interno)?;
+    Ok(())
+}
+
 async fn slug_unico(pool: &PgPool, base: &str) -> Result<String, AppError> {
     let mut slug = base.to_string();
     let mut i = 1;

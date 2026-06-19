@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE parceiros SET ativo = NOT ativo WHERE id = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "2fb0e0907ba630366d96af02d7e20a65f842ed04ff4bdce76e609afdbc12313f"
+}

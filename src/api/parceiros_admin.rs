@@ -53,3 +53,13 @@ pub async fn excluir_parceiro(id: Uuid) -> Result<(), ServerFnError> {
         .await
         .map_err(|_| ServerFnError::new("Não foi possível excluir o parceiro."))
 }
+
+/// Ativa/desativa a visibilidade de um parceiro.
+#[server]
+pub async fn alternar_parceiro(id: Uuid) -> Result<(), ServerFnError> {
+    let pool = expect_context::<sqlx::PgPool>();
+    crate::api::auth::exigir_papel(crate::server::rbac::Papel::Editor).await?;
+    crate::server::parceiros_admin::alternar_ativo(&pool, id)
+        .await
+        .map_err(|_| ServerFnError::new("Não foi possível alterar a visibilidade."))
+}
