@@ -5,6 +5,11 @@ use crate::admin::upload_card::CartaoUpload;
 use crate::api::quem_somos_admin::{obter_quem_somos_form, salvar_quem_somos};
 use crate::domain::QuemSomosForm;
 
+const IC_DEL: &str = r#"<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/></svg>"#;
+
+/// Um depoimento em edição: id estável + sinais de texto e autor.
+type Depoimento = (usize, RwSignal<String>, RwSignal<String>);
+
 /// Edição do conteúdo da página "Quem Somos".
 #[component]
 pub fn AdminConteudoQuemSomos() -> impl IntoView {
@@ -17,7 +22,15 @@ pub fn AdminConteudoQuemSomos() -> impl IntoView {
     let valores = RwSignal::new(String::new());
     let foto1 = RwSignal::new(None::<String>);
     let foto2 = RwSignal::new(None::<String>);
-    let depoimentos = RwSignal::new(String::new());
+    // Lista de depoimentos separados (cada um com seus próprios sinais).
+    let depoimentos = RwSignal::new(Vec::<Depoimento>::new());
+    let proximo_id = RwSignal::new(0usize);
+
+    let adicionar = move |texto: String, autor: String| {
+        let id = proximo_id.get_untracked();
+        proximo_id.set(id + 1);
+        depoimentos.update(|v| v.push((id, RwSignal::new(texto), RwSignal::new(autor))));
+    };
 
     Effect::new(move |_| {
         spawn_local(async move {
@@ -31,7 +44,15 @@ pub fn AdminConteudoQuemSomos() -> impl IntoView {
                 valores.set(f.valores);
                 foto1.set(f.foto1_url);
                 foto2.set(f.foto2_url);
-                depoimentos.set(f.depoimentos);
+                depoimentos.set(Vec::new());
+                proximo_id.set(0);
+                for linha in f.depoimentos.lines().filter(|l| !l.trim().is_empty()) {
+                    let (t, a) = match linha.split_once('|') {
+                        Some((t, a)) => (t.trim().to_string(), a.trim().to_string()),
+                        None => (linha.trim().to_string(), String::new()),
+                    };
+                    adicionar(t, a);
+                }
             }
         });
     });
@@ -59,7 +80,22 @@ pub fn AdminConteudoQuemSomos() -> impl IntoView {
             valores: valores.get_untracked(),
             foto1_url: foto1.get_untracked(),
             foto2_url: foto2.get_untracked(),
-            depoimentos: depoimentos.get_untracked(),
+            depoimentos: depoimentos
+                .get_untracked()
+                .iter()
+                .map(|(_, t, a)| {
+                    let t = t.get_untracked();
+                    let a = a.get_untracked();
+                    let (t, a) = (t.trim(), a.trim());
+                    if a.is_empty() {
+                        t.to_string()
+                    } else {
+                        format!("{t} | {a}")
+                    }
+                })
+                .filter(|l| !l.is_empty())
+                .collect::<Vec<_>>()
+                .join("\n"),
         });
     };
 
@@ -110,18 +146,56 @@ pub fn AdminConteudoQuemSomos() -> impl IntoView {
 
             <fieldset class="admin-card admin-fieldset">
                 <legend class="admin-fieldset__titulo">"Depoimentos de clientes"</legend>
-                <label class="field">
-                    <span class="field__label">
-                        "Um por linha — formato: texto | autor. Com mais de um, vira swipe na página."
-                    </span>
-                    <textarea
-                        class="admin-input"
-                        rows="6"
-                        placeholder="Produtos de ótima qualidade... | Dieferson Schaffer · Personalização Canábis"
-                        prop:value=move || depoimentos.get()
-                        on:input=move |ev| depoimentos.set(event_target_value(&ev))
-                    ></textarea>
-                </label>
+                <p class="admin-head__sub">
+                    "Cada depoimento separado. Com mais de um, vira swipe na página."
+                </p>
+                <div class="depo-editor">
+                    {move || {
+                        depoimentos
+                            .get()
+                            .into_iter()
+                            .map(|(id, texto, autor)| {
+                                view! {
+                                    <div class="depo-edit">
+                                        <textarea
+                                            class="admin-input"
+                                            rows="2"
+                                            placeholder="Depoimento do cliente..."
+                                            prop:value=move || texto.get()
+                                            on:input=move |ev| texto.set(event_target_value(&ev))
+                                        ></textarea>
+                                        <div class="depo-edit__rodape">
+                                            <input
+                                                class="admin-input"
+                                                type="text"
+                                                placeholder="Autor (ex.: Nome · Empresa)"
+                                                prop:value=move || autor.get()
+                                                on:input=move |ev| autor.set(event_target_value(&ev))
+                                            />
+                                            <button
+                                                type="button"
+                                                class="icon-btn icon-btn--danger"
+                                                title="Remover depoimento"
+                                                inner_html=IC_DEL
+                                                on:click=move |_| {
+                                                    depoimentos
+                                                        .update(|v| v.retain(|(i, _, _)| *i != id))
+                                                }
+                                            ></button>
+                                        </div>
+                                    </div>
+                                }
+                            })
+                            .collect_view()
+                    }}
+                    <button
+                        type="button"
+                        class="btn btn--ghost depo-editor__add"
+                        on:click=move |_| adicionar(String::new(), String::new())
+                    >
+                        "+ Adicionar depoimento"
+                    </button>
+                </div>
             </fieldset>
 
             {move || erro().map(|m| view! { <p class="orc-form__erro">{m}</p> })}
