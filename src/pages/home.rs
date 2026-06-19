@@ -119,7 +119,18 @@ fn Hero(link: Memo<String>) -> impl IntoView {
                         loading="lazy"
                     />
                 </div>
-                <img class="hero__mark" src="/brand/logo-mark.png" alt="" aria-hidden="true"/>
+                <img
+                    class="hero__mark logo-dark"
+                    src="/brand/logo-mark.png"
+                    alt=""
+                    aria-hidden="true"
+                />
+                <img
+                    class="hero__mark logo-light"
+                    src="/brand/icone-preto.png"
+                    alt=""
+                    aria-hidden="true"
+                />
             </div>
         </section>
     }
