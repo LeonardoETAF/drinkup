@@ -171,6 +171,9 @@
   grid-template-columns: 1.4fr 1fr 1fr;
   gap: var(--space-8);
   padding-block: var(--space-10);
+  /* Rodapé em largura total: colunas vão até as bordas (LEGAL na direita). */
+  max-width: none;
+  padding-inline: clamp(2rem, 7vw, 7rem);
 }
 
 /* Seção "Legal" alinhada à direita do rodapé. */
