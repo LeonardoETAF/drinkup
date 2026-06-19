@@ -173,6 +173,16 @@
   padding-block: var(--space-10);
 }
 
+/* Seção "Legal" alinhada à direita do rodapé. */
+.site-footer__legal {
+  justify-self: end;
+  text-align: right;
+}
+
+.site-footer__legal .footer-links {
+  justify-items: end;
+}
+
 .site-footer a {
   color: var(--color-on-lime);
 }
@@ -233,13 +243,17 @@
 
 .newsletter {
   display: flex;
-  gap: var(--space-2);
+  flex-direction: column;
+  gap: var(--space-3);
   margin-top: var(--space-3);
-  flex-wrap: wrap;
+}
+
+.newsletter button {
+  align-self: center;
 }
 
 .newsletter input {
-  flex: 1 1 170px;
+  width: 100%;
   min-width: 0;
   padding: 0.7rem 1rem;
   border-radius: var(--radius-pill);

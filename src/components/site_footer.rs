@@ -1,5 +1,7 @@
 use leptos::prelude::*;
 
+use crate::api::config::obter_contato;
+
 const ICON_INSTAGRAM: &str = r#"<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>"#;
 
 const ICON_FACEBOOK: &str = r#"<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 22v-8h3l1-4h-4V8c0-1.1.4-2 2-2h2V2.2C18.6 2.1 17.4 2 16 2c-3 0-5 1.8-5 5.2V10H8v4h3v8z"/></svg>"#;
@@ -10,17 +12,31 @@ const ICON_WHATSAPP: &str = r#"<svg width="18" height="18" viewBox="0 0 24 24" f
 /// será processado por server function na Fase 5.
 #[component]
 pub fn SiteFooter() -> impl IntoView {
+    let info = Resource::new(|| (), |_| async move { obter_contato().await });
     view! {
         <footer class="site-footer">
             <div class="container site-footer__inner">
                 <div class="site-footer__brand">
                     <div class="site-footer__logo">
-                        <img src="/brand/logo-preta.png" alt="DRINK UP" width="152" height="34"/>
+                        <img
+                            src="/brand/logo-preta-full.png"
+                            alt="DRINK UP"
+                            width="156"
+                            height="34"
+                        />
                     </div>
                     <p class="site-footer__brandinfo">
-                        "Indústria e Comércio de Acrílicos LTDA"
-                        <br/>
-                        "CNPJ: 21.525.492/0001-09"
+                        <Suspense fallback=|| ()>
+                            {move || Suspend::new(async move {
+                                let c = info.await.unwrap_or_default();
+                                let nome = if c.nome_loja.trim().is_empty() {
+                                    "DRINK UP".to_string()
+                                } else {
+                                    c.nome_loja
+                                };
+                                view! { {nome} <br/> {format!("CNPJ: {}", c.cnpj)} }
+                            })}
+                        </Suspense>
                     </p>
                     <div class="social">
                         <a href="#" aria-label="Facebook" inner_html=ICON_FACEBOOK></a>
