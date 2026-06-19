@@ -7,6 +7,7 @@ mod home;
 mod orcamento;
 mod parceiro;
 mod produto;
+mod quem_somos;
 mod usuario;
 
 pub use admin::{
@@ -19,4 +20,5 @@ pub use home::{HomeConteudo, HomeForm};
 pub use orcamento::{ItemOrcamento, NovoOrcamento};
 pub use parceiro::ParceiroPublico;
 pub use produto::{FiltroProdutos, PaginaProdutos, ProdutoDetalhe, ProdutoImagem, ProdutoResumo};
+pub use quem_somos::{QuemSomosConteudo, QuemSomosForm};
 pub use usuario::UsuarioSessao;

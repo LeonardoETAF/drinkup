@@ -82,6 +82,23 @@
   font-family: monospace;
 }
 
+/* Vídeo de fato (iframe/<video>): proporção widescreen, sem moldura. */
+.sobre-video--player {
+  display: block;
+  aspect-ratio: 16 / 9;
+  padding: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+.sobre-video__frame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+  object-fit: cover;
+}
+
 .sobre-mvv {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -142,6 +159,12 @@
   border-radius: var(--radius-lg);
 }
 
+.sobre-foto--img {
+  background-size: cover;
+  background-position: center;
+  border: none;
+}
+
 .sobre-foto__cap {
   color: var(--color-text-muted);
   font-family: monospace;
@@ -179,6 +202,33 @@
   margin-top: var(--space-4);
   color: var(--color-lime);
   font-weight: var(--fw-semibold);
+}
+
+/* Swipe horizontal de depoimentos (quando há mais de um). */
+.sobre-depo__track {
+  display: flex;
+  gap: var(--space-5);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-block: var(--space-2) var(--space-4);
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-lime) transparent;
+}
+
+.sobre-depo__track > .depo-card {
+  flex: 0 0 min(60ch, 86%);
+  margin-inline: 0;
+  scroll-snap-align: center;
+}
+
+.sobre-depo__track::-webkit-scrollbar {
+  height: 6px;
+}
+
+.sobre-depo__track::-webkit-scrollbar-thumb {
+  background: var(--color-lime);
+  border-radius: var(--radius-pill);
 }
 
 @media (max-width: 720px) {

@@ -3,6 +3,7 @@
 mod configuracoes;
 mod confirmar;
 mod conteudo;
+mod conteudo_sobre;
 mod dashboard;
 mod em_construcao;
 mod evento_form;
@@ -22,6 +23,7 @@ mod util;
 
 pub use configuracoes::AdminConfiguracoes;
 pub use conteudo::AdminConteudoHome;
+pub use conteudo_sobre::AdminConteudoQuemSomos;
 pub use dashboard::AdminDashboard;
 pub use em_construcao::AdminEmBreve;
 pub use evento_form::AdminEventoForm;

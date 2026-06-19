@@ -14,6 +14,7 @@ pub mod leads;
 pub mod parceiros_admin;
 pub mod products;
 pub mod produtos_admin;
+pub mod quem_somos_content;
 pub mod quotes;
 pub mod rbac;
 pub mod recuperacao;

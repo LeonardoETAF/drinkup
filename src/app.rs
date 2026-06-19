@@ -7,10 +7,10 @@ use leptos_router::{
 };
 
 use crate::admin::{
-    AdminConfiguracoes, AdminConteudoHome, AdminDashboard, AdminEventoForm, AdminEventos,
-    AdminLayout, AdminLeads, AdminLoginPage, AdminParceiroForm, AdminParceiros, AdminProdutoForm,
-    AdminProdutos, AdminRecuperarSenhaPage, AdminRedefinirSenhaPage, AdminUsuarioForm,
-    AdminUsuarios,
+    AdminConfiguracoes, AdminConteudoHome, AdminConteudoQuemSomos, AdminDashboard, AdminEventoForm,
+    AdminEventos, AdminLayout, AdminLeads, AdminLoginPage, AdminParceiroForm, AdminParceiros,
+    AdminProdutoForm, AdminProdutos, AdminRecuperarSenhaPage, AdminRedefinirSenhaPage,
+    AdminUsuarioForm, AdminUsuarios,
 };
 use crate::components::{SiteFooter, SiteHeader};
 use crate::pages::{
@@ -47,7 +47,7 @@ pub fn App() -> impl IntoView {
     definir_csp();
 
     view! {
-        <Stylesheet id="leptos" href="/pkg/drinkup.css?v=2"/>
+        <Stylesheet id="leptos" href="/pkg/drinkup.css?v=3"/>
         <Title text="DRINK UP — Copos personalizados"/>
         <Router>
             <Routes fallback=NotFound>
@@ -112,6 +112,10 @@ pub fn App() -> impl IntoView {
                     />
                     <Route path=StaticSegment("configuracoes") view=AdminConfiguracoes/>
                     <Route path=StaticSegment("conteudo") view=AdminConteudoHome/>
+                    <Route
+                        path=StaticSegment("conteudo-quem-somos")
+                        view=AdminConteudoQuemSomos
+                    />
                     <Route path=StaticSegment("usuarios") view=AdminUsuarios/>
                     <Route
                         path=(StaticSegment("usuarios"), StaticSegment("novo"))
@@ -140,6 +144,8 @@ fn definir_csp() {
         "default-src 'self'; base-uri 'self'; object-src 'none'; \
          frame-ancestors 'none'; form-action 'self'; img-src 'self' data:; \
          font-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; \
+         media-src 'self' https:; \
+         frame-src https://www.youtube-nocookie.com https://www.youtube.com https://player.vimeo.com; \
          script-src 'self' 'wasm-unsafe-eval' 'nonce-{nonce}'"
     );
     if let Ok(valor) = axum::http::HeaderValue::from_str(&csp) {

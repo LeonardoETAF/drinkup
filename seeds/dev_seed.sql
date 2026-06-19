@@ -63,6 +63,18 @@ INSERT INTO configuracoes (chave, valor) VALUES
     ('home_bento', E'+25K | Unidades por dia\n+4 | Anos no mercado\n+500 | Clientes satisfeitos\n+2K | Eventos atendidos\n100% | Personalizável')
 ON CONFLICT (chave) DO NOTHING;
 
+-- Conteúdo editável da página "Quem Somos".
+INSERT INTO configuracoes (chave, valor) VALUES
+    ('qs_stat_titulo', '+25 mil unidades'),
+    ('qs_stat_destaque', 'todos os dias'),
+    ('qs_stat_texto', 'Uma equipe de mais de 20 profissionais alinhados em Direção, Vendas, Arte, Personalização, Expedição e Injeção. Somos rápidos, sérios e apaixonados pelo que fazemos.'),
+    ('qs_video', ''),
+    ('qs_missao', 'Nossa maior missão é brindar a vida por meio de momentos personalizados!'),
+    ('qs_visao', 'Ter uma linha completa de produtos personalizáveis para clientes que buscam inovação e querem guardar uma boa lembrança do seu momento ÉPICO!'),
+    ('qs_valores', 'Sabemos que todos os produtos que oferecemos fazem parte de um momento especial da vida de cada um — seja um casamento, aniversário ou até um brinde especial. Por isso disponibilizamos o melhor atendimento do mercado, com total transparência e comprometimento. Afinal, todos que fazem um produto personalizado querem deixar marcado um momento único.'),
+    ('qs_depoimentos', E'Produtos de ótima qualidade, atendimento incomparável, entregas dentro do prazo. Empresa séria e comprometida com seus clientes. Super recomendo! | Dieferson Schaffer · Personalização Canábis')
+ON CONFLICT (chave) DO NOTHING;
+
 -- Usuário admin de desenvolvimento.
 -- A senha real (hash Argon2id) é definida na Fase 6; aqui é só um placeholder.
 INSERT INTO usuarios (nome, email, senha_hash, papel)
