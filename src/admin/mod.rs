@@ -4,6 +4,7 @@ mod configuracoes;
 mod conteudo;
 mod conteudo_sobre;
 mod dashboard;
+mod editor_pares;
 mod em_construcao;
 mod evento_form;
 mod eventos;

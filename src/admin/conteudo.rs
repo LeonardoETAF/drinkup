@@ -1,6 +1,7 @@
 use leptos::prelude::*;
 use leptos::task::spawn_local;
 
+use super::editor_pares::{carregar, serializar, EditorPares, Par};
 use crate::admin::upload_card::CartaoUpload;
 use crate::api::home_admin::{obter_home_form, salvar_home};
 use crate::domain::HomeForm;
@@ -8,20 +9,22 @@ use crate::domain::HomeForm;
 /// Edição do conteúdo da home: faixa de números + bento "Sua marca".
 #[component]
 pub fn AdminConteudoHome() -> impl IntoView {
-    let numeros = RwSignal::new(String::new());
+    let numeros = RwSignal::new(Vec::<Par>::new());
+    let numeros_id = RwSignal::new(0usize);
     let marca_titulo = RwSignal::new(String::new());
     let marca_sub = RwSignal::new(String::new());
-    let bento = RwSignal::new(String::new());
+    let bento = RwSignal::new(Vec::<Par>::new());
+    let bento_id = RwSignal::new(0usize);
     let foto1 = RwSignal::new(None::<String>);
     let foto2 = RwSignal::new(None::<String>);
 
     Effect::new(move |_| {
         spawn_local(async move {
             if let Ok(f) = obter_home_form().await {
-                numeros.set(f.numeros);
+                carregar(numeros, numeros_id, &f.numeros);
                 marca_titulo.set(f.marca_titulo);
                 marca_sub.set(f.marca_sub);
-                bento.set(f.bento);
+                carregar(bento, bento_id, &f.bento);
                 foto1.set(f.foto1_url);
                 foto2.set(f.foto2_url);
             }
@@ -42,10 +45,10 @@ pub fn AdminConteudoHome() -> impl IntoView {
     let on_submit = move |ev: leptos::ev::SubmitEvent| {
         ev.prevent_default();
         salvar.dispatch(HomeForm {
-            numeros: numeros.get_untracked(),
+            numeros: serializar(numeros),
             marca_titulo: marca_titulo.get_untracked(),
             marca_sub: marca_sub.get_untracked(),
-            bento: bento.get_untracked(),
+            bento: serializar(bento),
             foto1_url: foto1.get_untracked(),
             foto2_url: foto2.get_untracked(),
         });
@@ -60,16 +63,14 @@ pub fn AdminConteudoHome() -> impl IntoView {
         <form class="admin-config" on:submit=on_submit>
             <fieldset class="admin-card admin-fieldset">
                 <legend class="admin-fieldset__titulo">"Faixa de números"</legend>
-                <label class="field">
-                    <span class="field__label">"Um por linha — formato: valor | rótulo"</span>
-                    <textarea
-                        class="admin-input"
-                        rows="5"
-                        placeholder="+500 | Clientes satisfeitos&#10;+25 mil | Unidades por dia"
-                        prop:value=move || numeros.get()
-                        on:input=move |ev| numeros.set(event_target_value(&ev))
-                    ></textarea>
-                </label>
+                <p class="admin-head__sub">"Cada número com seu valor e rótulo."</p>
+                <EditorPares
+                    itens=numeros
+                    proximo_id=numeros_id
+                    ph_valor="Valor (ex.: +500)"
+                    ph_rotulo="Rótulo (ex.: Clientes satisfeitos)"
+                    add_texto="+ Adicionar número"
+                />
             </fieldset>
 
             <fieldset class="admin-card admin-fieldset">
@@ -77,18 +78,16 @@ pub fn AdminConteudoHome() -> impl IntoView {
                 <div class="admin-form__grid">
                     {campo("Título", marca_titulo)} {campo("Subtítulo", marca_sub)}
                 </div>
-                <label class="field">
-                    <span class="field__label">
-                        "Números do bento (um por linha: valor | rótulo)"
-                    </span>
-                    <textarea
-                        class="admin-input"
-                        rows="6"
-                        placeholder="+25K | Unidades por dia&#10;+4 | Anos no mercado&#10;+500 | Clientes satisfeitos&#10;+2K | Eventos atendidos&#10;100% | Personalizável"
-                        prop:value=move || bento.get()
-                        on:input=move |ev| bento.set(event_target_value(&ev))
-                    ></textarea>
-                </label>
+                <div class="field">
+                    <span class="field__label">"Números do bento"</span>
+                    <EditorPares
+                        itens=bento
+                        proximo_id=bento_id
+                        ph_valor="Valor (ex.: +25K)"
+                        ph_rotulo="Rótulo (ex.: Unidades por dia)"
+                        add_texto="+ Adicionar número"
+                    />
+                </div>
                 <div class="admin-form__grid">
                     <div class="field">
                         <span class="field__label">"Foto 1 (ex.: growler)"</span>
