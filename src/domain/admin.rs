@@ -84,6 +84,8 @@ pub struct UsuarioForm {
     pub papel: String,
     pub ativo: bool,
     pub senha: Option<String>,
+    /// Menus que o usuário poderá acessar.
+    pub menus: Vec<String>,
 }
 
 /// Evento = categoria do carrossel da home (listagem do painel).

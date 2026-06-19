@@ -6,7 +6,7 @@ use crate::domain::{UsuarioForm, UsuarioLista};
 use crate::error::AppError;
 use crate::server::auth::gerar_hash;
 
-const PAPEIS: [&str; 3] = ["admin", "gerente", "editor"];
+const PAPEIS: [&str; 4] = ["admin", "gerente", "editor", "visualizador"];
 
 /// Lista os usuários do painel.
 pub async fn listar(pool: &PgPool) -> Result<Vec<UsuarioLista>, sqlx::Error> {
@@ -27,7 +27,7 @@ pub async fn listar(pool: &PgPool) -> Result<Vec<UsuarioLista>, sqlx::Error> {
 /// Carrega um usuário para edição (sem expor a senha).
 pub async fn obter_form(pool: &PgPool, id: Uuid) -> Result<Option<UsuarioForm>, sqlx::Error> {
     let row = sqlx::query!(
-        r#"SELECT id, nome, email, papel, ativo FROM usuarios WHERE id = $1"#,
+        r#"SELECT id, nome, email, papel, ativo, menus FROM usuarios WHERE id = $1"#,
         id
     )
     .fetch_optional(pool)
@@ -40,6 +40,7 @@ pub async fn obter_form(pool: &PgPool, id: Uuid) -> Result<Option<UsuarioForm>, 
         papel: r.papel,
         ativo: r.ativo,
         senha: None,
+        menus: r.menus,
     }))
 }
 
@@ -63,15 +64,25 @@ pub async fn salvar(pool: &PgPool, form: &UsuarioForm) -> Result<Uuid, AppError>
         .map(str::trim)
         .filter(|s| !s.is_empty());
 
+    // Só permite chaves de menu conhecidas.
+    let menus: Vec<String> = form
+        .menus
+        .iter()
+        .filter(|m| crate::server::rbac::MENUS.contains(&m.as_str()))
+        .cloned()
+        .collect();
+
     match form.id {
         Some(id) => {
             sqlx::query!(
-                "UPDATE usuarios SET nome = $2, email = $3, papel = $4, ativo = $5 WHERE id = $1",
+                "UPDATE usuarios SET nome = $2, email = $3, papel = $4, ativo = $5, menus = $6 \
+                 WHERE id = $1",
                 id,
                 nome,
                 email,
                 form.papel,
                 form.ativo,
+                &menus,
             )
             .execute(pool)
             .await
@@ -93,13 +104,14 @@ pub async fn salvar(pool: &PgPool, form: &UsuarioForm) -> Result<Uuid, AppError>
             let senha = senha.ok_or(AppError::Validation)?;
             let hash = gerar_hash(senha)?;
             sqlx::query_scalar!(
-                r#"INSERT INTO usuarios (nome, email, senha_hash, papel, ativo)
-                   VALUES ($1, $2, $3, $4, $5) RETURNING id"#,
+                r#"INSERT INTO usuarios (nome, email, senha_hash, papel, ativo, menus)
+                   VALUES ($1, $2, $3, $4, $5, $6) RETURNING id"#,
                 nome,
                 email,
                 hash,
                 form.papel,
                 form.ativo,
+                &menus,
             )
             .fetch_one(pool)
             .await

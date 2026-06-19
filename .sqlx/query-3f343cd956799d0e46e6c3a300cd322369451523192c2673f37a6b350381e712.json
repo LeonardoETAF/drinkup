@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT id, nome, papel, ativo FROM usuarios WHERE id = $1",
+  "query": "SELECT id, nome, senha_hash, papel, ativo, menus FROM usuarios WHERE lower(email) = $1",
   "describe": {
     "columns": [
       {
@@ -15,26 +15,38 @@
       },
       {
         "ordinal": 2,
-        "name": "papel",
+        "name": "senha_hash",
         "type_info": "Text"
       },
       {
         "ordinal": 3,
+        "name": "papel",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
         "name": "ativo",
         "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "menus",
+        "type_info": "TextArray"
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "Text"
       ]
     },
     "nullable": [
       false,
       false,
       false,
+      false,
+      false,
       false
     ]
   },
-  "hash": "ec934280df9836bf67311218d6f3555aefe53e556c2af177b2c4c7b659040c2d"
+  "hash": "3f343cd956799d0e46e6c3a300cd322369451523192c2673f37a6b350381e712"
 }

@@ -6,6 +6,18 @@ use uuid::Uuid;
 use crate::api::usuarios_admin::{obter_usuario_admin, salvar_usuario};
 use crate::domain::UsuarioForm;
 
+/// Menus (chave, rótulo) que podem ser liberados por usuário.
+const MENU_OPCOES: [(&str, &str); 8] = [
+    ("dashboard", "Dashboard"),
+    ("produtos", "Produtos"),
+    ("leads", "Leads"),
+    ("parceiros", "Parceiros"),
+    ("eventos", "Eventos"),
+    ("conteudo", "Conteúdo Home"),
+    ("quem-somos", "Quem Somos"),
+    ("configuracoes", "Configurações"),
+];
+
 /// Formulário de criação/edição de usuário do painel.
 #[component]
 pub fn AdminUsuarioForm() -> impl IntoView {
@@ -23,6 +35,9 @@ pub fn AdminUsuarioForm() -> impl IntoView {
     let papel = RwSignal::new("editor".to_string());
     let ativo = RwSignal::new(true);
     let senha = RwSignal::new(String::new());
+    // Novo usuário começa com acesso a todos os menus (admin restringe se quiser).
+    let menus =
+        RwSignal::new(MENU_OPCOES.iter().map(|(k, _)| k.to_string()).collect::<Vec<String>>());
 
     Effect::new(move |_| {
         let Some(uid) = id() else { return };
@@ -32,6 +47,7 @@ pub fn AdminUsuarioForm() -> impl IntoView {
                 email.set(f.email);
                 papel.set(f.papel);
                 ativo.set(f.ativo);
+                menus.set(f.menus);
             }
         });
     });
@@ -64,6 +80,7 @@ pub fn AdminUsuarioForm() -> impl IntoView {
             papel: papel.get_untracked(),
             ativo: ativo.get_untracked(),
             senha: (!s.is_empty()).then_some(s),
+            menus: menus.get_untracked(),
         };
         salvar.dispatch(form);
     };
@@ -110,6 +127,7 @@ pub fn AdminUsuarioForm() -> impl IntoView {
                         <option value="admin">"Administrador"</option>
                         <option value="gerente">"Gerente"</option>
                         <option value="editor">"Editor"</option>
+                        <option value="visualizador">"Visualizador (só leitura)"</option>
                     </select>
                 </label>
                 <label class="field">
@@ -143,6 +161,14 @@ pub fn AdminUsuarioForm() -> impl IntoView {
                 </label>
             </div>
 
+            <p class="admin-fieldset__titulo">"Acesso aos menus"</p>
+            <div class="admin-form__checks admin-form__checks--menus">
+                {MENU_OPCOES
+                    .iter()
+                    .map(|&(k, label)| menu_check(k, label, menus))
+                    .collect_view()}
+            </div>
+
             {move || erro().map(|m| view! { <p class="orc-form__erro">{m}</p> })}
 
             <div class="admin-form__acoes">
@@ -152,5 +178,35 @@ pub fn AdminUsuarioForm() -> impl IntoView {
                 </button>
             </div>
         </form>
+    }
+}
+
+/// Checkbox de permissão de um menu (entra/sai da lista de menus do usuário).
+fn menu_check(
+    key: &'static str,
+    label: &'static str,
+    menus: RwSignal<Vec<String>>,
+) -> impl IntoView {
+    view! {
+        <label class="login-check">
+            <input
+                type="checkbox"
+                prop:checked=move || menus.get().iter().any(|m| m == key)
+                on:change=move |ev| {
+                    let on = event_target_checked(&ev);
+                    menus
+                        .update(|v| {
+                            if on {
+                                if !v.iter().any(|m| m == key) {
+                                    v.push(key.to_string());
+                                }
+                            } else {
+                                v.retain(|m| m != key);
+                            }
+                        });
+                }
+            />
+            <span>{label}</span>
+        </label>
     }
 }

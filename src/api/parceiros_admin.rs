@@ -7,7 +7,7 @@ use crate::domain::{ParceiroForm, ParceiroLista};
 #[server]
 pub async fn listar_parceiros_admin(busca: String) -> Result<Vec<ParceiroLista>, ServerFnError> {
     let pool = expect_context::<sqlx::PgPool>();
-    crate::api::auth::exigir_papel(crate::server::rbac::Papel::Editor).await?;
+    crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Visualizador, "parceiros").await?;
     let busca = (!busca.trim().is_empty()).then(|| busca.trim().to_string());
     crate::server::parceiros_admin::listar(&pool, busca.as_deref())
         .await
@@ -21,7 +21,7 @@ pub async fn listar_parceiros_admin(busca: String) -> Result<Vec<ParceiroLista>,
 #[server]
 pub async fn obter_parceiro_admin(id: Uuid) -> Result<Option<ParceiroForm>, ServerFnError> {
     let pool = expect_context::<sqlx::PgPool>();
-    crate::api::auth::exigir_papel(crate::server::rbac::Papel::Editor).await?;
+    crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Visualizador, "parceiros").await?;
     crate::server::parceiros_admin::obter_form(&pool, id)
         .await
         .map_err(|e| {
@@ -36,7 +36,7 @@ pub async fn salvar_parceiro(form: ParceiroForm) -> Result<Uuid, ServerFnError> 
     use crate::error::AppError;
 
     let pool = expect_context::<sqlx::PgPool>();
-    crate::api::auth::exigir_papel(crate::server::rbac::Papel::Editor).await?;
+    crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Editor, "parceiros").await?;
     match crate::server::parceiros_admin::salvar(&pool, &form).await {
         Ok(id) => Ok(id),
         Err(AppError::Validation) => Err(ServerFnError::new("Informe um nome válido.")),
@@ -48,7 +48,7 @@ pub async fn salvar_parceiro(form: ParceiroForm) -> Result<Uuid, ServerFnError> 
 #[server]
 pub async fn excluir_parceiro(id: Uuid) -> Result<(), ServerFnError> {
     let pool = expect_context::<sqlx::PgPool>();
-    crate::api::auth::exigir_papel(crate::server::rbac::Papel::Editor).await?;
+    crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Editor, "parceiros").await?;
     crate::server::parceiros_admin::excluir(&pool, id)
         .await
         .map_err(|_| ServerFnError::new("Não foi possível excluir o parceiro."))
@@ -58,7 +58,7 @@ pub async fn excluir_parceiro(id: Uuid) -> Result<(), ServerFnError> {
 #[server]
 pub async fn alternar_parceiro(id: Uuid) -> Result<(), ServerFnError> {
     let pool = expect_context::<sqlx::PgPool>();
-    crate::api::auth::exigir_papel(crate::server::rbac::Papel::Editor).await?;
+    crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Editor, "parceiros").await?;
     crate::server::parceiros_admin::alternar_ativo(&pool, id)
         .await
         .map_err(|_| ServerFnError::new("Não foi possível alterar a visibilidade."))

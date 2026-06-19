@@ -7,7 +7,7 @@ use crate::domain::Categoria;
 #[server]
 pub async fn listar_categorias_admin() -> Result<Vec<Categoria>, ServerFnError> {
     let pool = expect_context::<sqlx::PgPool>();
-    crate::api::auth::exigir_papel(crate::server::rbac::Papel::Editor).await?;
+    crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Visualizador, "produtos").await?;
     crate::server::categorias_admin::listar(&pool)
         .await
         .map_err(|_| ServerFnError::new("Não foi possível carregar as categorias."))
@@ -19,7 +19,7 @@ pub async fn criar_categoria(nome: String) -> Result<(), ServerFnError> {
     use crate::error::AppError;
 
     let pool = expect_context::<sqlx::PgPool>();
-    crate::api::auth::exigir_papel(crate::server::rbac::Papel::Editor).await?;
+    crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Editor, "produtos").await?;
     match crate::server::categorias_admin::criar(&pool, &nome).await {
         Ok(()) => Ok(()),
         Err(AppError::Validation) => Err(ServerFnError::new("Informe um nome válido.")),
@@ -31,7 +31,7 @@ pub async fn criar_categoria(nome: String) -> Result<(), ServerFnError> {
 #[server]
 pub async fn excluir_categoria(id: Uuid) -> Result<(), ServerFnError> {
     let pool = expect_context::<sqlx::PgPool>();
-    crate::api::auth::exigir_papel(crate::server::rbac::Papel::Editor).await?;
+    crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Editor, "produtos").await?;
     crate::server::categorias_admin::excluir(&pool, id)
         .await
         .map_err(|_| ServerFnError::new("Não foi possível excluir a categoria."))

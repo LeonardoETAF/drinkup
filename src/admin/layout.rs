@@ -36,6 +36,10 @@ pub fn AdminLayout() -> impl IntoView {
 
     let nome = move || usuario.get().flatten().map(|u| u.nome).unwrap_or_default();
     let papel = move || usuario.get().flatten().map(|u| u.papel).unwrap_or_default();
+    // Menus permitidos do usuário logado (filtram a navegação).
+    let menus = Memo::new(move |_| {
+        usuario.get().flatten().map(|u| u.menus).unwrap_or_default()
+    });
     let avatar = move || {
         usuario
             .get()
@@ -55,14 +59,50 @@ pub fn AdminLayout() -> impl IntoView {
                     <span class="admin-side__tag">"Admin"</span>
                 </div>
                 <nav class="admin-nav">
-                    <NavLink href="/admin" label="Dashboard" icon=IC_DASH/>
-                    <NavLink href="/admin/produtos" label="Produtos" icon=IC_PROD/>
-                    <NavLink href="/admin/leads" label="Leads" icon=IC_LEADS/>
-                    <NavLink href="/admin/parceiros" label="Parceiros" icon=IC_PARC/>
-                    <NavLink href="/admin/eventos" label="Eventos" icon=IC_EVT/>
-                    <NavLink href="/admin/conteudo" label="Conteúdo Home" icon=IC_CONT/>
-                    <NavLink href="/admin/conteudo-quem-somos" label="Quem Somos" icon=IC_INFO/>
-                    <NavLink href="/admin/configuracoes" label="Configurações" icon=IC_CFG/>
+                    <NavLink href="/admin" label="Dashboard" icon=IC_DASH menu="dashboard" menus/>
+                    <NavLink
+                        href="/admin/produtos"
+                        label="Produtos"
+                        icon=IC_PROD
+                        menu="produtos"
+                        menus
+                    />
+                    <NavLink href="/admin/leads" label="Leads" icon=IC_LEADS menu="leads" menus/>
+                    <NavLink
+                        href="/admin/parceiros"
+                        label="Parceiros"
+                        icon=IC_PARC
+                        menu="parceiros"
+                        menus
+                    />
+                    <NavLink
+                        href="/admin/eventos"
+                        label="Eventos"
+                        icon=IC_EVT
+                        menu="eventos"
+                        menus
+                    />
+                    <NavLink
+                        href="/admin/conteudo"
+                        label="Conteúdo Home"
+                        icon=IC_CONT
+                        menu="conteudo"
+                        menus
+                    />
+                    <NavLink
+                        href="/admin/conteudo-quem-somos"
+                        label="Quem Somos"
+                        icon=IC_INFO
+                        menu="quem-somos"
+                        menus
+                    />
+                    <NavLink
+                        href="/admin/configuracoes"
+                        label="Configurações"
+                        icon=IC_CFG
+                        menu="configuracoes"
+                        menus
+                    />
                 </nav>
                 <button
                     class="admin-nav__sair"
@@ -94,13 +134,27 @@ pub fn AdminLayout() -> impl IntoView {
 }
 
 #[component]
-fn NavLink(href: &'static str, label: &'static str, icon: &'static str) -> impl IntoView {
+fn NavLink(
+    href: &'static str,
+    label: &'static str,
+    icon: &'static str,
+    menu: &'static str,
+    menus: Memo<Vec<String>>,
+) -> impl IntoView {
     let loc = use_location();
     let ativo = move || loc.pathname.get() == href;
-    view! {
-        <a class="admin-nav__item" class:is-active=ativo href=href>
-            <span class="admin-nav__icon" inner_html=icon></span>
-            <span>{label}</span>
-        </a>
+    move || {
+        menus
+            .get()
+            .iter()
+            .any(|m| m == menu)
+            .then(|| {
+                view! {
+                    <a class="admin-nav__item" class:is-active=ativo href=href>
+                        <span class="admin-nav__icon" inner_html=icon></span>
+                        <span>{label}</span>
+                    </a>
+                }
+            })
     }
 }

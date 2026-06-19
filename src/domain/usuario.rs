@@ -8,4 +8,6 @@ pub struct UsuarioSessao {
     pub id: Uuid,
     pub nome: String,
     pub papel: String,
+    /// Menus do painel que o usuário pode acessar.
+    pub menus: Vec<String>,
 }

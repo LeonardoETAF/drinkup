@@ -79,8 +79,10 @@ ON CONFLICT (chave) DO NOTHING;
 
 -- Usuário admin de desenvolvimento.
 -- A senha real (hash Argon2id) é definida na Fase 6; aqui é só um placeholder.
-INSERT INTO usuarios (nome, email, senha_hash, papel)
-VALUES ('Administrador', 'admin@drinkup.local', 'DEFINIR_NA_FASE_6', 'admin')
+INSERT INTO usuarios (nome, email, senha_hash, papel, menus)
+VALUES ('Administrador', 'admin@drinkup.local', 'DEFINIR_NA_FASE_6', 'admin',
+        ARRAY['dashboard', 'produtos', 'leads', 'parceiros', 'eventos',
+              'conteudo', 'quem-somos', 'configuracoes'])
 ON CONFLICT (lower(email)) DO NOTHING;
 
 -- Um lead de exemplo (só quando ainda não há leads).

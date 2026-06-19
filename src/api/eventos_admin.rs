@@ -7,7 +7,7 @@ use crate::domain::{EventoForm, EventoLista};
 #[server]
 pub async fn listar_eventos_admin() -> Result<Vec<EventoLista>, ServerFnError> {
     let pool = expect_context::<sqlx::PgPool>();
-    crate::api::auth::exigir_papel(crate::server::rbac::Papel::Editor).await?;
+    crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Visualizador, "eventos").await?;
     crate::server::eventos_admin::listar(&pool)
         .await
         .map_err(|e| {
@@ -20,7 +20,7 @@ pub async fn listar_eventos_admin() -> Result<Vec<EventoLista>, ServerFnError> {
 #[server]
 pub async fn obter_evento_admin(id: Uuid) -> Result<Option<EventoForm>, ServerFnError> {
     let pool = expect_context::<sqlx::PgPool>();
-    crate::api::auth::exigir_papel(crate::server::rbac::Papel::Editor).await?;
+    crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Visualizador, "eventos").await?;
     crate::server::eventos_admin::obter_form(&pool, id)
         .await
         .map_err(|e| {
@@ -35,7 +35,7 @@ pub async fn salvar_evento(form: EventoForm) -> Result<Uuid, ServerFnError> {
     use crate::error::AppError;
 
     let pool = expect_context::<sqlx::PgPool>();
-    crate::api::auth::exigir_papel(crate::server::rbac::Papel::Editor).await?;
+    crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Editor, "eventos").await?;
     match crate::server::eventos_admin::salvar(&pool, &form).await {
         Ok(id) => Ok(id),
         Err(AppError::Validation) => Err(ServerFnError::new("Informe um nome válido.")),
@@ -47,7 +47,7 @@ pub async fn salvar_evento(form: EventoForm) -> Result<Uuid, ServerFnError> {
 #[server]
 pub async fn excluir_evento(id: Uuid) -> Result<(), ServerFnError> {
     let pool = expect_context::<sqlx::PgPool>();
-    crate::api::auth::exigir_papel(crate::server::rbac::Papel::Editor).await?;
+    crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Editor, "eventos").await?;
     crate::server::eventos_admin::excluir(&pool, id)
         .await
         .map_err(|_| ServerFnError::new("Não foi possível excluir a categoria."))
@@ -57,7 +57,7 @@ pub async fn excluir_evento(id: Uuid) -> Result<(), ServerFnError> {
 #[server]
 pub async fn alternar_evento(id: Uuid) -> Result<(), ServerFnError> {
     let pool = expect_context::<sqlx::PgPool>();
-    crate::api::auth::exigir_papel(crate::server::rbac::Papel::Editor).await?;
+    crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Editor, "eventos").await?;
     crate::server::eventos_admin::alternar_ativo(&pool, id)
         .await
         .map_err(|_| ServerFnError::new("Não foi possível alterar a visibilidade."))

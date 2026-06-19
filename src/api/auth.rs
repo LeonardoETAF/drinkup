@@ -94,3 +94,17 @@ pub async fn exigir_papel(
     }
     Ok(u)
 }
+
+/// Como `exigir_papel`, mas também exige que o usuário tenha acesso ao `menu`
+/// indicado (permissões por usuário). Vale para todos os papéis.
+#[cfg(feature = "ssr")]
+pub async fn exigir_acesso(
+    minimo: crate::server::rbac::Papel,
+    menu: &str,
+) -> Result<UsuarioSessao, ServerFnError> {
+    let u = exigir_papel(minimo).await?;
+    if !u.menus.iter().any(|m| m == menu) {
+        return Err(ServerFnError::new("Acesso negado."));
+    }
+    Ok(u)
+}

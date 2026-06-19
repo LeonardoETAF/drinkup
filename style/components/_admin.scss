@@ -915,6 +915,13 @@
   margin-top: var(--space-5);
 }
 
+/* Checkboxes de permissão de menu (várias colunas). */
+.admin-form__checks--menus {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--space-3);
+}
+
 .admin-fieldset__titulo {
   font-family: var(--font-display);
   font-weight: var(--fw-bold);

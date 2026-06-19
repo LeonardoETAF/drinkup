@@ -6,7 +6,7 @@ use crate::domain::HomeForm;
 #[server]
 pub async fn obter_home_form() -> Result<HomeForm, ServerFnError> {
     let pool = expect_context::<sqlx::PgPool>();
-    crate::api::auth::exigir_papel(crate::server::rbac::Papel::Gerente).await?;
+    crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Visualizador, "conteudo").await?;
     crate::server::home_content::obter_form(&pool)
         .await
         .map_err(|_| ServerFnError::new("Não foi possível carregar o conteúdo."))
@@ -16,7 +16,7 @@ pub async fn obter_home_form() -> Result<HomeForm, ServerFnError> {
 #[server]
 pub async fn salvar_home(form: HomeForm) -> Result<(), ServerFnError> {
     let pool = expect_context::<sqlx::PgPool>();
-    crate::api::auth::exigir_papel(crate::server::rbac::Papel::Gerente).await?;
+    crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Gerente, "conteudo").await?;
     crate::server::home_content::salvar(&pool, &form)
         .await
         .map_err(|_| ServerFnError::new("Não foi possível salvar o conteúdo."))

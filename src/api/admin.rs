@@ -7,7 +7,7 @@ use crate::domain::{DashboardResumo, FiltroLeads, PaginaLeads};
 #[server]
 pub async fn resumo_dashboard() -> Result<DashboardResumo, ServerFnError> {
     let pool = expect_context::<sqlx::PgPool>();
-    crate::api::auth::exigir_papel(crate::server::rbac::Papel::Editor).await?;
+    crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Visualizador, "dashboard").await?;
     crate::server::dashboard::resumo(&pool).await.map_err(|e| {
         tracing::error!(error = %e, "falha no resumo do dashboard");
         ServerFnError::new("Não foi possível carregar o dashboard.")
@@ -18,7 +18,7 @@ pub async fn resumo_dashboard() -> Result<DashboardResumo, ServerFnError> {
 #[server]
 pub async fn listar_leads(filtro: FiltroLeads) -> Result<PaginaLeads, ServerFnError> {
     let pool = expect_context::<sqlx::PgPool>();
-    crate::api::auth::exigir_papel(crate::server::rbac::Papel::Editor).await?;
+    crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Visualizador, "leads").await?;
     crate::server::leads::listar(&pool, &filtro)
         .await
         .map_err(|e| {
@@ -33,7 +33,7 @@ pub async fn atualizar_status_lead(id: Uuid, status: String) -> Result<(), Serve
     use crate::error::AppError;
 
     let pool = expect_context::<sqlx::PgPool>();
-    crate::api::auth::exigir_papel(crate::server::rbac::Papel::Editor).await?;
+    crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Editor, "leads").await?;
     match crate::server::leads::atualizar_status(&pool, id, &status).await {
         Ok(()) => Ok(()),
         Err(AppError::Validation) => Err(ServerFnError::new("Status inválido.")),

@@ -83,7 +83,7 @@ pub async fn autenticar(
     }
 
     let rec = sqlx::query!(
-        r#"SELECT id, nome, senha_hash, papel, ativo FROM usuarios WHERE lower(email) = $1"#,
+        r#"SELECT id, nome, senha_hash, papel, ativo, menus FROM usuarios WHERE lower(email) = $1"#,
         chave
     )
     .fetch_optional(pool)
@@ -111,13 +111,14 @@ pub async fn autenticar(
         id: u.id,
         nome: u.nome,
         papel: u.papel,
+        menus: u.menus,
     })
 }
 
 /// Carrega o usuário da sessão pelo id, revalidando que ainda está ativo.
 pub async fn carregar_sessao(pool: &PgPool, uid: Uuid) -> Result<Option<UsuarioSessao>, AppError> {
     let rec = sqlx::query!(
-        r#"SELECT id, nome, papel, ativo FROM usuarios WHERE id = $1"#,
+        r#"SELECT id, nome, papel, ativo, menus FROM usuarios WHERE id = $1"#,
         uid
     )
     .fetch_optional(pool)
@@ -128,6 +129,7 @@ pub async fn carregar_sessao(pool: &PgPool, uid: Uuid) -> Result<Option<UsuarioS
         id: u.id,
         nome: u.nome,
         papel: u.papel,
+        menus: u.menus,
     }))
 }
 
