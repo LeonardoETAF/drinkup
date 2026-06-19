@@ -27,6 +27,21 @@ fn mascara_telefone(bruto: &str) -> String {
 pub fn SiteFooter() -> impl IntoView {
     let info = Resource::new(|| (), |_| async move { obter_contato().await });
     let (telefone, definir_telefone) = signal(String::new());
+    // Feedback do envio: None = nada; Some((sucesso, texto)).
+    let (mensagem, definir_mensagem) = signal::<Option<(bool, String)>>(None);
+
+    let enviar = move |ev: leptos::ev::SubmitEvent| {
+        ev.prevent_default();
+        let digitos = telefone.get_untracked().chars().filter(|c| c.is_ascii_digit()).count();
+        if digitos == 11 {
+            definir_telefone.set(String::new());
+            definir_mensagem
+                .set(Some((true, "Pronto! Em breve você receberá nossas novidades.".to_string())));
+        } else {
+            definir_mensagem
+                .set(Some((false, "Informe um número de WhatsApp válido.".to_string())));
+        }
+    };
     view! {
         <footer class="site-footer">
             <div class="container site-footer__inner">
@@ -64,7 +79,7 @@ pub fn SiteFooter() -> impl IntoView {
                     <p class="site-footer__brandinfo">
                         "Receba promoções e lançamentos direto no seu WhatsApp."
                     </p>
-                    <form class="newsletter">
+                    <form class="newsletter" on:submit=enviar>
                         <input
                             type="tel"
                             inputmode="numeric"
@@ -74,10 +89,27 @@ pub fn SiteFooter() -> impl IntoView {
                             prop:value=telefone
                             on:input=move |ev| {
                                 definir_telefone.set(mascara_telefone(&event_target_value(&ev)));
+                                definir_mensagem.set(None);
                             }
                         />
                         <button type="submit" class="btn btn--dark">"Quero receber"</button>
                     </form>
+                    {move || {
+                        mensagem
+                            .get()
+                            .map(|(sucesso, texto)| {
+                                let classe = if sucesso {
+                                    "newsletter__msg newsletter__msg--ok"
+                                } else {
+                                    "newsletter__msg newsletter__msg--erro"
+                                };
+                                view! {
+                                    <p class=classe role="status" aria-live="polite">
+                                        {texto}
+                                    </p>
+                                }
+                            })
+                    }}
                 </div>
 
                 <div class="site-footer__legal">

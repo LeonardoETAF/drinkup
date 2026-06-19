@@ -278,6 +278,21 @@
   color: rgba(0, 0, 0, 0.5);
 }
 
+/* Mensagem breve de feedback ao enviar a newsletter. */
+.newsletter__msg {
+  margin-top: var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
+}
+
+.newsletter__msg--ok {
+  color: var(--color-on-lime);
+}
+
+.newsletter__msg--erro {
+  color: #7a0f1f;
+}
+
 .site-footer__bottom {
   border-top: 1px solid rgba(0, 0, 0, 0.15);
   padding-block: var(--space-4);
