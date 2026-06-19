@@ -3,6 +3,7 @@ use leptos::task::spawn_local;
 use leptos_router::hooks::{use_navigate, use_params_map};
 use uuid::Uuid;
 
+use crate::admin::upload_card::CartaoUpload;
 use crate::api::parceiros_admin::{obter_parceiro_admin, salvar_parceiro};
 use crate::domain::ParceiroForm;
 
@@ -24,8 +25,6 @@ pub fn AdminParceiroForm() -> impl IntoView {
     let ordem = RwSignal::new(String::new());
     let ativo = RwSignal::new(true);
     let logo_url = RwSignal::new(None::<String>);
-    let enviando_img = RwSignal::new(false);
-    let erro_img = RwSignal::new(None::<String>);
     let cor = RwSignal::new("#ff0070".to_string());
     let tagline = RwSignal::new(String::new());
     // Imagens dos produtos (URLs) exibidas como swipe na página do parceiro.
@@ -110,62 +109,10 @@ pub fn AdminParceiroForm() -> impl IntoView {
                 />
             </label>
 
-            <label class="field">
-                <span class="field__label">"Logo (JPG, PNG ou WEBP, até 5MB)"</span>
-                <input
-                    class="admin-input"
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp"
-                    on:change=move |ev| {
-                        #[cfg(feature = "hydrate")]
-                        {
-                            use wasm_bindgen::JsCast;
-                            if let Some(input) = ev
-                                .target()
-                                .and_then(|t| t.dyn_into::<web_sys::HtmlInputElement>().ok())
-                            {
-                                if let Some(file) = input.files().and_then(|f| f.get(0)) {
-                                    let fd = web_sys::FormData::new().unwrap();
-                                    let _ = fd.append_with_blob("imagem", &file);
-                                    enviando_img.set(true);
-                                    erro_img.set(None);
-                                    leptos::task::spawn_local(async move {
-                                        let r = async {
-                                            let req = gloo_net::http::Request::post("/upload-imagem")
-                                                .body(fd)
-                                                .map_err(|_| ())?;
-                                            let resp = req.send().await.map_err(|_| ())?;
-                                            if resp.ok() {
-                                                resp.text().await.map_err(|_| ())
-                                            } else {
-                                                Err(())
-                                            }
-                                        }
-                                            .await;
-                                        match r {
-                                            Ok(url) => logo_url.set(Some(url)),
-                                            Err(()) => {
-                                                erro_img
-                                                    .set(Some("Não foi possível enviar o logo.".to_string()))
-                                            }
-                                        }
-                                        enviando_img.set(false);
-                                    });
-                                }
-                            }
-                        }
-                        #[cfg(not(feature = "hydrate"))]
-                        let _ = &ev;
-                    }
-                />
-                {move || {
-                    enviando_img.get().then(|| view! { <span class="admin-status">"Enviando..."</span> })
-                }}
-                {move || {
-                    logo_url.get().map(|u| view! { <img class="form-preview" src=u alt="Logo"/> })
-                }}
-                {move || erro_img.get().map(|m| view! { <span class="field__erro">{m}</span> })}
-            </label>
+            <div class="field">
+                <span class="field__label">"Logo do parceiro"</span>
+                <CartaoUpload url=logo_url dica="PNG/JPG/WEBP · fundo transparente · até 5MB"/>
+            </div>
 
             <div class="admin-form__grid">
                 <label class="field">
@@ -220,55 +167,10 @@ pub fn AdminParceiroForm() -> impl IntoView {
                     />
                 </label>
             </div>
-            <label class="field">
+            <div class="field">
                 <span class="field__label">
-                    "Imagens dos produtos (swipe na página) — adicione uma por vez"
+                    "Imagens dos produtos — swipe na página (PNG/JPG/WEBP, até 5MB)"
                 </span>
-                <input
-                    class="admin-input"
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp"
-                    on:change=move |ev| {
-                        #[cfg(feature = "hydrate")]
-                        {
-                            use wasm_bindgen::JsCast;
-                            if let Some(input) = ev
-                                .target()
-                                .and_then(|t| t.dyn_into::<web_sys::HtmlInputElement>().ok())
-                            {
-                                if let Some(file) = input.files().and_then(|f| f.get(0)) {
-                                    let fd = web_sys::FormData::new().unwrap();
-                                    let _ = fd.append_with_blob("imagem", &file);
-                                    input.set_value("");
-                                    enviando_prod.set(true);
-                                    leptos::task::spawn_local(async move {
-                                        let r = async {
-                                            let req = gloo_net::http::Request::post("/upload-imagem")
-                                                .body(fd)
-                                                .map_err(|_| ())?;
-                                            let resp = req.send().await.map_err(|_| ())?;
-                                            if resp.ok() {
-                                                resp.text().await.map_err(|_| ())
-                                            } else {
-                                                Err(())
-                                            }
-                                        }
-                                            .await;
-                                        if let Ok(url) = r {
-                                            imagens.update(|v| v.push(url));
-                                        }
-                                        enviando_prod.set(false);
-                                    });
-                                }
-                            }
-                        }
-                        #[cfg(not(feature = "hydrate"))]
-                        let _ = &ev;
-                    }
-                />
-                {move || {
-                    enviando_prod.get().then(|| view! { <span class="admin-status">"Enviando..."</span> })
-                }}
                 <div class="form-galeria">
                     {move || {
                         imagens
@@ -299,8 +201,58 @@ pub fn AdminParceiroForm() -> impl IntoView {
                             })
                             .collect_view()
                     }}
+                    <label class="form-galeria__add">
+                        <input
+                            class="upload-card__input"
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp"
+                            on:change=move |ev| {
+                                #[cfg(feature = "hydrate")]
+                                {
+                                    use wasm_bindgen::JsCast;
+                                    if let Some(input) = ev
+                                        .target()
+                                        .and_then(|t| t.dyn_into::<web_sys::HtmlInputElement>().ok())
+                                    {
+                                        if let Some(file) = input.files().and_then(|f| f.get(0)) {
+                                            let fd = web_sys::FormData::new().unwrap();
+                                            let _ = fd.append_with_blob("imagem", &file);
+                                            input.set_value("");
+                                            enviando_prod.set(true);
+                                            leptos::task::spawn_local(async move {
+                                                let r = async {
+                                                    let req = gloo_net::http::Request::post(
+                                                            "/upload-imagem",
+                                                        )
+                                                        .body(fd)
+                                                        .map_err(|_| ())?;
+                                                    let resp = req.send().await.map_err(|_| ())?;
+                                                    if resp.ok() {
+                                                        resp.text().await.map_err(|_| ())
+                                                    } else {
+                                                        Err(())
+                                                    }
+                                                }
+                                                    .await;
+                                                if let Ok(url) = r {
+                                                    imagens.update(|v| v.push(url));
+                                                }
+                                                enviando_prod.set(false);
+                                            });
+                                        }
+                                    }
+                                }
+                                #[cfg(not(feature = "hydrate"))]
+                                let _ = &ev;
+                            }
+                        />
+                        <span class="form-galeria__add-mais">
+                            {move || if enviando_prod.get() { "…" } else { "+" }}
+                        </span>
+                        <span class="form-galeria__add-txt">"Adicionar"</span>
+                    </label>
                 </div>
-            </label>
+            </div>
 
             <div class="admin-form__checks">
                 <label class="login-check">

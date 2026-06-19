@@ -3,6 +3,7 @@ use leptos::task::spawn_local;
 use leptos_router::hooks::{use_navigate, use_params_map};
 use uuid::Uuid;
 
+use crate::admin::upload_card::CartaoUpload;
 use crate::api::catalogo::listar_categorias;
 use crate::api::produtos_admin::{obter_produto_admin, salvar_produto};
 use crate::domain::{Categoria, ProdutoForm};
@@ -40,8 +41,6 @@ pub fn AdminProdutoForm() -> impl IntoView {
     let destaque = RwSignal::new(false);
     let ativo = RwSignal::new(true);
     let imagem_url = RwSignal::new(None::<String>);
-    let enviando_img = RwSignal::new(false);
-    let erro_img = RwSignal::new(None::<String>);
 
     // Carrega os dados ao editar.
     Effect::new(move |_| {
@@ -210,68 +209,10 @@ pub fn AdminProdutoForm() -> impl IntoView {
                 </label>
             </div>
 
-            <label class="field">
-                <span class="field__label">"Imagem (JPG, PNG ou WEBP, até 5MB)"</span>
-                <input
-                    class="admin-input"
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp"
-                    on:change=move |ev| {
-                        #[cfg(feature = "hydrate")]
-                        {
-                            use wasm_bindgen::JsCast;
-                            if let Some(input) = ev
-                                .target()
-                                .and_then(|t| t.dyn_into::<web_sys::HtmlInputElement>().ok())
-                            {
-                                if let Some(file) = input.files().and_then(|f| f.get(0)) {
-                                    let fd = web_sys::FormData::new().unwrap();
-                                    let _ = fd.append_with_blob("imagem", &file);
-                                    enviando_img.set(true);
-                                    erro_img.set(None);
-                                    leptos::task::spawn_local(async move {
-                                        let r = async {
-                                            let req = gloo_net::http::Request::post("/upload-imagem")
-                                                .body(fd)
-                                                .map_err(|_| ())?;
-                                            let resp = req.send().await.map_err(|_| ())?;
-                                            if resp.ok() {
-                                                resp.text().await.map_err(|_| ())
-                                            } else {
-                                                Err(())
-                                            }
-                                        }
-                                            .await;
-                                        match r {
-                                            Ok(url) => imagem_url.set(Some(url)),
-                                            Err(()) => {
-                                                erro_img
-                                                    .set(
-                                                        Some(
-                                                            "Não foi possível enviar a imagem.".to_string(),
-                                                        ),
-                                                    )
-                                            }
-                                        }
-                                        enviando_img.set(false);
-                                    });
-                                }
-                            }
-                        }
-                        #[cfg(not(feature = "hydrate"))]
-                        let _ = &ev;
-                    }
-                />
-                {move || {
-                    enviando_img.get().then(|| view! { <span class="admin-status">"Enviando..."</span> })
-                }}
-                {move || {
-                    imagem_url
-                        .get()
-                        .map(|u| view! { <img class="form-preview" src=u alt="Prévia"/> })
-                }}
-                {move || erro_img.get().map(|m| view! { <span class="field__erro">{m}</span> })}
-            </label>
+            <div class="field">
+                <span class="field__label">"Imagem do produto"</span>
+                <CartaoUpload url=imagem_url dica="PNG/JPG/WEBP · quadrada (1:1) · até 5MB"/>
+            </div>
 
             <div class="admin-form__checks">
                 <label class="login-check">

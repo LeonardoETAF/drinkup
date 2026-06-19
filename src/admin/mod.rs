@@ -17,6 +17,7 @@ mod produto_form;
 mod produtos;
 mod recuperar;
 mod redefinir;
+mod upload_card;
 mod usuario_form;
 mod usuarios;
 mod util;

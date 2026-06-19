@@ -613,6 +613,142 @@
   cursor: pointer;
 }
 
+/* Tile "adicionar" da galeria (mesmo tamanho das miniaturas). */
+.form-galeria__add {
+  width: 88px;
+  height: 88px;
+  display: grid;
+  place-content: center;
+  gap: 2px;
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color var(--transition), color var(--transition);
+}
+
+.form-galeria__add:hover,
+.form-galeria__add:focus-within {
+  border-color: var(--color-lime);
+  color: var(--color-text);
+}
+
+.form-galeria__add-mais {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.form-galeria__add-txt {
+  font-size: var(--text-xs);
+}
+
+/* ===== Card de upload de imagem ===== */
+.upload-card {
+  position: relative;
+  display: grid;
+  place-items: center;
+  gap: var(--space-2);
+  min-height: 170px;
+  padding: var(--space-5);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  text-align: center;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color var(--transition), color var(--transition);
+}
+
+.upload-card:hover,
+.upload-card:focus-within {
+  border-color: var(--color-lime);
+  color: var(--color-text);
+}
+
+.upload-card__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Estado vazio: ícone, ação e dica empilhados e centralizados. */
+.upload-card__conteudo {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+  max-width: 30ch;
+}
+
+.upload-card__icone svg {
+  width: 34px;
+  height: 34px;
+}
+
+.upload-card__acao {
+  font-weight: var(--fw-semibold);
+  font-size: var(--text-sm);
+}
+
+.upload-card__dica {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+
+/* Preenchido: a imagem cobre o card; "Trocar imagem" numa barra inferior. */
+.upload-card.is-cheio {
+  border-style: solid;
+  padding: 0;
+}
+
+.upload-card__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.upload-card.is-cheio .upload-card__conteudo {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2);
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.78));
+  color: #fff;
+}
+
+.upload-card.is-cheio .upload-card__icone,
+.upload-card.is-cheio .upload-card__dica {
+  display: none;
+}
+
+.upload-card__status,
+.upload-card__erro {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  right: var(--space-2);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  background: rgba(0, 0, 0, 0.72);
+  color: #fff;
+}
+
+.upload-card__erro {
+  background: var(--color-pink);
+}
+
 @media (max-width: 620px) {
   .admin-form__grid {
     grid-template-columns: 1fr;

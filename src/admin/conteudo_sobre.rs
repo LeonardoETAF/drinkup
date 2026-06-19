@@ -1,6 +1,7 @@
 use leptos::prelude::*;
 use leptos::task::spawn_local;
 
+use crate::admin::upload_card::CartaoUpload;
 use crate::api::quem_somos_admin::{obter_quem_somos_form, salvar_quem_somos};
 use crate::domain::QuemSomosForm;
 
@@ -96,8 +97,14 @@ pub fn AdminConteudoQuemSomos() -> impl IntoView {
             <fieldset class="admin-card admin-fieldset">
                 <legend class="admin-fieldset__titulo">"Fotos"</legend>
                 <div class="admin-form__grid">
-                    {upload_foto("Foto 1 (ex.: equipe de produção)", foto1)}
-                    {upload_foto("Foto 2 (ex.: vista da fábrica)", foto2)}
+                    <div class="field">
+                        <span class="field__label">"Foto 1 (ex.: equipe de produção)"</span>
+                        <CartaoUpload url=foto1 dica="PNG/JPG/WEBP · paisagem (4:3) · até 5MB"/>
+                    </div>
+                    <div class="field">
+                        <span class="field__label">"Foto 2 (ex.: vista da fábrica)"</span>
+                        <CartaoUpload url=foto2 dica="PNG/JPG/WEBP · paisagem (4:3) · até 5MB"/>
+                    </div>
                 </div>
             </fieldset>
 
@@ -181,60 +188,6 @@ fn area(
                 prop:value=move || sinal.get()
                 on:input=move |ev| sinal.set(event_target_value(&ev))
             ></textarea>
-        </label>
-    }
-}
-
-fn upload_foto(rotulo: &'static str, url: RwSignal<Option<String>>) -> impl IntoView {
-    let enviando = RwSignal::new(false);
-    view! {
-        <label class="field">
-            <span class="field__label">{rotulo}</span>
-            <input
-                class="admin-input"
-                type="file"
-                accept="image/png,image/jpeg,image/webp"
-                on:change=move |ev| {
-                    #[cfg(feature = "hydrate")]
-                    {
-                        use wasm_bindgen::JsCast;
-                        if let Some(input) = ev
-                            .target()
-                            .and_then(|t| t.dyn_into::<web_sys::HtmlInputElement>().ok())
-                        {
-                            if let Some(file) = input.files().and_then(|f| f.get(0)) {
-                                let fd = web_sys::FormData::new().unwrap();
-                                let _ = fd.append_with_blob("imagem", &file);
-                                enviando.set(true);
-                                leptos::task::spawn_local(async move {
-                                    let r = async {
-                                        let req = gloo_net::http::Request::post("/upload-imagem")
-                                            .body(fd)
-                                            .map_err(|_| ())?;
-                                        let resp = req.send().await.map_err(|_| ())?;
-                                        if resp.ok() {
-                                            resp.text().await.map_err(|_| ())
-                                        } else {
-                                            Err(())
-                                        }
-                                    }
-                                        .await;
-                                    if let Ok(u) = r {
-                                        url.set(Some(u));
-                                    }
-                                    enviando.set(false);
-                                });
-                            }
-                        }
-                    }
-                    #[cfg(not(feature = "hydrate"))]
-                    let _ = &ev;
-                }
-            />
-            {move || enviando.get().then(|| view! { <span class="admin-status">"Enviando..."</span> })}
-            {move || {
-                url.get().map(|u| view! { <img class="form-preview" src=u alt="Prévia"/> })
-            }}
         </label>
     }
 }
