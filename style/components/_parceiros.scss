@@ -145,8 +145,8 @@
 }
 
 .marca__logo {
-  max-height: 64px;
-  max-width: 80%;
+  max-height: clamp(96px, 15vw, 180px);
+  max-width: 78%;
   object-fit: contain;
 }
 
