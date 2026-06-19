@@ -451,6 +451,18 @@
   font-weight: var(--fw-bold);
 }
 
+/* Badge clicável (toggle de visibilidade). */
+.badge--btn {
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: filter var(--transition), opacity var(--transition);
+}
+
+.badge--btn:hover {
+  filter: brightness(1.15);
+}
+
 .badge--lime {
   background: rgba(200, 212, 0, 0.15);
   color: var(--color-lime);

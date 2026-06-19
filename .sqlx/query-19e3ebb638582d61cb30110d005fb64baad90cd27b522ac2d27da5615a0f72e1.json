@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE eventos SET ativo = NOT ativo WHERE id = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "19e3ebb638582d61cb30110d005fb64baad90cd27b522ac2d27da5615a0f72e1"
+}

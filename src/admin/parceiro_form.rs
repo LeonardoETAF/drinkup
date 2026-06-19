@@ -169,7 +169,7 @@ pub fn AdminParceiroForm() -> impl IntoView {
             </div>
             <div class="field">
                 <span class="field__label">
-                    "Imagens dos produtos — swipe na página (PNG/JPG/WEBP, quadradas 1:1, até 5MB)"
+                    "Imagens dos produtos (PNG/JPG/WEBP, quadradas 1:1, até 5MB)"
                 </span>
                 <div class="form-galeria">
                     {move || {

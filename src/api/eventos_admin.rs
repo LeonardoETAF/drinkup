@@ -52,3 +52,13 @@ pub async fn excluir_evento(id: Uuid) -> Result<(), ServerFnError> {
         .await
         .map_err(|_| ServerFnError::new("Não foi possível excluir a categoria."))
 }
+
+/// Ativa/desativa a visibilidade de uma categoria.
+#[server]
+pub async fn alternar_evento(id: Uuid) -> Result<(), ServerFnError> {
+    let pool = expect_context::<sqlx::PgPool>();
+    crate::api::auth::exigir_papel(crate::server::rbac::Papel::Editor).await?;
+    crate::server::eventos_admin::alternar_ativo(&pool, id)
+        .await
+        .map_err(|_| ServerFnError::new("Não foi possível alterar a visibilidade."))
+}
