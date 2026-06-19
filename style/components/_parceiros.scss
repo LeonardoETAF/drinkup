@@ -125,6 +125,8 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   min-height: 320px;
+  /* Compensa o cabeçalho fixo ao rolar via âncora (clique nos logos do topo). */
+  scroll-margin-top: var(--header-h);
 }
 
 .marca__brand {
@@ -174,7 +176,9 @@
 
 .marca__grade {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  /* Desktop: produtos em uma única linha. */
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
   gap: var(--space-4);
   width: 100%;
 }
@@ -215,5 +219,11 @@
   }
   .marca--rev .marca__brand {
     order: 0;
+  }
+  /* Mobile: volta ao formato em grade 2x2. */
+  .marca__grade {
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+    grid-template-columns: repeat(2, 1fr);
   }
 }

@@ -65,11 +65,26 @@ pub fn ParceirosPage() -> impl IntoView {
 }
 
 fn conteudo(itens: Vec<ParceiroPublico>) -> AnyView {
+    // Cada logo é um atalho que rola até a seção do parceiro correspondente.
     let logos = itens
         .iter()
-        .filter_map(|p| {
+        .enumerate()
+        .filter_map(|(i, p)| {
             p.logo_url.clone().map(|url| {
-                view! { <img class="parceiros-logos__img" src=url alt=p.nome.clone() loading="lazy"/> }
+                view! {
+                    <a
+                        class="parceiros-logos__item"
+                        href=format!("#parceiro-{i}")
+                        aria-label=format!("Ir para {}", p.nome)
+                    >
+                        <img
+                            class="parceiros-logos__img"
+                            src=url
+                            alt=p.nome.clone()
+                            loading="lazy"
+                        />
+                    </a>
+                }
             })
         })
         .collect_view();
@@ -147,7 +162,7 @@ fn marca(i: usize, p: ParceiroPublico) -> impl IntoView {
     };
 
     view! {
-        <section class=classe>
+        <section class=classe id=format!("parceiro-{i}")>
             <div class="marca__brand" style=format!("background:{cor}")>
                 {marca_visual}
                 {p.tagline.map(|t| view! { <span class="marca__tag">{t}</span> })}
