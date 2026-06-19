@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use super::util::iniciais;
 use crate::api::admin::{atualizar_status_lead, listar_leads};
-use crate::domain::{FiltroLeads, PaginaLeads};
+use crate::domain::PaginaLeads;
 
 /// Página de leads: lista (busca + filtro) e alteração de status. Dados buscados
 /// no cliente (após a hidratação).
@@ -15,22 +15,23 @@ pub fn AdminLeads() -> impl IntoView {
     let versao = RwSignal::new(0u32);
     let dados = RwSignal::new(None::<Result<PaginaLeads, ServerFnError>>);
 
+    // Filtro como par (busca, status) — argumentos separados do server fn.
     let filtro = Memo::new(move |_| {
         let b = busca.get();
         let s = status_f.get();
-        FiltroLeads {
-            busca: (!b.trim().is_empty()).then(|| b.trim().to_string()),
-            status: (!s.is_empty()).then_some(s),
-        }
+        (
+            (!b.trim().is_empty()).then(|| b.trim().to_string()),
+            (!s.is_empty()).then_some(s),
+        )
     });
 
     // Busca (re)disparada por mudança de filtro ou após alterar um status.
     Effect::new(move |_| {
-        let f = filtro.get();
+        let (b, s) = filtro.get();
         versao.get();
         dados.set(None);
         spawn_local(async move {
-            dados.set(Some(listar_leads(f).await));
+            dados.set(Some(listar_leads(b, s).await));
         });
     });
 

@@ -1,7 +1,7 @@
 use leptos::prelude::*;
 use uuid::Uuid;
 
-use crate::domain::{DashboardResumo, FiltroLeads, PaginaLeads};
+use crate::domain::{DashboardResumo, PaginaLeads};
 
 /// Resumo do dashboard. Exige usuário autenticado (papel mínimo: editor).
 #[server]
@@ -15,10 +15,19 @@ pub async fn resumo_dashboard() -> Result<DashboardResumo, ServerFnError> {
 }
 
 /// Lista leads (busca + filtro de status). Exige autenticação (papel: editor).
+///
+/// Recebe `busca`/`status` como argumentos separados (e não um `FiltroLeads`):
+/// quando ambos são `None`, o corpo da requisição fica vazio e o framework não
+/// consegue desserializar um campo struct obrigatório (`filtro`). Argumentos
+/// `Option` no topo, ausentes, viram `None` sem erro.
 #[server]
-pub async fn listar_leads(filtro: FiltroLeads) -> Result<PaginaLeads, ServerFnError> {
+pub async fn listar_leads(
+    busca: Option<String>,
+    status: Option<String>,
+) -> Result<PaginaLeads, ServerFnError> {
     let pool = expect_context::<sqlx::PgPool>();
     crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Visualizador, "leads").await?;
+    let filtro = crate::domain::FiltroLeads { busca, status };
     crate::server::leads::listar(&pool, &filtro)
         .await
         .map_err(|e| {
