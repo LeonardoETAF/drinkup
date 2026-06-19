@@ -126,15 +126,18 @@
 .product-card__media {
   aspect-ratio: 4 / 3;
   display: grid;
-  place-content: center;
+  place-items: center;
+  overflow: hidden;
   background: radial-gradient(circle at 50% 45%, #ffffff, #e9ebef);
 }
 
 .product-card__img {
   width: 100%;
   height: 100%;
+  box-sizing: border-box;
   object-fit: contain;
   padding: var(--space-4);
+  border-radius: var(--radius-lg);
 }
 
 .product-card__ph {
