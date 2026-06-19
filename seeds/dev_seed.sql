@@ -25,10 +25,10 @@ ON CONFLICT (slug) DO NOTHING;
 INSERT INTO parceiros (nome, slug, descricao, site_url, cor, tagline, itens, ordem) VALUES
     ('Parceiro Exemplo A', 'parceiro-a', 'Marca parceira que personaliza copos para seus eventos.', 'https://exemplo-a.com.br',
         '#e23744', 'Tecnologia em delivery',
-        ARRAY['Caldereta Full Color 550ML', 'Long Drink Personalizado', 'Shot Branded 50ML', 'Copo Delivery 400ML'], 1),
+        ARRAY[]::text[], 1),
     ('Parceiro Exemplo B', 'parceiro-b', 'Rede que confia na DRINK UP em suas ativações.', 'https://exemplo-b.com.br',
         '#00c8ef', 'Resort & lazer',
-        ARRAY['Copo Resort 550ML', 'Eco Resort 400ML', 'Whisky Resort 350ML', 'Shot Resort 50ML'], 2)
+        ARRAY[]::text[], 2)
 ON CONFLICT (slug) DO UPDATE
   SET descricao = EXCLUDED.descricao, site_url = EXCLUDED.site_url,
       cor = EXCLUDED.cor, tagline = EXCLUDED.tagline, itens = EXCLUDED.itens;

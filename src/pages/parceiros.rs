@@ -1,7 +1,6 @@
 use leptos::prelude::*;
 
 use crate::api::parceiros::listar_parceiros;
-use crate::components::product_card::CUP_SVG;
 use crate::components::Seo;
 use crate::domain::ParceiroPublico;
 
@@ -142,23 +141,7 @@ fn marca(i: usize, p: ParceiroPublico) -> impl IntoView {
         }
         .into_any()
     } else {
-        let cards = p
-            .itens
-            .iter()
-            .map(|nome| {
-                view! {
-                    <div class="marca-item">
-                        <span
-                            class="marca-item__cup"
-                            style=format!("color:{cor}")
-                            inner_html=CUP_SVG
-                        ></span>
-                        <span class="marca-item__nome">{nome.clone()}</span>
-                    </div>
-                }
-            })
-            .collect_view();
-        view! { <div class="marca__grade">{cards}</div> }.into_any()
+        view! { <MarcaSwipe imagens=p.itens.clone()/> }.into_any()
     };
 
     view! {
@@ -169,5 +152,67 @@ fn marca(i: usize, p: ParceiroPublico) -> impl IntoView {
             </div>
             <div class="marca__lado">{lado}</div>
         </section>
+    }
+}
+
+/// Swipe das imagens de produtos do parceiro (uma por slide, sem legenda) com
+/// bolinhas de navegação.
+#[component]
+fn MarcaSwipe(imagens: Vec<String>) -> impl IntoView {
+    let total = imagens.len();
+    let ativo = RwSignal::new(0usize);
+    let track = NodeRef::<leptos::html::Div>::new();
+
+    view! {
+        <div class="marca-swipe">
+            <div
+                class="marca-swipe__track"
+                node_ref=track
+                on:scroll=move |_| {
+                    #[cfg(feature = "hydrate")]
+                    if let Some(el) = track.get_untracked() {
+                        let w = el.client_width().max(1);
+                        ativo.set((f64::from(el.scroll_left()) / f64::from(w)).round() as usize);
+                    }
+                }
+            >
+                {imagens
+                    .into_iter()
+                    .map(|url| {
+                        view! {
+                            <div class="marca-swipe__item">
+                                <img class="marca-swipe__img" src=url alt="" loading="lazy"/>
+                            </div>
+                        }
+                    })
+                    .collect_view()}
+            </div>
+            {(total > 1)
+                .then(|| {
+                    view! {
+                        <div class="marca-swipe__dots" aria-label="Imagens do parceiro">
+                            {(0..total)
+                                .map(|i| {
+                                    view! {
+                                        <button
+                                            type="button"
+                                            class="marca-swipe__dot"
+                                            class:is-active=move || ativo.get() == i
+                                            aria-label=format!("Imagem {}", i + 1)
+                                            on:click=move |_| {
+                                                ativo.set(i);
+                                                #[cfg(feature = "hydrate")]
+                                                if let Some(el) = track.get_untracked() {
+                                                    el.set_scroll_left(el.client_width() * i as i32);
+                                                }
+                                            }
+                                        ></button>
+                                    }
+                                })
+                                .collect_view()}
+                        </div>
+                    }
+                })}
+        </div>
     }
 }

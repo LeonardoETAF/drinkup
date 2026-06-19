@@ -575,6 +575,44 @@
   background: #fff;
 }
 
+/* Galeria de miniaturas (imagens de produtos do parceiro). */
+.form-galeria {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.form-galeria__item {
+  position: relative;
+}
+
+.form-galeria__item img {
+  width: 88px;
+  height: 88px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+  background: #fff;
+}
+
+.form-galeria__rm {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-pink);
+  color: #fff;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
 @media (max-width: 620px) {
   .admin-form__grid {
     grid-template-columns: 1fr;

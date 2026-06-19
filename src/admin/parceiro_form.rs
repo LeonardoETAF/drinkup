@@ -28,7 +28,9 @@ pub fn AdminParceiroForm() -> impl IntoView {
     let erro_img = RwSignal::new(None::<String>);
     let cor = RwSignal::new("#ff0070".to_string());
     let tagline = RwSignal::new(String::new());
-    let itens = RwSignal::new(String::new());
+    // Imagens dos produtos (URLs) exibidas como swipe na página do parceiro.
+    let imagens = RwSignal::new(Vec::<String>::new());
+    let enviando_prod = RwSignal::new(false);
 
     Effect::new(move |_| {
         let Some(pid) = id() else { return };
@@ -42,7 +44,7 @@ pub fn AdminParceiroForm() -> impl IntoView {
                 logo_url.set(f.logo_url);
                 cor.set(f.cor.unwrap_or_else(|| "#ff0070".to_string()));
                 tagline.set(f.tagline.unwrap_or_default());
-                itens.set(f.itens.join("\n"));
+                imagens.set(f.itens);
             }
         });
     });
@@ -79,12 +81,7 @@ pub fn AdminParceiroForm() -> impl IntoView {
             descricao: opt(descricao.get_untracked()),
             cor: opt(cor.get_untracked()),
             tagline: opt(tagline.get_untracked()),
-            itens: itens
-                .get_untracked()
-                .lines()
-                .map(|l| l.trim().to_string())
-                .filter(|l| !l.is_empty())
-                .collect(),
+            itens: imagens.get_untracked(),
             ordem: ordem.get_untracked().trim().parse::<i32>().unwrap_or(0),
             ativo: ativo.get_untracked(),
         };
@@ -224,14 +221,85 @@ pub fn AdminParceiroForm() -> impl IntoView {
                 </label>
             </div>
             <label class="field">
-                <span class="field__label">"Produtos-exemplo (um por linha)"</span>
-                <textarea
+                <span class="field__label">
+                    "Imagens dos produtos (swipe na página) — adicione uma por vez"
+                </span>
+                <input
                     class="admin-input"
-                    rows="4"
-                    placeholder="Caldereta Full Color 550ML&#10;Long Drink Personalizado"
-                    prop:value=move || itens.get()
-                    on:input=move |ev| itens.set(event_target_value(&ev))
-                ></textarea>
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    on:change=move |ev| {
+                        #[cfg(feature = "hydrate")]
+                        {
+                            use wasm_bindgen::JsCast;
+                            if let Some(input) = ev
+                                .target()
+                                .and_then(|t| t.dyn_into::<web_sys::HtmlInputElement>().ok())
+                            {
+                                if let Some(file) = input.files().and_then(|f| f.get(0)) {
+                                    let fd = web_sys::FormData::new().unwrap();
+                                    let _ = fd.append_with_blob("imagem", &file);
+                                    input.set_value("");
+                                    enviando_prod.set(true);
+                                    leptos::task::spawn_local(async move {
+                                        let r = async {
+                                            let req = gloo_net::http::Request::post("/upload-imagem")
+                                                .body(fd)
+                                                .map_err(|_| ())?;
+                                            let resp = req.send().await.map_err(|_| ())?;
+                                            if resp.ok() {
+                                                resp.text().await.map_err(|_| ())
+                                            } else {
+                                                Err(())
+                                            }
+                                        }
+                                            .await;
+                                        if let Ok(url) = r {
+                                            imagens.update(|v| v.push(url));
+                                        }
+                                        enviando_prod.set(false);
+                                    });
+                                }
+                            }
+                        }
+                        #[cfg(not(feature = "hydrate"))]
+                        let _ = &ev;
+                    }
+                />
+                {move || {
+                    enviando_prod.get().then(|| view! { <span class="admin-status">"Enviando..."</span> })
+                }}
+                <div class="form-galeria">
+                    {move || {
+                        imagens
+                            .get()
+                            .into_iter()
+                            .enumerate()
+                            .map(|(i, u)| {
+                                view! {
+                                    <div class="form-galeria__item">
+                                        <img src=u alt=""/>
+                                        <button
+                                            type="button"
+                                            class="form-galeria__rm"
+                                            aria-label="Remover imagem"
+                                            on:click=move |_| {
+                                                imagens
+                                                    .update(|v| {
+                                                        if i < v.len() {
+                                                            v.remove(i);
+                                                        }
+                                                    })
+                                            }
+                                        >
+                                            "×"
+                                        </button>
+                                    </div>
+                                }
+                            })
+                            .collect_view()
+                    }}
+                </div>
             </label>
 
             <div class="admin-form__checks">
