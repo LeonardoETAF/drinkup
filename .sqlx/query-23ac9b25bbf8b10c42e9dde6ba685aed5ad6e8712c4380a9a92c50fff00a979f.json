@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        WITH per AS (SELECT make_date($1, coalesce($2,1), coalesce($3,1))::timestamptz AS d0,\n          CASE WHEN $3 IS NOT NULL THEN interval '1 day'\n               WHEN $2 IS NOT NULL THEN interval '1 month' ELSE interval '1 year' END AS passo)\n        SELECT\n          count(*) FILTER (WHERE created_at >= per.d0 AND created_at < per.d0 + per.passo) AS \"atual!\",\n          count(*) FILTER (WHERE created_at >= per.d0 - per.passo AND created_at < per.d0) AS \"prev!\"\n        FROM leads, per\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "atual!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "prev!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int4",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "23ac9b25bbf8b10c42e9dde6ba685aed5ad6e8712c4380a9a92c50fff00a979f"
+}

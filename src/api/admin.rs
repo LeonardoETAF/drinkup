@@ -3,15 +3,22 @@ use uuid::Uuid;
 
 use crate::domain::{DashboardResumo, PaginaLeads};
 
-/// Resumo do dashboard. Exige usuário autenticado (papel mínimo: editor).
+/// Resumo do dashboard para o período (ano/mês/dia). `ano = None` → mês atual.
+/// Exige usuário autenticado (papel mínimo: visualizador).
 #[server]
-pub async fn resumo_dashboard() -> Result<DashboardResumo, ServerFnError> {
+pub async fn resumo_dashboard(
+    ano: Option<i32>,
+    mes: Option<i32>,
+    dia: Option<i32>,
+) -> Result<DashboardResumo, ServerFnError> {
     let pool = expect_context::<sqlx::PgPool>();
     crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Visualizador, "dashboard").await?;
-    crate::server::dashboard::resumo(&pool).await.map_err(|e| {
-        tracing::error!(error = %e, "falha no resumo do dashboard");
-        ServerFnError::new("Não foi possível carregar o dashboard.")
-    })
+    crate::server::dashboard::resumo(&pool, ano, mes, dia)
+        .await
+        .map_err(|e| {
+            tracing::error!(error = %e, "falha no resumo do dashboard");
+            ServerFnError::new("Não foi possível carregar o dashboard.")
+        })
 }
 
 /// Lista leads (busca + filtro de status). Exige autenticação (papel: editor).

@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        WITH per AS (SELECT make_date($1, coalesce($2,1), coalesce($3,1))::timestamptz AS d0,\n          CASE WHEN $3 IS NOT NULL THEN interval '1 day'\n               WHEN $2 IS NOT NULL THEN interval '1 month' ELSE interval '1 year' END AS passo)\n        SELECT origem AS \"origem!\", count(*) AS \"total!\"\n        FROM visitas, per\n        WHERE created_at >= per.d0 AND created_at < per.d0 + per.passo\n        GROUP BY origem ORDER BY count(*) DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "origem!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "total!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int4",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      null
+    ]
+  },
+  "hash": "0b055ceccbf88cab5b588a77cfd37a2864be81f624a4787a248402f212b1d238"
+}

@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        WITH per AS (SELECT make_date($1, coalesce($2,1), coalesce($3,1))::timestamptz AS d0,\n          CASE WHEN $3 IS NOT NULL THEN interval '1 day'\n               WHEN $2 IS NOT NULL THEN interval '1 month' ELSE interval '1 year' END AS passo,\n          CASE WHEN $3 IS NOT NULL THEN interval '1 hour'\n               WHEN $2 IS NOT NULL THEN interval '1 day' ELSE interval '1 month' END AS sub)\n        SELECT\n          to_char(g.ts, CASE WHEN $3 IS NOT NULL THEN 'FMHH24'\n                             WHEN $2 IS NOT NULL THEN 'FMDD' ELSE 'FMMM' END) AS \"rotulo!\",\n          count(v.id) AS \"total!\"\n        FROM per\n        JOIN LATERAL generate_series(per.d0, per.d0 + per.passo - interval '1 microsecond', per.sub) AS g(ts) ON true\n        LEFT JOIN visitas v ON v.created_at >= g.ts AND v.created_at < g.ts + per.sub\n        GROUP BY g.ts\n        ORDER BY g.ts\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "rotulo!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "total!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int4",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "f41d0fd2ac32deee0dcdc08fcd1bb59f8b5604c0aa2104e38e0d704ccd309240"
+}

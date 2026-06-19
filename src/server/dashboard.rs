@@ -1,7 +1,23 @@
-//! Resumo do dashboard administrativo (tudo em tempo real, do banco). Server-only.
+//! Resumo do dashboard administrativo (tempo real, do banco). Server-only.
+//! Tudo é filtrado pelo período (ano / mês / dia) escolhido no painel.
 use sqlx::PgPool;
 
 use crate::domain::{DashboardResumo, DiaAcesso, ItemRanking, LeadResumo, OrigemFatia};
+
+const MESES: [&str; 12] = [
+    "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez",
+];
+
+/// Dias no mês (com bissexto), para limitar o dia escolhido.
+fn dias_no_mes(ano: i32, mes: i32) -> i32 {
+    match mes {
+        1 | 3 | 5 | 7 | 8 | 10 | 12 => 31,
+        4 | 6 | 9 | 11 => 30,
+        2 if (ano % 4 == 0 && ano % 100 != 0) || ano % 400 == 0 => 29,
+        2 => 28,
+        _ => 31,
+    }
+}
 
 /// Variação percentual de `cur` sobre `prev` (None quando não há base anterior).
 fn delta_pct(cur: f64, prev: f64) -> Option<i32> {
@@ -26,115 +42,175 @@ fn rotulo_pagina(caminho: &str) -> String {
     }
 }
 
-/// Agrega contadores, gráficos e os leads mais recentes para o dashboard.
-pub async fn resumo(pool: &PgPool) -> Result<DashboardResumo, sqlx::Error> {
-    // --- Acessos (mês atual x mês anterior) ---
-    let acessos_mes = sqlx::query_scalar!(
-        r#"SELECT count(*) AS "c!" FROM visitas
-           WHERE created_at >= date_trunc('month', now())"#
+/// Agrega contadores, gráficos e leads recentes para o período selecionado.
+/// `ano = None` → padrão = mês atual.
+pub async fn resumo(
+    pool: &PgPool,
+    ano: Option<i32>,
+    mes: Option<i32>,
+    dia: Option<i32>,
+) -> Result<DashboardResumo, sqlx::Error> {
+    // --- Resolve o período (padrão = ano/mês atuais) ---
+    let hoje = sqlx::query!(
+        r#"SELECT extract(year FROM now())::int AS "y!", extract(month FROM now())::int AS "m!""#
     )
     .fetch_one(pool)
     .await?;
-    let acessos_ant = sqlx::query_scalar!(
-        r#"SELECT count(*) AS "c!" FROM visitas
-           WHERE created_at >= date_trunc('month', now()) - interval '1 month'
-             AND created_at <  date_trunc('month', now())"#
-    )
-    .fetch_one(pool)
-    .await?;
-
-    // --- Leads (total, mês atual x anterior, novos) ---
-    let total_leads = sqlx::query_scalar!(r#"SELECT count(*) AS "c!" FROM leads"#)
-        .fetch_one(pool)
-        .await?;
-    let leads_mes = sqlx::query_scalar!(
-        r#"SELECT count(*) AS "c!" FROM leads WHERE created_at >= date_trunc('month', now())"#
-    )
-    .fetch_one(pool)
-    .await?;
-    let leads_ant = sqlx::query_scalar!(
-        r#"SELECT count(*) AS "c!" FROM leads
-           WHERE created_at >= date_trunc('month', now()) - interval '1 month'
-             AND created_at <  date_trunc('month', now())"#
-    )
-    .fetch_one(pool)
-    .await?;
-    let leads_novos =
-        sqlx::query_scalar!(r#"SELECT count(*) AS "c!" FROM leads WHERE status = 'novo'"#)
-            .fetch_one(pool)
-            .await?;
-
-    // --- Produtos e eventos ---
-    let produtos_total = sqlx::query_scalar!(r#"SELECT count(*) AS "c!" FROM produtos"#)
-        .fetch_one(pool)
-        .await?;
-    let produtos_ativos =
-        sqlx::query_scalar!(r#"SELECT count(*) AS "c!" FROM produtos WHERE ativo"#)
-            .fetch_one(pool)
-            .await?;
-    let total_eventos = sqlx::query_scalar!(r#"SELECT count(*) AS "c!" FROM eventos"#)
-        .fetch_one(pool)
-        .await?;
-
-    // --- Conversão (leads/acessos no mês) ---
-    let conv = |leads: i64, acessos: i64| {
-        if acessos > 0 {
-            leads as f64 / acessos as f64 * 100.0
-        } else {
-            0.0
+    let ano_atual = hoje.y;
+    let (ano, mes, dia) = match ano {
+        None => (ano_atual, Some(hoje.m), None),
+        Some(a) => {
+            let mes = mes.filter(|m| (1..=12).contains(m));
+            let dia = match (mes, dia) {
+                (Some(m), Some(d)) => Some(d.clamp(1, dias_no_mes(a, m))),
+                _ => None,
+            };
+            (a, mes, dia)
         }
     };
-    let taxa_conversao = conv(leads_mes, acessos_mes);
-    let conversao_delta = delta_pct(taxa_conversao, conv(leads_ant, acessos_ant));
 
-    // --- Acessos por dia (últimos 7 dias) ---
-    let acessos_7dias = sqlx::query_as!(
-        DiaAcesso,
+    // --- Acessos no período x período anterior ---
+    let acessos = sqlx::query!(
         r#"
+        WITH per AS (SELECT make_date($1, coalesce($2,1), coalesce($3,1))::timestamptz AS d0,
+          CASE WHEN $3 IS NOT NULL THEN interval '1 day'
+               WHEN $2 IS NOT NULL THEN interval '1 month' ELSE interval '1 year' END AS passo)
         SELECT
-          CASE extract(isodow FROM d.dia)::int
-            WHEN 1 THEN 'Seg' WHEN 2 THEN 'Ter' WHEN 3 THEN 'Qua'
-            WHEN 4 THEN 'Qui' WHEN 5 THEN 'Sex' WHEN 6 THEN 'Sáb' ELSE 'Dom'
-          END AS "rotulo!",
+          count(*) FILTER (WHERE created_at >= per.d0 AND created_at < per.d0 + per.passo) AS "atual!",
+          count(*) FILTER (WHERE created_at >= per.d0 - per.passo AND created_at < per.d0) AS "prev!"
+        FROM visitas, per
+        "#,
+        ano,
+        mes,
+        dia,
+    )
+    .fetch_one(pool)
+    .await?;
+
+    // --- Leads no período x período anterior (e total geral) ---
+    let leads = sqlx::query!(
+        r#"
+        WITH per AS (SELECT make_date($1, coalesce($2,1), coalesce($3,1))::timestamptz AS d0,
+          CASE WHEN $3 IS NOT NULL THEN interval '1 day'
+               WHEN $2 IS NOT NULL THEN interval '1 month' ELSE interval '1 year' END AS passo)
+        SELECT
+          count(*) FILTER (WHERE created_at >= per.d0 AND created_at < per.d0 + per.passo) AS "atual!",
+          count(*) FILTER (WHERE created_at >= per.d0 - per.passo AND created_at < per.d0) AS "prev!"
+        FROM leads, per
+        "#,
+        ano,
+        mes,
+        dia,
+    )
+    .fetch_one(pool)
+    .await?;
+
+    // --- Produtos e eventos (não dependem do período) ---
+    let geral = sqlx::query!(
+        r#"SELECT
+             (SELECT count(*) FROM produtos) AS "prod_total!",
+             (SELECT count(*) FROM produtos WHERE ativo) AS "prod_ativos!",
+             (SELECT count(*) FROM eventos) AS "eventos!""#
+    )
+    .fetch_one(pool)
+    .await?;
+
+    // --- Conversão (leads/acessos no período) ---
+    let conv = |l: i64, a: i64| if a > 0 { l as f64 / a as f64 * 100.0 } else { 0.0 };
+    let taxa_conversao = conv(leads.atual, acessos.atual);
+    let conversao_delta = delta_pct(taxa_conversao, conv(leads.prev, acessos.prev));
+
+    // --- Série de acessos (por hora no dia / por dia no mês / por mês no ano) ---
+    let serie_rows = sqlx::query!(
+        r#"
+        WITH per AS (SELECT make_date($1, coalesce($2,1), coalesce($3,1))::timestamptz AS d0,
+          CASE WHEN $3 IS NOT NULL THEN interval '1 day'
+               WHEN $2 IS NOT NULL THEN interval '1 month' ELSE interval '1 year' END AS passo,
+          CASE WHEN $3 IS NOT NULL THEN interval '1 hour'
+               WHEN $2 IS NOT NULL THEN interval '1 day' ELSE interval '1 month' END AS sub)
+        SELECT
+          to_char(g.ts, CASE WHEN $3 IS NOT NULL THEN 'FMHH24'
+                             WHEN $2 IS NOT NULL THEN 'FMDD' ELSE 'FMMM' END) AS "rotulo!",
           count(v.id) AS "total!"
-        FROM generate_series(current_date - interval '6 days', current_date, interval '1 day') AS d(dia)
-        LEFT JOIN visitas v
-          ON v.created_at >= d.dia AND v.created_at < d.dia + interval '1 day'
-        GROUP BY d.dia
-        ORDER BY d.dia
-        "#
+        FROM per
+        JOIN LATERAL generate_series(per.d0, per.d0 + per.passo - interval '1 microsecond', per.sub) AS g(ts) ON true
+        LEFT JOIN visitas v ON v.created_at >= g.ts AND v.created_at < g.ts + per.sub
+        GROUP BY g.ts
+        ORDER BY g.ts
+        "#,
+        ano,
+        mes,
+        dia,
     )
     .fetch_all(pool)
     .await?;
+    let acessos_serie = serie_rows
+        .into_iter()
+        .map(|r| {
+            let rotulo = if mes.is_none() {
+                r.rotulo
+                    .parse::<usize>()
+                    .ok()
+                    .and_then(|m| MESES.get(m - 1).copied())
+                    .unwrap_or("")
+                    .to_string()
+            } else if dia.is_some() {
+                format!("{}h", r.rotulo)
+            } else {
+                r.rotulo
+            };
+            DiaAcesso {
+                rotulo,
+                total: r.total,
+            }
+        })
+        .collect();
 
-    // --- Origem do tráfego (percentuais calculados no servidor) ---
+    // --- Origem do tráfego no período (percentuais no servidor) ---
     let origem_rows = sqlx::query!(
-        r#"SELECT origem AS "origem!", count(*) AS "total!"
-           FROM visitas GROUP BY origem ORDER BY count(*) DESC"#
+        r#"
+        WITH per AS (SELECT make_date($1, coalesce($2,1), coalesce($3,1))::timestamptz AS d0,
+          CASE WHEN $3 IS NOT NULL THEN interval '1 day'
+               WHEN $2 IS NOT NULL THEN interval '1 month' ELSE interval '1 year' END AS passo)
+        SELECT origem AS "origem!", count(*) AS "total!"
+        FROM visitas, per
+        WHERE created_at >= per.d0 AND created_at < per.d0 + per.passo
+        GROUP BY origem ORDER BY count(*) DESC
+        "#,
+        ano,
+        mes,
+        dia,
     )
     .fetch_all(pool)
     .await?;
     let soma_origem: i64 = origem_rows.iter().map(|r| r.total).sum();
     let origem_trafego = origem_rows
         .into_iter()
-        .map(|r| {
-            let pct = if soma_origem > 0 {
+        .map(|r| OrigemFatia {
+            pct: if soma_origem > 0 {
                 (r.total as f64 / soma_origem as f64 * 100.0).round() as i32
             } else {
                 0
-            };
-            OrigemFatia {
-                origem: r.origem,
-                total: r.total,
-                pct,
-            }
+            },
+            origem: r.origem,
+            total: r.total,
         })
         .collect();
 
-    // --- Páginas mais visitadas ---
+    // --- Páginas mais visitadas no período ---
     let paginas = sqlx::query!(
-        r#"SELECT caminho AS "caminho!", count(*) AS "total!"
-           FROM visitas GROUP BY caminho ORDER BY count(*) DESC LIMIT 5"#
+        r#"
+        WITH per AS (SELECT make_date($1, coalesce($2,1), coalesce($3,1))::timestamptz AS d0,
+          CASE WHEN $3 IS NOT NULL THEN interval '1 day'
+               WHEN $2 IS NOT NULL THEN interval '1 month' ELSE interval '1 year' END AS passo)
+        SELECT caminho AS "caminho!", count(*) AS "total!"
+        FROM visitas, per
+        WHERE created_at >= per.d0 AND created_at < per.d0 + per.passo
+        GROUP BY caminho ORDER BY count(*) DESC LIMIT 5
+        "#,
+        ano,
+        mes,
+        dia,
     )
     .fetch_all(pool)
     .await?
@@ -145,51 +221,65 @@ pub async fn resumo(pool: &PgPool) -> Result<DashboardResumo, sqlx::Error> {
     })
     .collect();
 
-    // --- Produtos mais vistos (visitas na página do produto) ---
+    // --- Produtos mais vistos no período ---
     let produtos_vistos = sqlx::query_as!(
         ItemRanking,
         r#"
+        WITH per AS (SELECT make_date($1, coalesce($2,1), coalesce($3,1))::timestamptz AS d0,
+          CASE WHEN $3 IS NOT NULL THEN interval '1 day'
+               WHEN $2 IS NOT NULL THEN interval '1 month' ELSE interval '1 year' END AS passo)
         SELECT p.nome AS "rotulo!", count(v.id) AS "total!"
         FROM produtos p
         JOIN visitas v ON v.caminho = '/produtos/' || p.slug
-        GROUP BY p.id, p.nome
-        ORDER BY count(v.id) DESC
-        LIMIT 4
-        "#
+        JOIN per ON v.created_at >= per.d0 AND v.created_at < per.d0 + per.passo
+        GROUP BY p.id, p.nome ORDER BY count(v.id) DESC LIMIT 4
+        "#,
+        ano,
+        mes,
+        dia,
     )
     .fetch_all(pool)
     .await?;
 
-    // --- Leads recentes ---
+    // --- Leads recentes no período ---
     let recentes = sqlx::query_as!(
         LeadResumo,
         r#"
+        WITH per AS (SELECT make_date($1, coalesce($2,1), coalesce($3,1))::timestamptz AS d0,
+          CASE WHEN $3 IS NOT NULL THEN interval '1 day'
+               WHEN $2 IS NOT NULL THEN interval '1 month' ELSE interval '1 year' END AS passo)
         SELECT id AS "id!", nome AS "nome!", contato AS "contato!",
                origem AS "origem!", status AS "status!",
                to_char(created_at, 'DD/MM/YYYY') AS "inscricao!"
-        FROM leads
-        ORDER BY created_at DESC
-        LIMIT 6
-        "#
+        FROM leads, per
+        WHERE created_at >= per.d0 AND created_at < per.d0 + per.passo
+        ORDER BY created_at DESC LIMIT 6
+        "#,
+        ano,
+        mes,
+        dia,
     )
     .fetch_all(pool)
     .await?;
 
     Ok(DashboardResumo {
-        acessos_mes,
-        acessos_delta: delta_pct(acessos_mes as f64, acessos_ant as f64),
-        total_leads,
-        leads_delta: delta_pct(leads_mes as f64, leads_ant as f64),
-        leads_novos,
-        produtos_total,
-        produtos_ativos,
-        total_eventos,
+        acessos_mes: acessos.atual,
+        acessos_delta: delta_pct(acessos.atual as f64, acessos.prev as f64),
+        total_leads: leads.atual,
+        leads_delta: delta_pct(leads.atual as f64, leads.prev as f64),
+        produtos_total: geral.prod_total,
+        produtos_ativos: geral.prod_ativos,
+        total_eventos: geral.eventos,
         taxa_conversao,
         conversao_delta,
-        acessos_7dias,
+        acessos_serie,
         origem_trafego,
         paginas,
         produtos_vistos,
         recentes,
+        sel_ano: ano,
+        sel_mes: mes,
+        sel_dia: dia,
+        ano_atual,
     })
 }

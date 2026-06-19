@@ -1,4 +1,18 @@
 /* ===== Dashboard (cards + gráficos), tema-aware via tokens ===== */
+
+/* Filtro de período (ano / mês / dia) */
+.dash-filtro {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.dash-filtro .admin-input {
+  width: auto;
+  min-width: 9rem;
+}
+
 .dash-cards {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -22,18 +36,13 @@
 }
 
 .dash-card__ic {
-  width: 40px;
-  height: 40px;
-  display: grid;
-  place-items: center;
-  border-radius: var(--radius);
-  background: var(--color-surface-2);
+  display: inline-flex;
   color: var(--color-text-muted);
 }
 
 .dash-card__ic svg {
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
 }
 
 .dash-card__num {
@@ -121,6 +130,19 @@
   display: flex;
   align-items: flex-end;
   gap: var(--space-3);
+}
+
+/* Muitas barras (mês por dia / dia por hora): mais apertado e label menor. */
+.chart-bars--densa {
+  gap: 3px;
+}
+
+.chart-bars--densa .chart-col__bar {
+  width: 78%;
+}
+
+.chart-bars--densa .chart-col__d {
+  font-size: 0.62rem;
 }
 
 .chart-col {

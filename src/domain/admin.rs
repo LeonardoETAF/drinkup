@@ -34,24 +34,29 @@ pub struct ItemRanking {
     pub total: i64,
 }
 
-/// Resumo para o dashboard (todos os números vêm do banco em tempo real).
+/// Resumo para o dashboard (todos os números vêm do banco em tempo real,
+/// dentro do período selecionado pelo filtro de ano/mês/dia).
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct DashboardResumo {
     pub acessos_mes: i64,
     pub acessos_delta: Option<i32>,
     pub total_leads: i64,
     pub leads_delta: Option<i32>,
-    pub leads_novos: i64,
     pub produtos_total: i64,
     pub produtos_ativos: i64,
     pub total_eventos: i64,
     pub taxa_conversao: f64,
     pub conversao_delta: Option<i32>,
-    pub acessos_7dias: Vec<DiaAcesso>,
+    pub acessos_serie: Vec<DiaAcesso>,
     pub origem_trafego: Vec<OrigemFatia>,
     pub paginas: Vec<ItemRanking>,
     pub produtos_vistos: Vec<ItemRanking>,
     pub recentes: Vec<LeadResumo>,
+    // Período efetivamente usado (o servidor resolve o padrão = mês atual).
+    pub sel_ano: i32,
+    pub sel_mes: Option<i32>,
+    pub sel_dia: Option<i32>,
+    pub ano_atual: i32,
 }
 
 /// Filtros da listagem de leads.
