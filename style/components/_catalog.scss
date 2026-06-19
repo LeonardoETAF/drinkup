@@ -71,6 +71,7 @@
 
 .filter-search input {
   min-width: 0;
+  width: clamp(200px, 24vw, 300px);
   padding: 0.6rem 1rem;
   border-radius: var(--radius-pill);
   border: 1px solid var(--color-border);

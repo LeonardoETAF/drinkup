@@ -2,13 +2,13 @@ use leptos::prelude::*;
 
 use crate::domain::Categoria;
 
-/// Barra de filtros do catálogo: pills de categoria (links) + busca (form GET).
-/// Sem estado no cliente — tudo resolvido via query params no servidor.
+/// Barra de filtros do catálogo: pills de categoria (links) + busca ao vivo.
+/// A busca filtra conforme o usuário digita; o servidor faz a filtragem real.
 #[component]
 pub fn FilterBar(
     categorias: Vec<Categoria>,
     ativa: Option<String>,
-    busca: Option<String>,
+    busca: RwSignal<String>,
 ) -> impl IntoView {
     let is_all = ativa.is_none();
 
@@ -31,18 +31,15 @@ pub fn FilterBar(
                     })
                     .collect_view()}
             </nav>
-            <form class="filter-search" method="get" action="/produtos" role="search">
+            <div class="filter-search" role="search">
                 <input
                     type="search"
-                    name="busca"
                     placeholder="Buscar no catálogo..."
-                    value=busca.unwrap_or_default()
+                    prop:value=move || busca.get()
+                    on:input=move |ev| busca.set(event_target_value(&ev))
                     aria-label="Buscar produtos"
                 />
-                <button type="submit" class="btn btn--ghost">
-                    "Buscar"
-                </button>
-            </form>
+            </div>
         </div>
     }
 }

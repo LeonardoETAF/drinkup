@@ -10,14 +10,26 @@ use crate::domain::FiltroProdutos;
 pub fn ProdutosPage() -> impl IntoView {
     let query = use_query_map();
 
+    // Busca ao vivo: sinal no cliente (atualiza ao digitar). Categoria/página
+    // continuam vindo da URL.
+    let busca = RwSignal::new(
+        query
+            .read_untracked()
+            .get("busca")
+            .map(|s| s.to_string())
+            .unwrap_or_default(),
+    );
+
     let filtro = Memo::new(move |_| {
         let q = query.read();
         let txt = |k: &str| q.get(k).map(|s| s.to_string()).filter(|s| !s.is_empty());
+        let b = busca.get();
+        let b = b.trim();
         FiltroProdutos {
             categoria_slug: txt("categoria"),
             material: txt("material"),
             cor: txt("cor"),
-            busca: txt("busca"),
+            busca: (!b.is_empty()).then(|| b.to_string()),
             pagina: q
                 .get("pagina")
                 .and_then(|s| s.parse::<u32>().ok())
@@ -33,10 +45,8 @@ pub fn ProdutosPage() -> impl IntoView {
         |f| async move { listar_produtos(f).await },
     );
 
-    let titulo = move || match filtro.read().busca.clone() {
-        Some(b) => format!("\"{b}\""),
-        None => "Todos".to_string(),
-    };
+    // O título do catálogo não reflete a busca.
+    let titulo = "Todos";
 
     view! {
         <Seo
@@ -56,7 +66,7 @@ pub fn ProdutosPage() -> impl IntoView {
             {move || Suspend::new(async move {
                 let cats = categorias.await.unwrap_or_default();
                 let f = filtro.get_untracked();
-                view! { <FilterBar categorias=cats ativa=f.categoria_slug busca=f.busca/> }
+                view! { <FilterBar categorias=cats ativa=f.categoria_slug busca=busca/> }
             })}
         </Suspense>
 
