@@ -92,7 +92,7 @@ pub fn AdminConfiguracoes() -> impl IntoView {
             <fieldset class="admin-card admin-fieldset">
                 <legend class="admin-fieldset__titulo">"Redes sociais"</legend>
                 <p class="admin-head__sub">
-                    "Links abertos pelos botões do rodapé. O WhatsApp usa o telefone acima."
+                    "Links abertos pelos botões do rodapé."
                 </p>
                 <div class="admin-form__grid">
                     {campo("Facebook (URL)", facebook)} {campo("Instagram (URL)", instagram)}

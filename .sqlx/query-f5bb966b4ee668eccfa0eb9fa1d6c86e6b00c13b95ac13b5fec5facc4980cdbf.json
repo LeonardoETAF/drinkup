@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE produtos SET ativo = NOT ativo WHERE id = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f5bb966b4ee668eccfa0eb9fa1d6c86e6b00c13b95ac13b5fec5facc4980cdbf"
+}

@@ -53,3 +53,13 @@ pub async fn excluir_produto(id: Uuid) -> Result<(), ServerFnError> {
         .await
         .map_err(|_| ServerFnError::new("Não foi possível excluir o produto."))
 }
+
+/// Ativa/desativa a visibilidade de um produto.
+#[server]
+pub async fn alternar_produto(id: Uuid) -> Result<(), ServerFnError> {
+    let pool = expect_context::<sqlx::PgPool>();
+    crate::api::auth::exigir_papel(crate::server::rbac::Papel::Editor).await?;
+    crate::server::produtos_admin::alternar_ativo(&pool, id)
+        .await
+        .map_err(|_| ServerFnError::new("Não foi possível alterar a visibilidade."))
+}

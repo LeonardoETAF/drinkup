@@ -11,6 +11,7 @@ mod layout;
 mod leads;
 mod login;
 mod modal;
+mod modal_categorias;
 mod parceiro_form;
 mod parceiros;
 mod produto_form;

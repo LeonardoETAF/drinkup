@@ -4,6 +4,7 @@
 pub mod admin;
 pub mod auth;
 pub mod catalogo;
+pub mod categorias_admin;
 pub mod config;
 pub mod eventos;
 pub mod eventos_admin;

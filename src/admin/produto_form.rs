@@ -181,7 +181,7 @@ pub fn AdminProdutoForm() -> impl IntoView {
                     />
                 </label>
                 <label class="field">
-                    <span class="field__label">"Cor"</span>
+                    <span class="field__label">"Cores"</span>
                     <input
                         class="admin-input"
                         type="text"

@@ -1,0 +1,38 @@
+use leptos::prelude::*;
+use uuid::Uuid;
+
+use crate::domain::Categoria;
+
+/// Lista as categorias para o painel (papel mínimo: editor).
+#[server]
+pub async fn listar_categorias_admin() -> Result<Vec<Categoria>, ServerFnError> {
+    let pool = expect_context::<sqlx::PgPool>();
+    crate::api::auth::exigir_papel(crate::server::rbac::Papel::Editor).await?;
+    crate::server::categorias_admin::listar(&pool)
+        .await
+        .map_err(|_| ServerFnError::new("Não foi possível carregar as categorias."))
+}
+
+/// Cria uma categoria (papel mínimo: editor).
+#[server]
+pub async fn criar_categoria(nome: String) -> Result<(), ServerFnError> {
+    use crate::error::AppError;
+
+    let pool = expect_context::<sqlx::PgPool>();
+    crate::api::auth::exigir_papel(crate::server::rbac::Papel::Editor).await?;
+    match crate::server::categorias_admin::criar(&pool, &nome).await {
+        Ok(()) => Ok(()),
+        Err(AppError::Validation) => Err(ServerFnError::new("Informe um nome válido.")),
+        Err(_) => Err(ServerFnError::new("Não foi possível criar a categoria.")),
+    }
+}
+
+/// Exclui uma categoria (papel mínimo: editor).
+#[server]
+pub async fn excluir_categoria(id: Uuid) -> Result<(), ServerFnError> {
+    let pool = expect_context::<sqlx::PgPool>();
+    crate::api::auth::exigir_papel(crate::server::rbac::Papel::Editor).await?;
+    crate::server::categorias_admin::excluir(&pool, id)
+        .await
+        .map_err(|_| ServerFnError::new("Não foi possível excluir a categoria."))
+}

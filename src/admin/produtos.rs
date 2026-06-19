@@ -3,8 +3,11 @@ use leptos::task::spawn_local;
 use uuid::Uuid;
 
 use super::modal::ModalConfirmacao;
-use crate::api::produtos_admin::{excluir_produto, listar_produtos_admin};
+use super::modal_categorias::ModalCategorias;
+use crate::api::produtos_admin::{alternar_produto, excluir_produto, listar_produtos_admin};
 use crate::domain::ProdutoLista;
+
+type Acao = Action<Uuid, Result<(), ServerFnError>>;
 
 const IC_EDIT: &str = r#"<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>"#;
 const IC_DEL: &str = r#"<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/></svg>"#;
@@ -29,13 +32,20 @@ pub fn AdminProdutos() -> impl IntoView {
         let id = *id;
         async move { excluir_produto(id).await }
     });
+    let alternar: Acao = Action::new(|id: &Uuid| {
+        let id = *id;
+        async move { alternar_produto(id).await }
+    });
     Effect::new(move |_| {
-        if matches!(excluir.value().get(), Some(Ok(()))) {
+        let mudou = matches!(excluir.value().get(), Some(Ok(())))
+            || matches!(alternar.value().get(), Some(Ok(())));
+        if mudou {
             versao.update(|v| *v += 1);
         }
     });
 
     let pendente = RwSignal::new(None::<Uuid>);
+    let cats_aberto = RwSignal::new(false);
 
     view! {
         <header class="admin-head admin-head--row">
@@ -43,8 +53,19 @@ pub fn AdminProdutos() -> impl IntoView {
                 <h1 class="admin-head__title">"Produtos"</h1>
                 <p class="admin-head__sub">"Gerencie o catálogo de copos"</p>
             </div>
-            <a class="btn btn--primary" href="/admin/produtos/novo">"+ Novo produto"</a>
+            <div class="admin-head__acoes">
+                <button
+                    type="button"
+                    class="btn btn--ghost"
+                    on:click=move |_| cats_aberto.set(true)
+                >
+                    "Categorias"
+                </button>
+                <a class="btn btn--primary" href="/admin/produtos/novo">"+ Novo produto"</a>
+            </div>
         </header>
+
+        <ModalCategorias aberto=cats_aberto/>
 
         <ModalConfirmacao
             aberto=Signal::derive(move || pendente.get().is_some())
@@ -79,13 +100,13 @@ pub fn AdminProdutos() -> impl IntoView {
                     view! { <p class="admin-status">"Nenhum produto. Crie o primeiro."</p> }
                         .into_any()
                 }
-                Some(Ok(itens)) => tabela(itens, pendente).into_any(),
+                Some(Ok(itens)) => tabela(itens, pendente, alternar).into_any(),
             }}
         </section>
     }
 }
 
-fn tabela(itens: Vec<ProdutoLista>, pendente: RwSignal<Option<Uuid>>) -> AnyView {
+fn tabela(itens: Vec<ProdutoLista>, pendente: RwSignal<Option<Uuid>>, alternar: Acao) -> AnyView {
     view! {
         <div class="table-wrap">
             <table class="admin-table">
@@ -104,10 +125,10 @@ fn tabela(itens: Vec<ProdutoLista>, pendente: RwSignal<Option<Uuid>>) -> AnyView
                         .map(|p| {
                             let id = p.id;
                             let editar = format!("/admin/produtos/{id}");
-                            let (badge, txt) = if p.ativo {
-                                ("badge badge--green", "Ativo")
+                            let (badge, txt, titulo_btn) = if p.ativo {
+                                ("badge badge--green badge--btn", "Ativo", "Desativar")
                             } else {
-                                ("badge badge--muted", "Inativo")
+                                ("badge badge--muted badge--btn", "Inativo", "Ativar")
                             };
                             let vol = p
                                 .capacidade_ml
@@ -134,10 +155,19 @@ fn tabela(itens: Vec<ProdutoLista>, pendente: RwSignal<Option<Uuid>>) -> AnyView
                                     <td>{cat}</td>
                                     <td>{vol}</td>
                                     <td>
-                                        <span class=badge>{txt}</span>
+                                        <button
+                                            type="button"
+                                            class=badge
+                                            title=titulo_btn
+                                            on:click=move |_| {
+                                                alternar.dispatch(id);
+                                            }
+                                        >
+                                            {txt}
+                                        </button>
                                     </td>
                                     <td class="col-acoes">
-                                        <a class="icon-btn" href=editar inner_html=IC_EDIT></a>
+                                        <a class="icon-btn" href=editar title="Editar" inner_html=IC_EDIT></a>
                                         <button
                                             class="icon-btn icon-btn--danger"
                                             inner_html=IC_DEL
