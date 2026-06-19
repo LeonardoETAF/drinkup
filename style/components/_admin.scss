@@ -916,6 +916,12 @@
   margin-top: var(--space-5);
 }
 
+/* Espaço nas transições grade<->campo (ex.: Título -> Números do bento -> Fotos). */
+.admin-fieldset > .admin-form__grid + .field,
+.admin-fieldset > .field + .admin-form__grid {
+  margin-top: var(--space-5);
+}
+
 /* Espaço após o texto de apoio e antes dos checkboxes dentro de um fieldset. */
 .admin-fieldset > .admin-head__sub {
   margin-bottom: var(--space-4);
