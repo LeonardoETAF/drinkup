@@ -118,6 +118,10 @@ async fn cabecalhos_seguranca(
             header::CACHE_CONTROL,
             HeaderValue::from_static("public, max-age=31536000, immutable"),
         );
+    } else if path.starts_with("/pkg/") {
+        // Assets do bundle (wasm/js/css) não têm hash no nome → revalidar sempre
+        // para nunca servir versão velha após um novo build.
+        h.insert(header::CACHE_CONTROL, HeaderValue::from_static("no-cache"));
     }
     h.insert(
         header::X_CONTENT_TYPE_OPTIONS,
