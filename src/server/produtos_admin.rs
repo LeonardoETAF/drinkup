@@ -78,9 +78,7 @@ pub async fn obter_form(pool: &PgPool, id: Uuid) -> Result<Option<ProdutoForm>, 
     let row = sqlx::query!(
         r#"
         SELECT id, categoria_id, nome, descricao, capacidade_ml, material, cor,
-               altura_mm, diametro_mm, personalizavel, destaque, ativo,
-               (SELECT url FROM produto_imagens pi
-                  WHERE pi.produto_id = produtos.id AND pi.principal LIMIT 1) AS "imagem_url?"
+               altura_mm, diametro_mm, personalizavel, destaque, ativo
         FROM produtos WHERE id = $1
         "#,
         id
@@ -88,7 +86,16 @@ pub async fn obter_form(pool: &PgPool, id: Uuid) -> Result<Option<ProdutoForm>, 
     .fetch_optional(pool)
     .await?;
 
-    Ok(row.map(|r| ProdutoForm {
+    let Some(r) = row else { return Ok(None) };
+
+    let imagens = sqlx::query_scalar!(
+        "SELECT url FROM produto_imagens WHERE produto_id = $1 ORDER BY ordem, created_at",
+        id
+    )
+    .fetch_all(pool)
+    .await?;
+
+    Ok(Some(ProdutoForm {
         id: Some(r.id),
         categoria_id: r.categoria_id,
         nome: r.nome,
@@ -101,7 +108,7 @@ pub async fn obter_form(pool: &PgPool, id: Uuid) -> Result<Option<ProdutoForm>, 
         personalizavel: r.personalizavel,
         destaque: r.destaque,
         ativo: r.ativo,
-        imagem_url: r.imagem_url,
+        imagens,
     }))
 }
 
@@ -169,19 +176,22 @@ pub async fn salvar(pool: &PgPool, form: &ProdutoForm) -> Result<Uuid, AppError>
         }
     };
 
-    // Imagem principal (definida na Parte 2b via upload).
-    if let Some(url) = form.imagem_url.as_deref() {
-        sqlx::query!(
-            "DELETE FROM produto_imagens WHERE produto_id = $1 AND principal",
-            id
-        )
+    // Galeria: regrava todas as imagens (a primeira é a principal).
+    sqlx::query!("DELETE FROM produto_imagens WHERE produto_id = $1", id)
         .execute(pool)
         .await
         .map_err(interno)?;
+    for (i, url) in form.imagens.iter().enumerate() {
+        let url = url.trim();
+        if url.is_empty() {
+            continue;
+        }
         sqlx::query!(
-            "INSERT INTO produto_imagens (produto_id, url, principal) VALUES ($1, $2, true)",
+            "INSERT INTO produto_imagens (produto_id, url, ordem, principal) VALUES ($1, $2, $3, $4)",
             id,
-            url
+            url,
+            i as i32,
+            i == 0,
         )
         .execute(pool)
         .await

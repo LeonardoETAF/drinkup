@@ -2,8 +2,9 @@ use leptos::prelude::*;
 use leptos_router::hooks::use_params_map;
 
 use crate::api::catalogo::obter_produto;
+use crate::api::config::obter_contato;
 use crate::components::{Gallery, Seo};
-use crate::domain::ProdutoDetalhe;
+use crate::domain::{link_whatsapp, ProdutoDetalhe};
 
 /// Página de detalhe do produto.
 #[component]
@@ -55,11 +56,27 @@ fn DetalheProduto(produto: ProdutoDetalhe) -> impl IntoView {
         .categoria_nome
         .clone()
         .unwrap_or_else(|| "Catálogo".to_string());
-    let cta = format!(
-        "/contato?produto={}&pid={}",
-        urlencoding::encode(&produto.nome),
-        produto.id
-    );
+
+    // Botão de orçamento abre o WhatsApp cadastrado com mensagem do produto
+    // (fallback: página de contato com o produto pré-selecionado).
+    let info = Resource::new(|| (), |_| async move { obter_contato().await });
+    let nome_cta = produto.nome.clone();
+    let id_cta = produto.id;
+    let cta = move || {
+        let msg = format!("Olá! Tenho interesse no produto {nome_cta}.");
+        match info
+            .get()
+            .and_then(Result::ok)
+            .and_then(|c| link_whatsapp(&c.telefone))
+        {
+            Some(wa) => format!("{wa}?text={}", urlencoding::encode(&msg)),
+            None => format!(
+                "/contato?produto={}&pid={}",
+                urlencoding::encode(&nome_cta),
+                id_cta
+            ),
+        }
+    };
 
     // SEO: computado antes de mover `imagens`/`descricao` para o restante da view.
     let seo_titulo = produto.nome.clone();
@@ -136,7 +153,12 @@ fn DetalheProduto(produto: ProdutoDetalhe) -> impl IntoView {
                         .collect_view()}
                 </dl>
 
-                <a class="btn btn--pink btn--block" href=cta>
+                <a
+                    class="btn btn--pink btn--block"
+                    href=cta
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
                     "Pedir orçamento ›"
                 </a>
             </div>

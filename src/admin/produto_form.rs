@@ -3,7 +3,6 @@ use leptos::task::spawn_local;
 use leptos_router::hooks::{use_navigate, use_params_map};
 use uuid::Uuid;
 
-use crate::admin::upload_card::CartaoUpload;
 use crate::api::catalogo::listar_categorias;
 use crate::api::produtos_admin::{obter_produto_admin, salvar_produto};
 use crate::domain::{Categoria, ProdutoForm};
@@ -40,7 +39,8 @@ pub fn AdminProdutoForm() -> impl IntoView {
     let personalizavel = RwSignal::new(true);
     let destaque = RwSignal::new(false);
     let ativo = RwSignal::new(true);
-    let imagem_url = RwSignal::new(None::<String>);
+    let imagens = RwSignal::new(Vec::<String>::new());
+    let enviando_prod = RwSignal::new(false);
 
     // Carrega os dados ao editar.
     Effect::new(move |_| {
@@ -58,7 +58,7 @@ pub fn AdminProdutoForm() -> impl IntoView {
                 personalizavel.set(f.personalizavel);
                 destaque.set(f.destaque);
                 ativo.set(f.ativo);
-                imagem_url.set(f.imagem_url);
+                imagens.set(f.imagens);
             }
         });
     });
@@ -104,7 +104,7 @@ pub fn AdminProdutoForm() -> impl IntoView {
             personalizavel: personalizavel.get_untracked(),
             destaque: destaque.get_untracked(),
             ativo: ativo.get_untracked(),
-            imagem_url: imagem_url.get_untracked(),
+            imagens: imagens.get_untracked(),
         };
         salvar.dispatch(form);
     };
@@ -210,8 +210,90 @@ pub fn AdminProdutoForm() -> impl IntoView {
             </div>
 
             <div class="field">
-                <span class="field__label">"Imagem do produto"</span>
-                <CartaoUpload url=imagem_url dica="PNG/JPG/WEBP · quadrada (1:1) · até 5MB"/>
+                <span class="field__label">
+                    "Imagens do produto — swipe na página (PNG/JPG/WEBP, quadradas, até 5MB)"
+                </span>
+                <div class="form-galeria">
+                    {move || {
+                        imagens
+                            .get()
+                            .into_iter()
+                            .enumerate()
+                            .map(|(i, u)| {
+                                view! {
+                                    <div class="form-galeria__item">
+                                        <img src=u alt=""/>
+                                        <button
+                                            type="button"
+                                            class="form-galeria__rm"
+                                            aria-label="Remover imagem"
+                                            on:click=move |_| {
+                                                imagens
+                                                    .update(|v| {
+                                                        if i < v.len() {
+                                                            v.remove(i);
+                                                        }
+                                                    })
+                                            }
+                                        >
+                                            "×"
+                                        </button>
+                                    </div>
+                                }
+                            })
+                            .collect_view()
+                    }}
+                    <label class="form-galeria__add">
+                        <input
+                            class="upload-card__input"
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp"
+                            on:change=move |ev| {
+                                #[cfg(feature = "hydrate")]
+                                {
+                                    use wasm_bindgen::JsCast;
+                                    if let Some(input) = ev
+                                        .target()
+                                        .and_then(|t| t.dyn_into::<web_sys::HtmlInputElement>().ok())
+                                    {
+                                        if let Some(file) = input.files().and_then(|f| f.get(0)) {
+                                            let fd = web_sys::FormData::new().unwrap();
+                                            let _ = fd.append_with_blob("imagem", &file);
+                                            input.set_value("");
+                                            enviando_prod.set(true);
+                                            leptos::task::spawn_local(async move {
+                                                let r = async {
+                                                    let req = gloo_net::http::Request::post(
+                                                            "/upload-imagem",
+                                                        )
+                                                        .body(fd)
+                                                        .map_err(|_| ())?;
+                                                    let resp = req.send().await.map_err(|_| ())?;
+                                                    if resp.ok() {
+                                                        resp.text().await.map_err(|_| ())
+                                                    } else {
+                                                        Err(())
+                                                    }
+                                                }
+                                                    .await;
+                                                if let Ok(url) = r {
+                                                    imagens.update(|v| v.push(url));
+                                                }
+                                                enviando_prod.set(false);
+                                            });
+                                        }
+                                    }
+                                }
+                                #[cfg(not(feature = "hydrate"))]
+                                let _ = &ev;
+                            }
+                        />
+                        <span class="form-galeria__add-mais">
+                            {move || if enviando_prod.get() { "…" } else { "+" }}
+                        </span>
+                        <span class="form-galeria__add-txt">"Adicionar"</span>
+                    </label>
+                </div>
             </div>
 
             <div class="admin-form__checks">

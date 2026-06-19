@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "DELETE FROM produto_imagens WHERE produto_id = $1 AND principal",
+  "query": "DELETE FROM produto_imagens WHERE produto_id = $1",
   "describe": {
     "columns": [],
     "parameters": {
@@ -10,5 +10,5 @@
     },
     "nullable": []
   },
-  "hash": "b07409254b9a841ccb3f8bea88904ddf8ca754e7e66987cc0a98beaceb1a34e3"
+  "hash": "a38462b57c0cf1c9c570d48fb1e04fdca66296b049acdfda4114896e0e2ad6b7"
 }

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT id, categoria_id, nome, descricao, capacidade_ml, material, cor,\n               altura_mm, diametro_mm, personalizavel, destaque, ativo,\n               (SELECT url FROM produto_imagens pi\n                  WHERE pi.produto_id = produtos.id AND pi.principal LIMIT 1) AS \"imagem_url?\"\n        FROM produtos WHERE id = $1\n        ",
+  "query": "\n        SELECT id, categoria_id, nome, descricao, capacidade_ml, material, cor,\n               altura_mm, diametro_mm, personalizavel, destaque, ativo\n        FROM produtos WHERE id = $1\n        ",
   "describe": {
     "columns": [
       {
@@ -62,11 +62,6 @@
         "ordinal": 11,
         "name": "ativo",
         "type_info": "Bool"
-      },
-      {
-        "ordinal": 12,
-        "name": "imagem_url?",
-        "type_info": "Text"
       }
     ],
     "parameters": {
@@ -86,9 +81,8 @@
       true,
       false,
       false,
-      false,
-      null
+      false
     ]
   },
-  "hash": "61a431dba24e0a1520098377150f7334366115592963890f420c431b677d0eee"
+  "hash": "dfe095237fd62dc393cd28365e48f6a9d980f2b7975b09deb003eda8bef4b939"
 }

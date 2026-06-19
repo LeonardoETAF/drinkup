@@ -143,5 +143,6 @@ pub struct ProdutoForm {
     pub personalizavel: bool,
     pub destaque: bool,
     pub ativo: bool,
-    pub imagem_url: Option<String>,
+    /// URLs das imagens (a primeira é a principal). Exibidas como swipe.
+    pub imagens: Vec<String>,
 }
