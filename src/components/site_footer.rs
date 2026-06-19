@@ -19,9 +19,9 @@ pub fn SiteFooter() -> impl IntoView {
                 <div class="site-footer__brand">
                     <div class="site-footer__logo">
                         <img
-                            src="/brand/logo-preta-full.png"
+                            src="/brand/logo-footer.png"
                             alt="DRINK UP"
-                            width="156"
+                            width="155"
                             height="34"
                         />
                     </div>
