@@ -92,11 +92,11 @@ pub fn AdminConteudoHome() -> impl IntoView {
                 <div class="admin-form__grid">
                     <div class="field">
                         <span class="field__label">"Foto 1 (ex.: growler)"</span>
-                        <CartaoUpload url=foto1 dica="PNG/JPG/WEBP · retrato (3:4) · até 5MB"/>
+                        <CartaoUpload url=foto1 dica="PNG/JPG/WEBP · paisagem (16:9) · até 5MB"/>
                     </div>
                     <div class="field">
                         <span class="field__label">"Foto 2 (ex.: caneca)"</span>
-                        <CartaoUpload url=foto2 dica="PNG/JPG/WEBP · retrato (3:4) · até 5MB"/>
+                        <CartaoUpload url=foto2 dica="PNG/JPG/WEBP · quadrada (1:1) · até 5MB"/>
                     </div>
                 </div>
             </fieldset>
