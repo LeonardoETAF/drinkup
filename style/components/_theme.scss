@@ -64,9 +64,10 @@
     url("/backgrounds/doodles3b.webp");
 }
 
-/* No tema claro, o "NALIZE" do hero fica azul (igual ao slogan "Cheers"). */
+/* No tema claro, o "NALIZE" do hero fica azul exatamente igual ao slogan
+   "Cheers to life" (cor amostrada da imagem: #00a9cd). */
 [data-theme="light"] .hero__title .accent {
-  color: var(--color-cyan);
+  color: #00a9cd;
 }
 
 /* Depoimentos: vira seção clara no tema claro (sem o overlay escuro);
