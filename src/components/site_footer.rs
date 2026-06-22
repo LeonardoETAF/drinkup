@@ -121,7 +121,7 @@ pub fn SiteFooter() -> impl IntoView {
                     <nav class="footer-links" aria-label="Links legais">
                         <a href="/politica-de-entrega">"Política de Entrega"</a>
                         <a href="/politica-de-privacidade">"Política de Privacidade"</a>
-                        <a href="/termos-de-uso">"Termos de Uso"</a>
+                        <a href="/termos-de-uso">"Termos e Condições"</a>
                     </nav>
                 </div>
             </div>

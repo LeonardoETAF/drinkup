@@ -14,7 +14,7 @@ use crate::admin::{
 };
 use crate::components::{SiteFooter, SiteHeader};
 use crate::pages::{
-    ContatoPage, HomePage, ParceirosPage, ProdutoPage, ProdutosPage, QuemSomosPage,
+    ContatoPage, HomePage, ParceirosPage, ProdutoPage, ProdutosPage, QuemSomosPage, TermosPage,
 };
 
 /// Script (inline) que aplica o tema salvo antes da primeira pintura, evitando
@@ -56,7 +56,7 @@ pub fn App() -> impl IntoView {
     definir_csp();
 
     view! {
-        <Stylesheet id="leptos" href="/pkg/drinkup.css?v=50"/>
+        <Stylesheet id="leptos" href="/pkg/drinkup.css?v=51"/>
         <Title text="DRINK UP — Copos personalizados"/>
         <Router>
             <Routes fallback=NotFound>
@@ -74,6 +74,7 @@ pub fn App() -> impl IntoView {
                     <Route path=StaticSegment("quem-somos") view=QuemSomosPage/>
                     <Route path=StaticSegment("parceiros") view=ParceirosPage/>
                     <Route path=StaticSegment("contato") view=ContatoPage/>
+                    <Route path=StaticSegment("termos-de-uso") view=TermosPage/>
                 </ParentRoute>
 
                 // Painel administrativo (layout próprio, rotas protegidas).

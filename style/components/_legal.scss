@@ -1,0 +1,85 @@
+/* ===== Páginas legais (Termos, Políticas) — texto longo legível ===== */
+
+.legal-hero {
+  background: var(--color-pink);
+  color: #fff;
+  text-align: center;
+  padding-block: clamp(2.5rem, 7vw, 5rem);
+}
+
+.legal-hero__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-black);
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.legal-hero__sub {
+  margin-top: var(--space-3);
+  font-size: var(--text-sm);
+  opacity: 0.9;
+}
+
+.legal {
+  max-width: 72ch;
+  padding-block: clamp(2.5rem, 6vw, 4rem);
+  line-height: 1.7;
+  color: var(--color-text);
+}
+
+.legal__intro {
+  font-size: var(--text-base);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-4);
+}
+
+.legal__sec {
+  margin-top: var(--space-10);
+}
+
+.legal__sec:first-of-type {
+  margin-top: var(--space-8);
+}
+
+.legal__sec-title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: clamp(1.25rem, 2.5vw, 1.6rem);
+  line-height: 1.2;
+  color: var(--color-text);
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-2);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.legal__clausula {
+  margin-bottom: var(--space-3);
+}
+
+/* Bloco de contato (seção 22) */
+.legal__contato {
+  margin-top: var(--space-5);
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.legal__contato-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-2);
+}
+
+.legal__contato-item dt {
+  font-weight: var(--fw-bold);
+  color: var(--color-text);
+}
+
+.legal__contato-item dd {
+  margin: 0;
+  color: var(--color-text-muted);
+}
