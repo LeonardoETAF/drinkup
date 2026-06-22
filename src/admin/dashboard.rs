@@ -223,7 +223,7 @@ fn painel(r: DashboardResumo) -> AnyView {
         <div class="dash-row">
             <section class="admin-card">
                 <h2 class="dash-card__head-title">"Produtos mais vistos"</h2>
-                {produtos_vistos(r.produtos_vistos)}
+                <ProdutosVistos itens=r.produtos_vistos/>
             </section>
         </div>
 
@@ -297,30 +297,80 @@ fn grafico_barras(dias: Vec<DiaAcesso>) -> AnyView {
     .into_any()
 }
 
-fn produtos_vistos(itens: Vec<ItemRanking>) -> AnyView {
+/// Lista de "produtos mais vistos" paginada (10 por página).
+#[component]
+fn ProdutosVistos(itens: Vec<ItemRanking>) -> impl IntoView {
+    const POR_PAGINA: usize = 10;
     if itens.is_empty() {
         return vazio();
     }
+    let n_paginas = itens.len().div_ceil(POR_PAGINA);
+    let itens = StoredValue::new(itens);
+    let pagina = RwSignal::new(0usize);
+
     view! {
         <ul class="prod-list">
-            {itens
-                .into_iter()
-                .enumerate()
-                .map(|(i, it)| {
+            {move || {
+                let ini = pagina.get() * POR_PAGINA;
+                itens
+                    .with_value(|v| {
+                        v.iter()
+                            .skip(ini)
+                            .take(POR_PAGINA)
+                            .enumerate()
+                            .map(|(i, it)| {
+                                let cor = (ini + i) % 4;
+                                view! {
+                                    <li class="prod-row">
+                                        <span class=format!("prod-row__sw prod-row__sw--{cor}")></span>
+                                        <span class="prod-row__info">
+                                            <strong>{it.rotulo.clone()}</strong>
+                                            <span class="prod-row__sub">
+                                                {format!("{} visualizações", fmt_milhar(it.total))}
+                                            </span>
+                                        </span>
+                                    </li>
+                                }
+                            })
+                            .collect_view()
+                    })
+            }}
+        </ul>
+        {move || {
+            (n_paginas > 1)
+                .then(|| {
                     view! {
-                        <li class="prod-row">
-                            <span class=format!("prod-row__sw prod-row__sw--{}", i % 4)></span>
-                            <span class="prod-row__info">
-                                <strong>{it.rotulo}</strong>
-                                <span class="prod-row__sub">
-                                    {format!("{} visualizações", fmt_milhar(it.total))}
-                                </span>
+                        <div class="prod-paginacao">
+                            <button
+                                type="button"
+                                class="btn btn--ghost btn--sm"
+                                prop:disabled=move || pagina.get() == 0
+                                on:click=move |_| pagina.update(|p| *p = p.saturating_sub(1))
+                            >
+                                "‹ Anterior"
+                            </button>
+                            <span class="prod-paginacao__info">
+                                {move || format!("{} de {}", pagina.get() + 1, n_paginas)}
                             </span>
-                        </li>
+                            <button
+                                type="button"
+                                class="btn btn--ghost btn--sm"
+                                prop:disabled=move || pagina.get() + 1 >= n_paginas
+                                on:click=move |_| {
+                                    pagina
+                                        .update(|p| {
+                                            if *p + 1 < n_paginas {
+                                                *p += 1;
+                                            }
+                                        })
+                                }
+                            >
+                                "Próximo ›"
+                            </button>
+                        </div>
                     }
                 })
-                .collect_view()}
-        </ul>
+        }}
     }
     .into_any()
 }

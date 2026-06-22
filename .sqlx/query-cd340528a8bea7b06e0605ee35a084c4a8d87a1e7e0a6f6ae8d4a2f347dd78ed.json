@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        WITH per AS (SELECT make_date($1, coalesce($2,1), coalesce($3,1))::timestamptz AS d0,\n          CASE WHEN $3 IS NOT NULL THEN interval '1 day'\n               WHEN $2 IS NOT NULL THEN interval '1 month' ELSE interval '1 year' END AS passo)\n        SELECT id AS \"id!\", nome AS \"nome!\", contato AS \"contato!\",\n               origem AS \"origem!\", status AS \"status!\",\n               to_char(created_at, 'DD/MM/YYYY') AS \"inscricao!\"\n        FROM leads, per\n        WHERE created_at >= per.d0 AND created_at < per.d0 + per.passo\n        ORDER BY created_at DESC LIMIT 6\n        ",
+  "query": "\n        WITH per AS (SELECT make_date($1, coalesce($2,1), coalesce($3,1))::timestamptz AS d0,\n          CASE WHEN $3 IS NOT NULL THEN interval '1 day'\n               WHEN $2 IS NOT NULL THEN interval '1 month' ELSE interval '1 year' END AS passo)\n        SELECT id AS \"id!\", nome AS \"nome!\", contato AS \"contato!\",\n               origem AS \"origem!\", status AS \"status!\",\n               to_char(created_at, 'DD/MM/YYYY') AS \"inscricao!\"\n        FROM leads, per\n        WHERE created_at >= per.d0 AND created_at < per.d0 + per.passo\n        ORDER BY created_at DESC LIMIT 10\n        ",
   "describe": {
     "columns": [
       {
@@ -50,5 +50,5 @@
       null
     ]
   },
-  "hash": "af00a0d72ce233126a30661ff08c1706e5303339b0c4d5d397f4190b4ecb4842"
+  "hash": "cd340528a8bea7b06e0605ee35a084c4a8d87a1e7e0a6f6ae8d4a2f347dd78ed"
 }

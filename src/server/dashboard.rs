@@ -167,7 +167,7 @@ pub async fn resumo(
         FROM produtos p
         JOIN visitas v ON v.caminho = '/produtos/' || p.slug
         JOIN per ON v.created_at >= per.d0 AND v.created_at < per.d0 + per.passo
-        GROUP BY p.id, p.nome ORDER BY count(v.id) DESC LIMIT 4
+        GROUP BY p.id, p.nome ORDER BY count(v.id) DESC LIMIT 50
         "#,
         ano,
         mes,
@@ -188,7 +188,7 @@ pub async fn resumo(
                to_char(created_at, 'DD/MM/YYYY') AS "inscricao!"
         FROM leads, per
         WHERE created_at >= per.d0 AND created_at < per.d0 + per.passo
-        ORDER BY created_at DESC LIMIT 6
+        ORDER BY created_at DESC LIMIT 10
         "#,
         ano,
         mes,

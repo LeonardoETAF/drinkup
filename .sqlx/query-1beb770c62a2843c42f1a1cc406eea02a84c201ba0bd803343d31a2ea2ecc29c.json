@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        WITH per AS (SELECT make_date($1, coalesce($2,1), coalesce($3,1))::timestamptz AS d0,\n          CASE WHEN $3 IS NOT NULL THEN interval '1 day'\n               WHEN $2 IS NOT NULL THEN interval '1 month' ELSE interval '1 year' END AS passo)\n        SELECT p.nome AS \"rotulo!\", count(v.id) AS \"total!\"\n        FROM produtos p\n        JOIN visitas v ON v.caminho = '/produtos/' || p.slug\n        JOIN per ON v.created_at >= per.d0 AND v.created_at < per.d0 + per.passo\n        GROUP BY p.id, p.nome ORDER BY count(v.id) DESC LIMIT 50\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "rotulo!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "total!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int4",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      null
+    ]
+  },
+  "hash": "1beb770c62a2843c42f1a1cc406eea02a84c201ba0bd803343d31a2ea2ecc29c"
+}
