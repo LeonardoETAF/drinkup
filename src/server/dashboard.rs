@@ -27,20 +27,6 @@ fn delta_pct(cur: f64, prev: f64) -> Option<i32> {
     Some((((cur - prev) / prev) * 100.0).round() as i32)
 }
 
-/// Rótulo amigável para um caminho de página pública.
-fn rotulo_pagina(caminho: &str) -> String {
-    match caminho {
-        "/" => "Início".to_string(),
-        "/produtos" => "Produtos".to_string(),
-        "/quem-somos" => "Quem Somos".to_string(),
-        "/parceiros" => "Parceiros".to_string(),
-        "/contato" => "Contato".to_string(),
-        outro => outro
-            .strip_prefix("/produtos/")
-            .map(|s| format!("Produto: {s}"))
-            .unwrap_or_else(|| outro.to_string()),
-    }
-}
 
 /// Agrega contadores, gráficos e leads recentes para o período selecionado.
 /// `ano = None` → padrão = mês atual.
@@ -170,31 +156,6 @@ pub async fn resumo(
         })
         .collect();
 
-    // --- Páginas mais visitadas no período (sem a Início) ---
-    let paginas = sqlx::query!(
-        r#"
-        WITH per AS (SELECT make_date($1, coalesce($2,1), coalesce($3,1))::timestamptz AS d0,
-          CASE WHEN $3 IS NOT NULL THEN interval '1 day'
-               WHEN $2 IS NOT NULL THEN interval '1 month' ELSE interval '1 year' END AS passo)
-        SELECT caminho AS "caminho!", count(*) AS "total!"
-        FROM visitas, per
-        WHERE created_at >= per.d0 AND created_at < per.d0 + per.passo
-          AND caminho IN ('/quem-somos', '/produtos', '/parceiros', '/contato')
-        GROUP BY caminho ORDER BY count(*) DESC LIMIT 5
-        "#,
-        ano,
-        mes,
-        dia,
-    )
-    .fetch_all(pool)
-    .await?
-    .into_iter()
-    .map(|r| ItemRanking {
-        rotulo: rotulo_pagina(&r.caminho),
-        total: r.total,
-    })
-    .collect();
-
     // --- Produtos mais vistos no período ---
     let produtos_vistos = sqlx::query_as!(
         ItemRanking,
@@ -247,7 +208,6 @@ pub async fn resumo(
         taxa_conversao,
         conversao_delta,
         acessos_serie,
-        paginas,
         produtos_vistos,
         recentes,
         sel_ano: ano,

@@ -220,12 +220,7 @@ fn painel(r: DashboardResumo) -> AnyView {
             {grafico_barras(r.acessos_serie)}
         </section>
 
-        <div class="dash-row dash-row--2-1">
-            <section class="admin-card">
-                <h2 class="dash-card__head-title">"Páginas mais visitadas"</h2>
-                {ranking_barras(r.paginas)}
-            </section>
-
+        <div class="dash-row">
             <section class="admin-card">
                 <h2 class="dash-card__head-title">"Produtos mais vistos"</h2>
                 {produtos_vistos(r.produtos_vistos)}
@@ -298,34 +293,6 @@ fn grafico_barras(dias: Vec<DiaAcesso>) -> AnyView {
                 })
                 .collect_view()}
         </div>
-    }
-    .into_any()
-}
-
-fn ranking_barras(itens: Vec<ItemRanking>) -> AnyView {
-    if itens.is_empty() {
-        return vazio();
-    }
-    let max = itens.iter().map(|i| i.total).max().unwrap_or(0).max(1);
-    view! {
-        <ul class="bar-list">
-            {itens
-                .into_iter()
-                .enumerate()
-                .map(|(i, it)| {
-                    let w = (it.total as f64 / max as f64 * 100.0).max(2.0);
-                    view! {
-                        <li class="bar-row" class:is-top=(i == 0)>
-                            <span class="bar-row__lbl">{it.rotulo}</span>
-                            <span class="bar-row__pct">{fmt_milhar(it.total)}</span>
-                            <div class="bar-row__track">
-                                <div class="bar-row__fill" style=format!("width:{w:.1}%")></div>
-                            </div>
-                        </li>
-                    }
-                })
-                .collect_view()}
-        </ul>
     }
     .into_any()
 }

@@ -40,7 +40,6 @@ pub struct DashboardResumo {
     pub taxa_conversao: f64,
     pub conversao_delta: Option<i32>,
     pub acessos_serie: Vec<DiaAcesso>,
-    pub paginas: Vec<ItemRanking>,
     pub produtos_vistos: Vec<ItemRanking>,
     pub recentes: Vec<LeadResumo>,
     // Período efetivamente usado (o servidor resolve o padrão = mês atual).
