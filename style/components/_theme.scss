@@ -64,6 +64,11 @@
     url("/backgrounds/doodles3b.webp");
 }
 
+/* No tema claro, o "NALIZE" do hero fica azul (igual ao slogan "Cheers"). */
+[data-theme="light"] .hero__title .accent {
+  color: var(--color-cyan);
+}
+
 /* Depoimentos: vira seção clara no tema claro (sem o overlay escuro);
    título/cards já usam tokens e ficam legíveis. */
 [data-theme="light"] .depo-secao {
