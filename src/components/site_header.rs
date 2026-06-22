@@ -1,4 +1,5 @@
 use leptos::prelude::*;
+use leptos::task::spawn_local;
 
 use super::tema::BotaoTema;
 use crate::api::config::obter_contato;
@@ -18,14 +19,20 @@ pub fn SiteHeader() -> impl IntoView {
     let (open, set_open) = signal(false);
     let close = move || set_open.set(false);
 
-    // Botão "Orçamento" abre o WhatsApp cadastrado (fallback: página de contato).
-    let info = Resource::new(|| (), |_| async move { obter_contato().await });
-    let link_orcamento = move || {
-        info.get()
-            .and_then(Result::ok)
-            .and_then(|c| link_whatsapp(&c.telefone))
-            .unwrap_or_else(|| "/contato".to_string())
-    };
+    // Botão "Orçamento" abre o WhatsApp cadastrado. Resolvido no cliente (Effect)
+    // para garantir o href correto após a hidratação; fallback: página de contato.
+    let link_orcamento = RwSignal::new("/contato".to_string());
+    Effect::new(move |_| {
+        spawn_local(async move {
+            if let Some(wa) = obter_contato()
+                .await
+                .ok()
+                .and_then(|c| link_whatsapp(&c.telefone))
+            {
+                link_orcamento.set(wa);
+            }
+        });
+    });
 
     view! {
         <header class="site-header">
@@ -68,7 +75,7 @@ pub fn SiteHeader() -> impl IntoView {
                     <div class="site-header__actions">
                         <BotaoTema/>
                         <a
-                            href=link_orcamento
+                            href=move || link_orcamento.get()
                             class="btn btn--primary btn--sm"
                             target="_blank"
                             rel="noopener noreferrer"

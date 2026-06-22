@@ -1,4 +1,5 @@
 use leptos::prelude::*;
+use leptos::task::spawn_local;
 
 use crate::api::config::obter_contato;
 use crate::api::eventos::listar_eventos;
@@ -60,13 +61,19 @@ pub fn HomePage() -> impl IntoView {
     let conteudo = Resource::new(|| (), |_| async move { obter_home_conteudo().await });
 
     // Link do WhatsApp cadastrado (fallback /contato), compartilhado pelos botões
-    // "Quero um orçamento" da página.
-    let info = Resource::new(|| (), |_| async move { obter_contato().await });
-    let link_orcamento = Memo::new(move |_| {
-        info.get()
-            .and_then(Result::ok)
-            .and_then(|c| link_whatsapp(&c.telefone))
-            .unwrap_or_else(|| "/contato".to_string())
+    // "Quero um orçamento". Resolvido no cliente (Effect) para garantir o href
+    // correto após a hidratação.
+    let link_orcamento = RwSignal::new("/contato".to_string());
+    Effect::new(move |_| {
+        spawn_local(async move {
+            if let Some(wa) = obter_contato()
+                .await
+                .ok()
+                .and_then(|c| link_whatsapp(&c.telefone))
+            {
+                link_orcamento.set(wa);
+            }
+        });
     });
 
     view! {
@@ -89,7 +96,7 @@ pub fn HomePage() -> impl IntoView {
 }
 
 #[component]
-fn Hero(link: Memo<String>) -> impl IntoView {
+fn Hero(link: RwSignal<String>) -> impl IntoView {
     view! {
         <section class="hero">
             <div class="container hero__inner">
@@ -276,7 +283,7 @@ fn FaixaLogos(parceiros: Resource<Result<Vec<ParceiroPublico>, ServerFnError>>) 
 }
 
 #[component]
-fn PassoAPasso(link: Memo<String>) -> impl IntoView {
+fn PassoAPasso(link: RwSignal<String>) -> impl IntoView {
     view! {
         <section class="passos container">
             <span class="kicker kicker--center">"Passo a passo"</span>

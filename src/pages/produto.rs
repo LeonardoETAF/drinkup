@@ -1,4 +1,5 @@
 use leptos::prelude::*;
+use leptos::task::spawn_local;
 use leptos_router::hooks::use_params_map;
 
 use crate::api::catalogo::obter_produto;
@@ -57,26 +58,28 @@ fn DetalheProduto(produto: ProdutoDetalhe) -> impl IntoView {
         .clone()
         .unwrap_or_else(|| "Catálogo".to_string());
 
-    // Botão de orçamento abre o WhatsApp cadastrado com mensagem do produto
-    // (fallback: página de contato com o produto pré-selecionado).
-    let info = Resource::new(|| (), |_| async move { obter_contato().await });
-    let nome_cta = produto.nome.clone();
-    let id_cta = produto.id;
-    let cta = move || {
-        let msg = format!("Olá! Tenho interesse no produto {nome_cta}.");
-        match info
-            .get()
-            .and_then(Result::ok)
-            .and_then(|c| link_whatsapp(&c.telefone))
-        {
-            Some(wa) => format!("{wa}?text={}", urlencoding::encode(&msg)),
-            None => format!(
-                "/contato?produto={}&pid={}",
-                urlencoding::encode(&nome_cta),
-                id_cta
-            ),
-        }
-    };
+    // Botão de orçamento abre o WhatsApp cadastrado com mensagem do produto.
+    // Resolvido no cliente (Effect) para o href correto após a hidratação;
+    // fallback: página de contato com o produto pré-selecionado.
+    let nome_msg = produto.nome.clone();
+    let cta = RwSignal::new(format!(
+        "/contato?produto={}&pid={}",
+        urlencoding::encode(&produto.nome),
+        produto.id
+    ));
+    Effect::new(move |_| {
+        let nome = nome_msg.clone();
+        spawn_local(async move {
+            if let Some(wa) = obter_contato()
+                .await
+                .ok()
+                .and_then(|c| link_whatsapp(&c.telefone))
+            {
+                let msg = format!("Olá! Tenho interesse no produto {nome}.");
+                cta.set(format!("{wa}?text={}", urlencoding::encode(&msg)));
+            }
+        });
+    });
 
     // SEO: computado antes de mover `imagens`/`descricao` para o restante da view.
     let seo_titulo = produto.nome.clone();
@@ -155,7 +158,7 @@ fn DetalheProduto(produto: ProdutoDetalhe) -> impl IntoView {
 
                 <a
                     class="btn btn--pink btn--block"
-                    href=cta
+                    href=move || cta.get()
                     target="_blank"
                     rel="noopener noreferrer"
                 >
