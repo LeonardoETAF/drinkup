@@ -472,6 +472,14 @@ img.hero__slogan {
   color: rgba(0, 0, 0, 0.5);
 }
 
+/* A Foto 2 ocupa uma célula quase quadrada; imagens em retrato cortavam o
+   assunto com "cover". Mostra a imagem inteira, enquadrada, com fundo neutro. */
+.bento__foto--orange.bento__foto--img {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-color: #16181d;
+}
+
 .bento__stat {
   display: grid;
   place-content: center;
