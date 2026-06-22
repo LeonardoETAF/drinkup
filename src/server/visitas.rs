@@ -33,6 +33,22 @@ pub fn origem_do_referer(referer: Option<&str>, host: &str) -> &'static str {
     }
 }
 
+/// Registra a visualização da página de um produto (pelo slug), contabilizada
+/// ao entrar na tela de detalhe — inclusive em navegação no cliente (SPA).
+/// Só registra se o produto existir, para não poluir o rastreio.
+pub async fn registrar_produto(pool: &PgPool, slug: &str) {
+    let existe = sqlx::query_scalar!(
+        r#"SELECT EXISTS(SELECT 1 FROM produtos WHERE slug = $1) AS "e!""#,
+        slug,
+    )
+    .fetch_one(pool)
+    .await
+    .unwrap_or(false);
+    if existe {
+        registrar(pool, &format!("/produtos/{slug}"), "direto").await;
+    }
+}
+
 /// Registra uma visita (caminho público + origem). Best-effort.
 pub async fn registrar(pool: &PgPool, caminho: &str, origem: &str) {
     let origem = if ORIGENS.contains(&origem) {

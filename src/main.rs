@@ -214,6 +214,10 @@ async fn sitemap_handler(pool: sqlx::PgPool) -> axum::response::Response {
 
 /// Caminhos públicos (páginas HTML) contabilizados como acesso. Exclui
 /// `/api`, `/pkg`, `/uploads`, `/admin` e assets automaticamente.
+///
+/// As páginas de detalhe de produto (`/produtos/<slug>`) NÃO entram aqui: são
+/// contabilizadas no cliente (ao abrir a tela), para contar a navegação SPA e
+/// não duplicar no carregamento direto.
 #[cfg(feature = "ssr")]
 fn caminho_publico(p: &str) -> bool {
     p == "/"
@@ -221,7 +225,6 @@ fn caminho_publico(p: &str) -> bool {
         || p == "/quem-somos"
         || p == "/parceiros"
         || p == "/contato"
-        || (p.starts_with("/produtos/") && p.len() > "/produtos/".len())
 }
 
 /// Registra um acesso (page view) das páginas públicas, em background, sem

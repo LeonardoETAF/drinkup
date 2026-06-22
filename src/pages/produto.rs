@@ -21,6 +21,17 @@ pub fn ProdutoPage() -> impl IntoView {
     // Blocking: o SSR aguarda o produto para que `<title>`/meta entrem no <head>.
     let produto = Resource::new_blocking(slug, |s| async move { obter_produto(s).await });
 
+    // Conta a visualização ao abrir a tela de detalhe (inclusive em navegação
+    // SPA). Só dispara quando o produto carregou e existe; roda no cliente.
+    Effect::new(move |_| {
+        if let Some(Ok(Some(p))) = produto.get() {
+            let slug = p.slug.clone();
+            leptos::task::spawn_local(async move {
+                let _ = crate::api::catalogo::registrar_visita_produto(slug).await;
+            });
+        }
+    });
+
     view! {
         <Suspense fallback=move || {
             view! { <div class="container detalhe-status">"Carregando..."</div> }

@@ -14,6 +14,15 @@ pub async fn listar_produtos(filtro: FiltroProdutos) -> Result<PaginaProdutos, S
         })
 }
 
+/// Registra a visualização de um produto (chamada no cliente ao abrir a tela
+/// de detalhe, contando também a navegação SPA). Best-effort.
+#[server]
+pub async fn registrar_visita_produto(slug: String) -> Result<(), ServerFnError> {
+    let pool = expect_context::<sqlx::PgPool>();
+    crate::server::visitas::registrar_produto(&pool, &slug).await;
+    Ok(())
+}
+
 /// Detalhe de um produto pelo slug.
 #[server]
 pub async fn obter_produto(slug: String) -> Result<Option<ProdutoDetalhe>, ServerFnError> {
