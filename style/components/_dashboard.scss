@@ -101,6 +101,11 @@
   margin-bottom: var(--space-4);
 }
 
+/* Espaço entre o gráfico de acessos e a linha de baixo (páginas/produtos). */
+.dash-chart {
+  margin-bottom: var(--space-5);
+}
+
 .dash-chart__head {
   display: flex;
   align-items: flex-start;
