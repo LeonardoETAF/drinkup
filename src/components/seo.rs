@@ -1,9 +1,29 @@
 use leptos::prelude::*;
 use leptos_meta::{Link, Meta, Title};
 
-/// URL base do site em produção (canonical, Open Graph, sitemap).
-/// Trocar aqui caso o domínio mude.
-pub const SITE_URL: &str = "https://drinkup.com.br";
+/// Domínio padrão (produção), usado quando `DRINKUP_SITE_URL` não é definido.
+const DEFAULT_SITE_URL: &str = "https://drinkup.com.br";
+
+/// URL base do site (canonical, Open Graph, sitemap, links de e-mail). Sem barra
+/// final. Definida em tempo de **build** por `DRINKUP_SITE_URL` (assim o valor é
+/// idêntico no servidor e no cliente — pré-requisito da hidratação); na ausência
+/// dela, cai no domínio de produção. Não é segredo: é um domínio público.
+pub const SITE_URL: &str = resolver_site_url();
+
+/// Resolve a URL base em tempo de compilação (env de build, com fallback).
+/// `DRINKUP_SITE_URL` vazia (ARG de build não informado) também cai no padrão.
+const fn resolver_site_url() -> &'static str {
+    match option_env!("DRINKUP_SITE_URL") {
+        Some(v) => {
+            if v.is_empty() {
+                DEFAULT_SITE_URL
+            } else {
+                v
+            }
+        }
+        None => DEFAULT_SITE_URL,
+    }
+}
 const SITE_NAME: &str = "DRINK UP";
 /// Imagem padrão de compartilhamento (caminho relativo a `SITE_URL`).
 const OG_IMAGE: &str = "/brand/logo-branca.png";

@@ -22,6 +22,12 @@ RUN mkdir -p src \
 # Código, estilos, assets, migrations e cache de queries (.sqlx).
 COPY . .
 
+# Domínio público do site (canonical/OG/sitemap/links de e-mail), bakeado no
+# build. No EasyPanel: Build Arguments → DRINKUP_SITE_URL=https://teste.drinkup.com.br
+# Vazio/ausente cai no padrão de produção (ver src/components/seo.rs).
+ARG DRINKUP_SITE_URL=""
+ENV DRINKUP_SITE_URL=${DRINKUP_SITE_URL}
+
 # Build de produção SEM banco: as queries são checadas pelo cache `.sqlx`.
 ENV SQLX_OFFLINE=true
 RUN cargo leptos build --release
