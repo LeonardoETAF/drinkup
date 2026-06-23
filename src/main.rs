@@ -82,7 +82,16 @@ async fn main() {
                 move || shell(leptos_options.clone())
             },
         )
-        .fallback(leptos_axum::file_and_error_handler(shell))
+        .fallback(leptos_axum::file_and_error_handler_with_context(
+            {
+                // O fallback (404) também renderiza o App, que inclui o rodapé
+                // público (chama `obter_contato`). Sem o pool no contexto, esse
+                // render daria panic; por isso o injetamos aqui também.
+                let pool = pool.clone();
+                move || provide_context(pool.clone())
+            },
+            shell,
+        ))
         .layer(DefaultBodyLimit::max(6 * 1024 * 1024))
         .layer(axum::middleware::from_fn_with_state(
             pool.clone(),
