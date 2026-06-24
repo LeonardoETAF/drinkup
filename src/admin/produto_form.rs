@@ -61,11 +61,11 @@ pub fn AdminProdutoForm() -> impl IntoView {
                 capacidade.set(f.capacidade_ml.map(|v| v.to_string()).unwrap_or_default());
                 material.set(f.material.unwrap_or_default());
                 cor.set(f.cor.unwrap_or_default());
-                altura.set(f.altura_mm.map(|v| v.to_string()).unwrap_or_default());
-                diametro.set(f.diametro_mm.map(|v| v.to_string()).unwrap_or_default());
+                altura.set(f.altura_mm.map(mm_para_cm).unwrap_or_default());
+                diametro.set(f.diametro_mm.map(mm_para_cm).unwrap_or_default());
                 peso.set(f.peso_g.map(|v| v.to_string()).unwrap_or_default());
-                largura_base.set(f.largura_base_mm.map(|v| v.to_string()).unwrap_or_default());
-                largura_boca.set(f.largura_boca_mm.map(|v| v.to_string()).unwrap_or_default());
+                largura_base.set(f.largura_base_mm.map(mm_para_cm).unwrap_or_default());
+                largura_boca.set(f.largura_boca_mm.map(mm_para_cm).unwrap_or_default());
                 personalizavel.set(f.personalizavel);
                 destaque.set(f.destaque);
                 ativo.set(f.ativo);
@@ -114,11 +114,11 @@ pub fn AdminProdutoForm() -> impl IntoView {
             capacidade_ml: parse_i(capacidade.get_untracked()),
             material: opt(material.get_untracked()),
             cor: opt(cor.get_untracked()),
-            altura_mm: parse_i(altura.get_untracked()),
-            diametro_mm: parse_i(diametro.get_untracked()),
+            altura_mm: cm_para_mm(&altura.get_untracked()),
+            diametro_mm: cm_para_mm(&diametro.get_untracked()),
             peso_g: parse_i(peso.get_untracked()),
-            largura_base_mm: parse_i(largura_base.get_untracked()),
-            largura_boca_mm: parse_i(largura_boca.get_untracked()),
+            largura_base_mm: cm_para_mm(&largura_base.get_untracked()),
+            largura_boca_mm: cm_para_mm(&largura_boca.get_untracked()),
             personalizavel: personalizavel.get_untracked(),
             destaque: destaque.get_untracked(),
             ativo: ativo.get_untracked(),
@@ -242,19 +242,23 @@ pub fn AdminProdutoForm() -> impl IntoView {
                     />
                 </label>
                 <label class="field">
-                    <span class="field__label">"Altura (mm)"</span>
+                    <span class="field__label">"Altura (cm)"</span>
                     <input
                         class="admin-input"
-                        type="number"
+                        type="text"
+                        inputmode="decimal"
+                        placeholder="ex.: 20,1"
                         prop:value=move || altura.get()
                         on:input=move |ev| altura.set(event_target_value(&ev))
                     />
                 </label>
                 <label class="field">
-                    <span class="field__label">"Diâmetro (mm)"</span>
+                    <span class="field__label">"Diâmetro (cm)"</span>
                     <input
                         class="admin-input"
-                        type="number"
+                        type="text"
+                        inputmode="decimal"
+                        placeholder="ex.: 7,1"
                         prop:value=move || diametro.get()
                         on:input=move |ev| diametro.set(event_target_value(&ev))
                     />
@@ -269,19 +273,23 @@ pub fn AdminProdutoForm() -> impl IntoView {
                     />
                 </label>
                 <label class="field">
-                    <span class="field__label">"Largura da base (mm)"</span>
+                    <span class="field__label">"Largura da base (cm)"</span>
                     <input
                         class="admin-input"
-                        type="number"
+                        type="text"
+                        inputmode="decimal"
+                        placeholder="ex.: 6,1"
                         prop:value=move || largura_base.get()
                         on:input=move |ev| largura_base.set(event_target_value(&ev))
                     />
                 </label>
                 <label class="field">
-                    <span class="field__label">"Largura da boca (mm)"</span>
+                    <span class="field__label">"Largura da boca (cm)"</span>
                     <input
                         class="admin-input"
-                        type="number"
+                        type="text"
+                        inputmode="decimal"
+                        placeholder="ex.: 7,1"
                         prop:value=move || largura_boca.get()
                         on:input=move |ev| largura_boca.set(event_target_value(&ev))
                     />
@@ -421,5 +429,39 @@ pub fn AdminProdutoForm() -> impl IntoView {
                 })
             />
         </form>
+    }
+}
+
+/// Converte um texto em cm (aceita vírgula ou ponto) para mm inteiros, para
+/// armazenar. Vazio ou inválido => `None`. Ex.: "20,1" -> Some(201).
+fn cm_para_mm(s: &str) -> Option<i32> {
+    let t = s.trim().replace(',', ".");
+    if t.is_empty() {
+        return None;
+    }
+    let cm: f64 = t.parse().ok()?;
+    Some((cm * 10.0).round() as i32)
+}
+
+/// Formata mm inteiros como cm com uma casa decimal (vírgula), para preencher o
+/// campo na edição. Ex.: 201 -> "20,1".
+fn mm_para_cm(mm: i32) -> String {
+    format!("{},{}", mm / 10, (mm % 10).abs())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{cm_para_mm, mm_para_cm};
+
+    #[test]
+    fn cm_mm_conversao() {
+        assert_eq!(cm_para_mm("20,1"), Some(201));
+        assert_eq!(cm_para_mm("7.1"), Some(71));
+        assert_eq!(cm_para_mm("6"), Some(60));
+        assert_eq!(cm_para_mm("  "), None);
+        assert_eq!(cm_para_mm("abc"), None);
+        assert_eq!(mm_para_cm(201), "20,1");
+        assert_eq!(mm_para_cm(71), "7,1");
+        assert_eq!(mm_para_cm(60), "6,0");
     }
 }
