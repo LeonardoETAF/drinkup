@@ -3,51 +3,43 @@ use leptos::prelude::*;
 use crate::domain::Categoria;
 
 /// Barra de filtros do catálogo: pills de categoria (links) + pills de
-/// subcategoria da categoria ativa + busca ao vivo. A busca filtra conforme o
-/// usuário digita; o servidor faz a filtragem real.
+/// subcategoria da categoria ativa + busca ao vivo. O destaque (is-active) e a
+/// linha de subcategorias reagem ao filtro atual, então a seleção acompanha a
+/// navegação por SPA sem recarregar a página.
 #[component]
 pub fn FilterBar(
     categorias: Vec<Categoria>,
-    ativa: Option<String>,
-    sub_ativa: Option<String>,
+    ativa: Signal<Option<String>>,
+    sub_ativa: Signal<Option<String>>,
     busca: RwSignal<String>,
 ) -> impl IntoView {
-    let is_all = ativa.is_none();
-    let topo: Vec<Categoria> = categorias
-        .iter()
-        .filter(|c| c.parent_id.is_none())
-        .cloned()
-        .collect();
-    // Categoria ativa (para localizar suas subcategorias).
-    let cat_ativa = ativa
-        .as_deref()
-        .and_then(|s| topo.iter().find(|c| c.slug == s).cloned());
-    let subs: Vec<Categoria> = cat_ativa
-        .as_ref()
-        .map(|ca| {
-            categorias
-                .iter()
-                .filter(|c| c.parent_id == Some(ca.id))
-                .cloned()
-                .collect()
-        })
-        .unwrap_or_default();
-    let cat_slug = cat_ativa.map(|c| c.slug);
-    let sub_none = sub_ativa.is_none();
+    let categorias = StoredValue::new(categorias);
+    // Lista fixa de categorias principais (o destaque é que é reativo).
+    let topo: Vec<Categoria> = categorias.with_value(|cs| {
+        cs.iter().filter(|c| c.parent_id.is_none()).cloned().collect()
+    });
 
     view! {
         <div class="filter-bar container">
             <nav class="filter-pills" aria-label="Categorias">
-                <a class="filter-pill" class:is-active=is_all href="/produtos">
+                <a
+                    class="filter-pill"
+                    class:is-active=move || ativa.get().is_none()
+                    href="/produtos"
+                >
                     "Todos"
                 </a>
                 {topo
                     .into_iter()
                     .map(|c| {
-                        let active = ativa.as_deref() == Some(c.slug.as_str());
+                        let slug = c.slug.clone();
                         let href = format!("/produtos?categoria={}", c.slug);
                         view! {
-                            <a class="filter-pill" class:is-active=active href=href>
+                            <a
+                                class="filter-pill"
+                                class:is-active=move || ativa.get().as_deref() == Some(slug.as_str())
+                                href=href
+                            >
                                 {c.nome}
                             </a>
                         }
@@ -55,41 +47,58 @@ pub fn FilterBar(
                     .collect_view()}
             </nav>
 
-            {(!subs.is_empty())
-                .then(|| {
-                    let cat_slug = cat_slug.unwrap_or_default();
-                    let href_todas = format!("/produtos?categoria={cat_slug}");
-                    view! {
-                        <nav class="filter-pills filter-pills--sub" aria-label="Subcategorias">
-                            <a
-                                class="filter-pill filter-pill--sub"
-                                class:is-active=sub_none
-                                href=href_todas
-                            >
-                                "Todas"
-                            </a>
-                            {subs
-                                .into_iter()
-                                .map(|s| {
-                                    let active = sub_ativa.as_deref() == Some(s.slug.as_str());
-                                    let href = format!(
-                                        "/produtos?categoria={cat_slug}&sub={}",
-                                        s.slug,
-                                    );
-                                    view! {
-                                        <a
-                                            class="filter-pill filter-pill--sub"
-                                            class:is-active=active
-                                            href=href
-                                        >
-                                            {s.nome}
-                                        </a>
-                                    }
-                                })
-                                .collect_view()}
-                        </nav>
-                    }
-                })}
+            {move || {
+                // Subcategorias da categoria ativa — recomputadas a cada mudança
+                // de filtro (categoria diferente => outra lista de subcategorias).
+                let ativa_slug = ativa.get();
+                let cat = categorias.with_value(|cs| {
+                    ativa_slug.as_deref().and_then(|s| {
+                        cs.iter().find(|c| c.parent_id.is_none() && c.slug == s).cloned()
+                    })
+                });
+                let Some(cat) = cat else { return ().into_any() };
+                let subs: Vec<Categoria> = categorias.with_value(|cs| {
+                    cs.iter().filter(|c| c.parent_id == Some(cat.id)).cloned().collect()
+                });
+                if subs.is_empty() {
+                    return ().into_any();
+                }
+                let cat_slug = cat.slug;
+                let href_todos = format!("/produtos?categoria={cat_slug}");
+                view! {
+                    <nav class="filter-pills filter-pills--sub" aria-label="Subcategorias">
+                        <a
+                            class="filter-pill filter-pill--sub"
+                            class:is-active=move || sub_ativa.get().is_none()
+                            href=href_todos
+                        >
+                            "Todos"
+                        </a>
+                        {subs
+                            .into_iter()
+                            .map(|s| {
+                                let sslug = s.slug.clone();
+                                let href = format!(
+                                    "/produtos?categoria={cat_slug}&sub={}",
+                                    s.slug,
+                                );
+                                view! {
+                                    <a
+                                        class="filter-pill filter-pill--sub"
+                                        class:is-active=move || {
+                                            sub_ativa.get().as_deref() == Some(sslug.as_str())
+                                        }
+                                        href=href
+                                    >
+                                        {s.nome}
+                                    </a>
+                                }
+                            })
+                            .collect_view()}
+                    </nav>
+                }
+                    .into_any()
+            }}
 
             <div class="filter-search" role="search">
                 <input

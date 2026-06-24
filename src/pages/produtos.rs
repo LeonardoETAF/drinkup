@@ -46,6 +46,10 @@ pub fn ProdutosPage() -> impl IntoView {
         |f| async move { listar_produtos(f).await },
     );
 
+    // Estado ativo reativo, para o destaque das pills acompanhar a navegação.
+    let cat_ativa = Signal::derive(move || filtro.get().categoria_slug);
+    let sub_ativa = Signal::derive(move || filtro.get().subcategoria_slug);
+
     // Título do catálogo: muda conforme a categoria selecionada (a busca não
     // altera o título). Sem categoria → "Todos".
     let titulo = move || match filtro.get().categoria_slug {
@@ -77,14 +81,8 @@ pub fn ProdutosPage() -> impl IntoView {
         <Suspense fallback=|| ()>
             {move || Suspend::new(async move {
                 let cats = categorias.await.unwrap_or_default();
-                let f = filtro.get_untracked();
                 view! {
-                    <FilterBar
-                        categorias=cats
-                        ativa=f.categoria_slug
-                        sub_ativa=f.subcategoria_slug
-                        busca=busca
-                    />
+                    <FilterBar categorias=cats ativa=cat_ativa sub_ativa=sub_ativa busca=busca/>
                 }
             })}
         </Suspense>
