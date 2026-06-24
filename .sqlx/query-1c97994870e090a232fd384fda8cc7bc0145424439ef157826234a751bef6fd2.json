@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT id AS \"id!\", nome AS \"nome!\", slug AS \"slug!\", descricao\n        FROM categorias\n        WHERE ativo\n        ORDER BY ordem, nome\n        ",
+  "query": "SELECT id AS \"id!\", nome AS \"nome!\", slug AS \"slug!\", descricao, parent_id\n           FROM categorias ORDER BY ordem, nome",
   "describe": {
     "columns": [
       {
@@ -22,6 +22,11 @@
         "ordinal": 3,
         "name": "descricao",
         "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "parent_id",
+        "type_info": "Uuid"
       }
     ],
     "parameters": {
@@ -31,8 +36,9 @@
       false,
       false,
       false,
+      true,
       true
     ]
   },
-  "hash": "fbf3ef63fb9031d94d6f5f3c21860b1438e1471040b411f4495fdcd0e71c0294"
+  "hash": "1c97994870e090a232fd384fda8cc7bc0145424439ef157826234a751bef6fd2"
 }

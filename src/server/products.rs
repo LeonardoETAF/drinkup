@@ -39,15 +39,18 @@ pub async fn listar(pool: &PgPool, filtro: &FiltroProdutos) -> Result<PaginaProd
                WHERE pi.produto_id = p.id AND pi.principal LIMIT 1) AS "imagem_url?"
         FROM produtos p
         LEFT JOIN categorias c ON c.id = p.categoria_id
+        LEFT JOIN categorias sc ON sc.id = p.subcategoria_id
         WHERE p.ativo
           AND ($1::text IS NULL OR c.slug = $1)
-          AND ($2::text IS NULL OR p.material = $2)
-          AND ($3::text IS NULL OR p.cor = $3)
-          AND ($4::text IS NULL OR lower(p.nome) LIKE '%' || lower($4) || '%')
+          AND ($2::text IS NULL OR sc.slug = $2)
+          AND ($3::text IS NULL OR p.material = $3)
+          AND ($4::text IS NULL OR p.cor = $4)
+          AND ($5::text IS NULL OR lower(p.nome) LIKE '%' || lower($5) || '%')
         ORDER BY p.destaque DESC, p.nome
-        LIMIT $5 OFFSET $6
+        LIMIT $6 OFFSET $7
         "#,
         filtro.categoria_slug.as_deref(),
+        filtro.subcategoria_slug.as_deref(),
         filtro.material.as_deref(),
         filtro.cor.as_deref(),
         filtro.busca.as_deref(),
@@ -62,13 +65,16 @@ pub async fn listar(pool: &PgPool, filtro: &FiltroProdutos) -> Result<PaginaProd
         SELECT count(*) AS "total!"
         FROM produtos p
         LEFT JOIN categorias c ON c.id = p.categoria_id
+        LEFT JOIN categorias sc ON sc.id = p.subcategoria_id
         WHERE p.ativo
           AND ($1::text IS NULL OR c.slug = $1)
-          AND ($2::text IS NULL OR p.material = $2)
-          AND ($3::text IS NULL OR p.cor = $3)
-          AND ($4::text IS NULL OR lower(p.nome) LIKE '%' || lower($4) || '%')
+          AND ($2::text IS NULL OR sc.slug = $2)
+          AND ($3::text IS NULL OR p.material = $3)
+          AND ($4::text IS NULL OR p.cor = $4)
+          AND ($5::text IS NULL OR lower(p.nome) LIKE '%' || lower($5) || '%')
         "#,
         filtro.categoria_slug.as_deref(),
+        filtro.subcategoria_slug.as_deref(),
         filtro.material.as_deref(),
         filtro.cor.as_deref(),
         filtro.busca.as_deref(),
@@ -92,9 +98,10 @@ pub async fn por_slug(pool: &PgPool, slug: &str) -> Result<Option<ProdutoDetalhe
             p.id AS "id!", p.nome AS "nome!", p.slug AS "slug!",
             p.descricao, p.capacidade_ml, p.material, p.cor,
             p.altura_mm, p.diametro_mm, p.personalizavel AS "personalizavel!",
-            c.nome AS "categoria_nome?"
+            c.nome AS "categoria_nome?", sc.nome AS "subcategoria_nome?"
         FROM produtos p
         LEFT JOIN categorias c ON c.id = p.categoria_id
+        LEFT JOIN categorias sc ON sc.id = p.subcategoria_id
         WHERE p.slug = $1 AND p.ativo
         "#,
         slug
@@ -131,16 +138,18 @@ pub async fn por_slug(pool: &PgPool, slug: &str) -> Result<Option<ProdutoDetalhe
         diametro_mm: r.diametro_mm,
         personalizavel: r.personalizavel,
         categoria_nome: r.categoria_nome,
+        subcategoria_nome: r.subcategoria_nome,
         imagens,
     }))
 }
 
-/// Lista categorias ativas (para filtros/menus).
+/// Lista categorias e subcategorias ativas (para filtros/menus). O `parent_id`
+/// permite agrupar subcategorias sob suas categorias na vitrine.
 pub async fn listar_categorias(pool: &PgPool) -> Result<Vec<Categoria>, sqlx::Error> {
     sqlx::query_as!(
         Categoria,
         r#"
-        SELECT id AS "id!", nome AS "nome!", slug AS "slug!", descricao
+        SELECT id AS "id!", nome AS "nome!", slug AS "slug!", descricao, parent_id
         FROM categorias
         WHERE ativo
         ORDER BY ordem, nome

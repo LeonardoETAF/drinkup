@@ -745,6 +745,16 @@
   border-radius: var(--radius-sm);
 }
 
+/* Subcategoria: recuada e levemente atenuada, sob a categoria-pai. */
+.cat-item--sub {
+  margin-left: var(--space-5);
+  border-style: dashed;
+}
+
+.cat-item--sub > span {
+  color: var(--color-text-muted);
+}
+
 @keyframes modal-fade {
   from {
     opacity: 0;

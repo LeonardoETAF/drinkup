@@ -35,6 +35,7 @@ pub struct ProdutoDetalhe {
     pub diametro_mm: Option<i32>,
     pub personalizavel: bool,
     pub categoria_nome: Option<String>,
+    pub subcategoria_nome: Option<String>,
     pub imagens: Vec<ProdutoImagem>,
 }
 
@@ -42,6 +43,7 @@ pub struct ProdutoDetalhe {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
 pub struct FiltroProdutos {
     pub categoria_slug: Option<String>,
+    pub subcategoria_slug: Option<String>,
     pub material: Option<String>,
     pub cor: Option<String>,
     pub busca: Option<String>,

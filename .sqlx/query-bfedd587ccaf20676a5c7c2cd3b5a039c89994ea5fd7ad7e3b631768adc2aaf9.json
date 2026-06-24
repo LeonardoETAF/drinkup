@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT EXISTS(\n                 SELECT 1 FROM categorias WHERE id = $1 AND parent_id IS NULL\n               ) AS \"e!\"",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "e!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "bfedd587ccaf20676a5c7c2cd3b5a039c89994ea5fd7ad7e3b631768adc2aaf9"
+}

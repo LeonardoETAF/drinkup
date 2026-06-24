@@ -13,14 +13,15 @@ pub async fn listar_categorias_admin() -> Result<Vec<Categoria>, ServerFnError> 
         .map_err(|_| ServerFnError::new("Não foi possível carregar as categorias."))
 }
 
-/// Cria uma categoria (papel mínimo: editor).
+/// Cria uma categoria (ou subcategoria, se `parent_id` for informado). Papel
+/// mínimo: editor.
 #[server]
-pub async fn criar_categoria(nome: String) -> Result<(), ServerFnError> {
+pub async fn criar_categoria(nome: String, parent_id: Option<Uuid>) -> Result<(), ServerFnError> {
     use crate::error::AppError;
 
     let pool = expect_context::<sqlx::PgPool>();
     crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Editor, "produtos").await?;
-    match crate::server::categorias_admin::criar(&pool, &nome).await {
+    match crate::server::categorias_admin::criar(&pool, &nome, parent_id).await {
         Ok(()) => Ok(()),
         Err(AppError::Validation) => Err(ServerFnError::new("Informe um nome válido.")),
         Err(_) => Err(ServerFnError::new("Não foi possível criar a categoria.")),

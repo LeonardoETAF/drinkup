@@ -77,8 +77,8 @@ pub async fn listar_admin(
 pub async fn obter_form(pool: &PgPool, id: Uuid) -> Result<Option<ProdutoForm>, sqlx::Error> {
     let row = sqlx::query!(
         r#"
-        SELECT id, categoria_id, nome, descricao, capacidade_ml, material, cor,
-               altura_mm, diametro_mm, personalizavel, destaque, ativo
+        SELECT id, categoria_id, subcategoria_id, nome, descricao, capacidade_ml,
+               material, cor, altura_mm, diametro_mm, personalizavel, destaque, ativo
         FROM produtos WHERE id = $1
         "#,
         id
@@ -98,6 +98,7 @@ pub async fn obter_form(pool: &PgPool, id: Uuid) -> Result<Option<ProdutoForm>, 
     Ok(Some(ProdutoForm {
         id: Some(r.id),
         categoria_id: r.categoria_id,
+        subcategoria_id: r.subcategoria_id,
         nome: r.nome,
         descricao: r.descricao,
         capacidade_ml: r.capacidade_ml,
@@ -126,7 +127,8 @@ pub async fn salvar(pool: &PgPool, form: &ProdutoForm) -> Result<Uuid, AppError>
                 UPDATE produtos SET
                     categoria_id = $2, nome = $3, descricao = $4, capacidade_ml = $5,
                     material = $6, cor = $7, altura_mm = $8, diametro_mm = $9,
-                    personalizavel = $10, destaque = $11, ativo = $12
+                    personalizavel = $10, destaque = $11, ativo = $12,
+                    subcategoria_id = $13
                 WHERE id = $1
                 "#,
                 id,
@@ -141,6 +143,7 @@ pub async fn salvar(pool: &PgPool, form: &ProdutoForm) -> Result<Uuid, AppError>
                 form.personalizavel,
                 form.destaque,
                 form.ativo,
+                form.subcategoria_id,
             )
             .execute(pool)
             .await
@@ -153,8 +156,8 @@ pub async fn salvar(pool: &PgPool, form: &ProdutoForm) -> Result<Uuid, AppError>
                 r#"
                 INSERT INTO produtos
                     (categoria_id, nome, slug, descricao, capacidade_ml, material, cor,
-                     altura_mm, diametro_mm, personalizavel, destaque, ativo)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+                     altura_mm, diametro_mm, personalizavel, destaque, ativo, subcategoria_id)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
                 RETURNING id
                 "#,
                 form.categoria_id,
@@ -169,6 +172,7 @@ pub async fn salvar(pool: &PgPool, form: &ProdutoForm) -> Result<Uuid, AppError>
                 form.personalizavel,
                 form.destaque,
                 form.ativo,
+                form.subcategoria_id,
             )
             .fetch_one(pool)
             .await

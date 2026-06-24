@@ -8,6 +8,9 @@ fn url(filtro: &FiltroProdutos, pagina: u32) -> String {
     if let Some(c) = &filtro.categoria_slug {
         parts.push(format!("categoria={}", urlencoding::encode(c)));
     }
+    if let Some(s) = &filtro.subcategoria_slug {
+        parts.push(format!("sub={}", urlencoding::encode(s)));
+    }
     if let Some(m) = &filtro.material {
         parts.push(format!("material={}", urlencoding::encode(m)));
     }

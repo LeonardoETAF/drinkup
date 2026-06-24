@@ -68,6 +68,7 @@ fn DetalheProduto(produto: ProdutoDetalhe) -> impl IntoView {
         .categoria_nome
         .clone()
         .unwrap_or_else(|| "Catálogo".to_string());
+    let subcategoria = produto.subcategoria_nome.clone();
 
     // Botão de orçamento abre o WhatsApp cadastrado com mensagem do produto.
     // Resolvido no cliente (Effect) para o href correto após a hidratação;
@@ -140,6 +141,13 @@ fn DetalheProduto(produto: ProdutoDetalhe) -> impl IntoView {
             <span aria-hidden="true">"/"</span>
             <a href="/produtos">{categoria.clone()}</a>
             <span aria-hidden="true">"/"</span>
+            {subcategoria
+                .map(|s| {
+                    view! {
+                        <span class="breadcrumb__sub">{s}</span>
+                        <span aria-hidden="true">"/"</span>
+                    }
+                })}
             <span class="breadcrumb__current">{produto.nome.clone()}</span>
         </nav>
 

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT\n            p.id AS \"id!\", p.nome AS \"nome!\", p.slug AS \"slug!\",\n            p.descricao, p.capacidade_ml, p.material, p.cor,\n            p.altura_mm, p.diametro_mm, p.personalizavel AS \"personalizavel!\",\n            c.nome AS \"categoria_nome?\"\n        FROM produtos p\n        LEFT JOIN categorias c ON c.id = p.categoria_id\n        WHERE p.slug = $1 AND p.ativo\n        ",
+  "query": "\n        SELECT\n            p.id AS \"id!\", p.nome AS \"nome!\", p.slug AS \"slug!\",\n            p.descricao, p.capacidade_ml, p.material, p.cor,\n            p.altura_mm, p.diametro_mm, p.personalizavel AS \"personalizavel!\",\n            c.nome AS \"categoria_nome?\", sc.nome AS \"subcategoria_nome?\"\n        FROM produtos p\n        LEFT JOIN categorias c ON c.id = p.categoria_id\n        LEFT JOIN categorias sc ON sc.id = p.subcategoria_id\n        WHERE p.slug = $1 AND p.ativo\n        ",
   "describe": {
     "columns": [
       {
@@ -57,6 +57,11 @@
         "ordinal": 10,
         "name": "categoria_nome?",
         "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "subcategoria_nome?",
+        "type_info": "Text"
       }
     ],
     "parameters": {
@@ -75,8 +80,9 @@
       true,
       true,
       false,
+      false,
       false
     ]
   },
-  "hash": "3b98d137790cecb2a25e4f202185587dfe512117eadb52ad38565f0afa0ca7b3"
+  "hash": "1b32aa309c2daa1078ce327ec9d684fdbf25f9bf792ac28fa103b4655d398432"
 }

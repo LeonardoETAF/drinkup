@@ -182,6 +182,7 @@ pub struct ProdutoForm {
     pub id: Option<Uuid>,
     pub nome: String,
     pub categoria_id: Option<Uuid>,
+    pub subcategoria_id: Option<Uuid>,
     pub descricao: Option<String>,
     pub capacidade_ml: Option<i32>,
     pub material: Option<String>,

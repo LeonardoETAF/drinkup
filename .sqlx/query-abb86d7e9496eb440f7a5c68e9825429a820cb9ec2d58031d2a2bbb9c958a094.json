@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT id, categoria_id, nome, descricao, capacidade_ml, material, cor,\n               altura_mm, diametro_mm, personalizavel, destaque, ativo\n        FROM produtos WHERE id = $1\n        ",
+  "query": "\n        SELECT id, categoria_id, subcategoria_id, nome, descricao, capacidade_ml,\n               material, cor, altura_mm, diametro_mm, personalizavel, destaque, ativo\n        FROM produtos WHERE id = $1\n        ",
   "describe": {
     "columns": [
       {
@@ -15,51 +15,56 @@
       },
       {
         "ordinal": 2,
+        "name": "subcategoria_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
         "name": "nome",
         "type_info": "Text"
       },
       {
-        "ordinal": 3,
+        "ordinal": 4,
         "name": "descricao",
         "type_info": "Text"
       },
       {
-        "ordinal": 4,
+        "ordinal": 5,
         "name": "capacidade_ml",
         "type_info": "Int4"
       },
       {
-        "ordinal": 5,
+        "ordinal": 6,
         "name": "material",
         "type_info": "Text"
       },
       {
-        "ordinal": 6,
+        "ordinal": 7,
         "name": "cor",
         "type_info": "Text"
       },
       {
-        "ordinal": 7,
+        "ordinal": 8,
         "name": "altura_mm",
         "type_info": "Int4"
       },
       {
-        "ordinal": 8,
+        "ordinal": 9,
         "name": "diametro_mm",
         "type_info": "Int4"
       },
       {
-        "ordinal": 9,
+        "ordinal": 10,
         "name": "personalizavel",
         "type_info": "Bool"
       },
       {
-        "ordinal": 10,
+        "ordinal": 11,
         "name": "destaque",
         "type_info": "Bool"
       },
       {
-        "ordinal": 11,
+        "ordinal": 12,
         "name": "ativo",
         "type_info": "Bool"
       }
@@ -71,6 +76,7 @@
     },
     "nullable": [
       false,
+      true,
       true,
       false,
       true,
@@ -84,5 +90,5 @@
       false
     ]
   },
-  "hash": "dfe095237fd62dc393cd28365e48f6a9d980f2b7975b09deb003eda8bef4b939"
+  "hash": "abb86d7e9496eb440f7a5c68e9825429a820cb9ec2d58031d2a2bbb9c958a094"
 }

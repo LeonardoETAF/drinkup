@@ -83,6 +83,23 @@
   border-color: var(--color-lime);
 }
 
+/* Linha de subcategorias da categoria ativa: pills menores, abaixo das pills
+   principais. */
+.filter-pills--sub {
+  margin-top: var(--space-3);
+  gap: var(--space-2);
+}
+
+.filter-pill--sub {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.66rem;
+  border-style: dashed;
+}
+
+.filter-pill--sub.is-active {
+  border-style: solid;
+}
+
 .filter-search {
   display: flex;
   gap: var(--space-2);
@@ -245,6 +262,10 @@
 
 .breadcrumb a:hover {
   color: var(--color-lime);
+}
+
+.breadcrumb__sub {
+  color: var(--color-text-muted);
 }
 
 .breadcrumb__current {

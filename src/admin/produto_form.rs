@@ -31,6 +31,7 @@ pub fn AdminProdutoForm() -> impl IntoView {
 
     let nome = RwSignal::new(String::new());
     let categoria_id = RwSignal::new(String::new());
+    let subcategoria_id = RwSignal::new(String::new());
     let descricao = RwSignal::new(String::new());
     let capacidade = RwSignal::new(String::new());
     let material = RwSignal::new(String::new());
@@ -52,6 +53,7 @@ pub fn AdminProdutoForm() -> impl IntoView {
             if let Ok(Some(f)) = obter_produto_admin(pid).await {
                 nome.set(f.nome);
                 categoria_id.set(f.categoria_id.map(|c| c.to_string()).unwrap_or_default());
+                subcategoria_id.set(f.subcategoria_id.map(|c| c.to_string()).unwrap_or_default());
                 descricao.set(f.descricao.unwrap_or_default());
                 capacidade.set(f.capacidade_ml.map(|v| v.to_string()).unwrap_or_default());
                 material.set(f.material.unwrap_or_default());
@@ -98,6 +100,10 @@ pub fn AdminProdutoForm() -> impl IntoView {
             categoria_id: (!cat.is_empty())
                 .then(|| Uuid::parse_str(&cat).ok())
                 .flatten(),
+            subcategoria_id: {
+                let s = subcategoria_id.get_untracked();
+                (!s.is_empty()).then(|| Uuid::parse_str(&s).ok()).flatten()
+            },
             descricao: opt(descricao.get_untracked()),
             capacidade_ml: parse_i(capacidade.get_untracked()),
             material: opt(material.get_untracked()),
@@ -139,13 +145,17 @@ pub fn AdminProdutoForm() -> impl IntoView {
                 <select
                     class="admin-input"
                     prop:value=move || categoria_id.get()
-                    on:change=move |ev| categoria_id.set(event_target_value(&ev))
+                    on:change=move |ev| {
+                        categoria_id.set(event_target_value(&ev));
+                        subcategoria_id.set(String::new());
+                    }
                 >
                     <option value="">"— Sem categoria —"</option>
                     {move || {
                         categorias
                             .get()
                             .into_iter()
+                            .filter(|c| c.parent_id.is_none())
                             .map(|c| {
                                 view! { <option value=c.id.to_string()>{c.nome}</option> }
                             })
@@ -153,6 +163,36 @@ pub fn AdminProdutoForm() -> impl IntoView {
                     }}
                 </select>
             </label>
+
+            {move || {
+                let cat = categoria_id.get();
+                let subs: Vec<_> = categorias
+                    .get()
+                    .into_iter()
+                    .filter(|c| c.parent_id.map(|p| p.to_string()).as_deref() == Some(cat.as_str()))
+                    .collect();
+                (!subs.is_empty())
+                    .then(|| {
+                        view! {
+                            <label class="field">
+                                <span class="field__label">"Subcategoria"</span>
+                                <select
+                                    class="admin-input"
+                                    prop:value=move || subcategoria_id.get()
+                                    on:change=move |ev| subcategoria_id.set(event_target_value(&ev))
+                                >
+                                    <option value="">"— Sem subcategoria —"</option>
+                                    {subs
+                                        .into_iter()
+                                        .map(|c| {
+                                            view! { <option value=c.id.to_string()>{c.nome}</option> }
+                                        })
+                                        .collect_view()}
+                                </select>
+                            </label>
+                        }
+                    })
+            }}
 
             <label class="field">
                 <span class="field__label">"Descrição"</span>

@@ -27,6 +27,7 @@ pub fn ProdutosPage() -> impl IntoView {
         let b = b.trim();
         FiltroProdutos {
             categoria_slug: txt("categoria"),
+            subcategoria_slug: txt("sub"),
             material: txt("material"),
             cor: txt("cor"),
             busca: (!b.is_empty()).then(|| b.to_string()),
@@ -77,7 +78,14 @@ pub fn ProdutosPage() -> impl IntoView {
             {move || Suspend::new(async move {
                 let cats = categorias.await.unwrap_or_default();
                 let f = filtro.get_untracked();
-                view! { <FilterBar categorias=cats ativa=f.categoria_slug busca=busca/> }
+                view! {
+                    <FilterBar
+                        categorias=cats
+                        ativa=f.categoria_slug
+                        sub_ativa=f.subcategoria_slug
+                        busca=busca
+                    />
+                }
             })}
         </Suspense>
 

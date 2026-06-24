@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT\n            p.id            AS \"id!\",\n            p.nome          AS \"nome!\",\n            p.slug          AS \"slug!\",\n            p.capacidade_ml,\n            p.material,\n            p.cor,\n            p.destaque      AS \"destaque!\",\n            (SELECT pi.url FROM produto_imagens pi\n               WHERE pi.produto_id = p.id AND pi.principal LIMIT 1) AS \"imagem_url?\"\n        FROM produtos p\n        LEFT JOIN categorias c ON c.id = p.categoria_id\n        WHERE p.ativo\n          AND ($1::text IS NULL OR c.slug = $1)\n          AND ($2::text IS NULL OR p.material = $2)\n          AND ($3::text IS NULL OR p.cor = $3)\n          AND ($4::text IS NULL OR lower(p.nome) LIKE '%' || lower($4) || '%')\n        ORDER BY p.destaque DESC, p.nome\n        LIMIT $5 OFFSET $6\n        ",
+  "query": "\n        SELECT\n            p.id            AS \"id!\",\n            p.nome          AS \"nome!\",\n            p.slug          AS \"slug!\",\n            p.capacidade_ml,\n            p.material,\n            p.cor,\n            p.destaque      AS \"destaque!\",\n            (SELECT pi.url FROM produto_imagens pi\n               WHERE pi.produto_id = p.id AND pi.principal LIMIT 1) AS \"imagem_url?\"\n        FROM produtos p\n        LEFT JOIN categorias c ON c.id = p.categoria_id\n        LEFT JOIN categorias sc ON sc.id = p.subcategoria_id\n        WHERE p.ativo\n          AND ($1::text IS NULL OR c.slug = $1)\n          AND ($2::text IS NULL OR sc.slug = $2)\n          AND ($3::text IS NULL OR p.material = $3)\n          AND ($4::text IS NULL OR p.cor = $4)\n          AND ($5::text IS NULL OR lower(p.nome) LIKE '%' || lower($5) || '%')\n        ORDER BY p.destaque DESC, p.nome\n        LIMIT $6 OFFSET $7\n        ",
   "describe": {
     "columns": [
       {
@@ -50,6 +50,7 @@
         "Text",
         "Text",
         "Text",
+        "Text",
         "Int8",
         "Int8"
       ]
@@ -65,5 +66,5 @@
       null
     ]
   },
-  "hash": "43b3b767e656b599658d9be9ea0b07881d275dac2d4959235f0d5dae5a208a32"
+  "hash": "6103e9b783b4cd8bef9f5c8302733fd1a578fea83b5202697a21dc2fe1a0e39d"
 }
