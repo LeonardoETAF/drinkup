@@ -12,6 +12,16 @@ pub struct HomeConteudo {
     pub foto2_url: Option<String>,
 }
 
+/// Cards padrão do bento "Sua marca" (valor, rótulo), na ordem e cores fixas do
+/// layout. Usados como semente no editor do painel e como fallback no render.
+pub const BENTO_PADRAO: [(&str, &str); 5] = [
+    ("+25K", "Unidades por dia"),
+    ("+4", "Anos no mercado"),
+    ("+500", "Clientes satisfeitos"),
+    ("+2K", "Eventos atendidos"),
+    ("100%", "Personalizável"),
+];
+
 /// Formulário do painel (campos crus). `numeros`/`bento` são textos com um item
 /// por linha no formato "valor | rótulo".
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]

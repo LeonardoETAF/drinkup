@@ -18,7 +18,7 @@ pub use admin::{
 };
 pub use categoria::Categoria;
 pub use evento::EventoCarrossel;
-pub use home::{HomeConteudo, HomeForm};
+pub use home::{HomeConteudo, HomeForm, BENTO_PADRAO};
 pub use orcamento::{ItemOrcamento, NovoOrcamento};
 pub use parceiro::ParceiroPublico;
 pub use produto::{FiltroProdutos, PaginaProdutos, ProdutoDetalhe, ProdutoImagem, ProdutoResumo};

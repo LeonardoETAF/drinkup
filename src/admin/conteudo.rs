@@ -24,7 +24,14 @@ pub fn AdminConteudoHome() -> impl IntoView {
                 carregar(numeros, numeros_id, &f.numeros);
                 marca_titulo.set(f.marca_titulo);
                 marca_sub.set(f.marca_sub);
-                carregar(bento, bento_id, &f.bento);
+                // O bento é um layout fixo de 5 cards; sem nada salvo, semeia os
+                // padrões para que apareçam sempre editáveis no painel.
+                let bento_txt = if f.bento.trim().is_empty() {
+                    bento_padrao_texto()
+                } else {
+                    f.bento
+                };
+                carregar(bento, bento_id, &bento_txt);
                 foto1.set(f.foto1_url);
                 foto2.set(f.foto2_url);
             }
@@ -80,6 +87,10 @@ pub fn AdminConteudoHome() -> impl IntoView {
                 </div>
                 <div class="field">
                     <span class="field__label">"Números do bento"</span>
+                    <p class="admin-head__sub">
+                        "Os 5 cards coloridos da seção, na ordem fixa do layout. \
+                         Edite o valor e o rótulo de cada um."
+                    </p>
                     <EditorPares
                         itens=bento
                         proximo_id=bento_id
@@ -114,6 +125,16 @@ pub fn AdminConteudoHome() -> impl IntoView {
             </div>
         </form>
     }
+}
+
+/// Texto-semente do bento (um card por linha "valor | rótulo") a partir dos
+/// padrões do domínio — usado quando o painel ainda não tem nada salvo.
+fn bento_padrao_texto() -> String {
+    crate::domain::BENTO_PADRAO
+        .iter()
+        .map(|(v, r)| format!("{v} | {r}"))
+        .collect::<Vec<_>>()
+        .join("\n")
 }
 
 fn campo(rotulo: &'static str, sinal: RwSignal<String>) -> impl IntoView {
