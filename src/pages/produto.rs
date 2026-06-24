@@ -107,14 +107,19 @@ fn DetalheProduto(produto: ProdutoDetalhe) -> impl IntoView {
         )
     });
 
+    // Medidas lineares são guardadas em mm e exibidas em cm (ex.: 61 -> "6,1 cm").
+    let cm = |mm: i32| format!("{},{} cm", mm / 10, (mm % 10).abs());
     let atributos: Vec<(&'static str, String)> = [
         produto
             .capacidade_ml
             .map(|v| ("Capacidade", format!("{v} ml"))),
+        produto.peso_g.map(|v| ("Peso unitário", format!("{v} g"))),
+        produto.largura_base_mm.map(|v| ("Largura base", cm(v))),
+        produto.largura_boca_mm.map(|v| ("Largura boca", cm(v))),
+        produto.altura_mm.map(|v| ("Altura", cm(v))),
+        produto.diametro_mm.map(|v| ("Diâmetro", cm(v))),
         produto.material.clone().map(|v| ("Material", v)),
         produto.cor.clone().map(|v| ("Cores", v)),
-        produto.altura_mm.map(|v| ("Altura", format!("{v} mm"))),
-        produto.diametro_mm.map(|v| ("Diâmetro", format!("{v} mm"))),
         Some((
             "Personalizável",
             if produto.personalizavel {

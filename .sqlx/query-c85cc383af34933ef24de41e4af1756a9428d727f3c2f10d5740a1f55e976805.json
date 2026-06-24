@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT id, categoria_id, subcategoria_id, nome, descricao, capacidade_ml,\n               material, cor, altura_mm, diametro_mm, personalizavel, destaque, ativo\n        FROM produtos WHERE id = $1\n        ",
+  "query": "\n        SELECT id, categoria_id, subcategoria_id, nome, descricao, capacidade_ml,\n               material, cor, altura_mm, diametro_mm, peso_g, largura_base_mm,\n               largura_boca_mm, personalizavel, destaque, ativo\n        FROM produtos WHERE id = $1\n        ",
   "describe": {
     "columns": [
       {
@@ -55,16 +55,31 @@
       },
       {
         "ordinal": 10,
+        "name": "peso_g",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 11,
+        "name": "largura_base_mm",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 12,
+        "name": "largura_boca_mm",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 13,
         "name": "personalizavel",
         "type_info": "Bool"
       },
       {
-        "ordinal": 11,
+        "ordinal": 14,
         "name": "destaque",
         "type_info": "Bool"
       },
       {
-        "ordinal": 12,
+        "ordinal": 15,
         "name": "ativo",
         "type_info": "Bool"
       }
@@ -85,10 +100,13 @@
       true,
       true,
       true,
+      true,
+      true,
+      true,
       false,
       false,
       false
     ]
   },
-  "hash": "abb86d7e9496eb440f7a5c68e9825429a820cb9ec2d58031d2a2bbb9c958a094"
+  "hash": "c85cc383af34933ef24de41e4af1756a9428d727f3c2f10d5740a1f55e976805"
 }

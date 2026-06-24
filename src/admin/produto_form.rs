@@ -38,6 +38,9 @@ pub fn AdminProdutoForm() -> impl IntoView {
     let cor = RwSignal::new(String::new());
     let altura = RwSignal::new(String::new());
     let diametro = RwSignal::new(String::new());
+    let peso = RwSignal::new(String::new());
+    let largura_base = RwSignal::new(String::new());
+    let largura_boca = RwSignal::new(String::new());
     let personalizavel = RwSignal::new(true);
     let destaque = RwSignal::new(false);
     let ativo = RwSignal::new(true);
@@ -60,6 +63,9 @@ pub fn AdminProdutoForm() -> impl IntoView {
                 cor.set(f.cor.unwrap_or_default());
                 altura.set(f.altura_mm.map(|v| v.to_string()).unwrap_or_default());
                 diametro.set(f.diametro_mm.map(|v| v.to_string()).unwrap_or_default());
+                peso.set(f.peso_g.map(|v| v.to_string()).unwrap_or_default());
+                largura_base.set(f.largura_base_mm.map(|v| v.to_string()).unwrap_or_default());
+                largura_boca.set(f.largura_boca_mm.map(|v| v.to_string()).unwrap_or_default());
                 personalizavel.set(f.personalizavel);
                 destaque.set(f.destaque);
                 ativo.set(f.ativo);
@@ -110,6 +116,9 @@ pub fn AdminProdutoForm() -> impl IntoView {
             cor: opt(cor.get_untracked()),
             altura_mm: parse_i(altura.get_untracked()),
             diametro_mm: parse_i(diametro.get_untracked()),
+            peso_g: parse_i(peso.get_untracked()),
+            largura_base_mm: parse_i(largura_base.get_untracked()),
+            largura_boca_mm: parse_i(largura_boca.get_untracked()),
             personalizavel: personalizavel.get_untracked(),
             destaque: destaque.get_untracked(),
             ativo: ativo.get_untracked(),
@@ -248,6 +257,33 @@ pub fn AdminProdutoForm() -> impl IntoView {
                         type="number"
                         prop:value=move || diametro.get()
                         on:input=move |ev| diametro.set(event_target_value(&ev))
+                    />
+                </label>
+                <label class="field">
+                    <span class="field__label">"Peso unitário (g)"</span>
+                    <input
+                        class="admin-input"
+                        type="number"
+                        prop:value=move || peso.get()
+                        on:input=move |ev| peso.set(event_target_value(&ev))
+                    />
+                </label>
+                <label class="field">
+                    <span class="field__label">"Largura da base (mm)"</span>
+                    <input
+                        class="admin-input"
+                        type="number"
+                        prop:value=move || largura_base.get()
+                        on:input=move |ev| largura_base.set(event_target_value(&ev))
+                    />
+                </label>
+                <label class="field">
+                    <span class="field__label">"Largura da boca (mm)"</span>
+                    <input
+                        class="admin-input"
+                        type="number"
+                        prop:value=move || largura_boca.get()
+                        on:input=move |ev| largura_boca.set(event_target_value(&ev))
                     />
                 </label>
             </div>

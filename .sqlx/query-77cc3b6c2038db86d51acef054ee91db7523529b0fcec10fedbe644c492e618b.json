@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                UPDATE produtos SET\n                    categoria_id = $2, nome = $3, descricao = $4, capacidade_ml = $5,\n                    material = $6, cor = $7, altura_mm = $8, diametro_mm = $9,\n                    personalizavel = $10, destaque = $11, ativo = $12,\n                    subcategoria_id = $13, peso_g = $14, largura_base_mm = $15,\n                    largura_boca_mm = $16\n                WHERE id = $1\n                ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Int4",
+        "Text",
+        "Text",
+        "Int4",
+        "Int4",
+        "Bool",
+        "Bool",
+        "Bool",
+        "Uuid",
+        "Int4",
+        "Int4",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "77cc3b6c2038db86d51acef054ee91db7523529b0fcec10fedbe644c492e618b"
+}

@@ -97,7 +97,8 @@ pub async fn por_slug(pool: &PgPool, slug: &str) -> Result<Option<ProdutoDetalhe
         SELECT
             p.id AS "id!", p.nome AS "nome!", p.slug AS "slug!",
             p.descricao, p.capacidade_ml, p.material, p.cor,
-            p.altura_mm, p.diametro_mm, p.personalizavel AS "personalizavel!",
+            p.altura_mm, p.diametro_mm, p.peso_g, p.largura_base_mm, p.largura_boca_mm,
+            p.personalizavel AS "personalizavel!",
             c.nome AS "categoria_nome?", sc.nome AS "subcategoria_nome?"
         FROM produtos p
         LEFT JOIN categorias c ON c.id = p.categoria_id
@@ -136,6 +137,9 @@ pub async fn por_slug(pool: &PgPool, slug: &str) -> Result<Option<ProdutoDetalhe
         cor: r.cor,
         altura_mm: r.altura_mm,
         diametro_mm: r.diametro_mm,
+        peso_g: r.peso_g,
+        largura_base_mm: r.largura_base_mm,
+        largura_boca_mm: r.largura_boca_mm,
         personalizavel: r.personalizavel,
         categoria_nome: r.categoria_nome,
         subcategoria_nome: r.subcategoria_nome,
