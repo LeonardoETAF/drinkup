@@ -22,7 +22,7 @@ pub fn AdminRedefinirSenhaPage() -> impl IntoView {
     let salvando = redefinir.pending();
     let sucesso = move || matches!(redefinir.value().get(), Some(Ok(())));
     let erro_servidor = move || match redefinir.value().get() {
-        Some(Err(e)) => Some(e.to_string()),
+        Some(Err(e)) => Some(crate::components::mensagem_erro(&e)),
         _ => None,
     };
 

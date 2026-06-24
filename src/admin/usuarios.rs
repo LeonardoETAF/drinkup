@@ -49,7 +49,7 @@ pub fn AdminUsuarios() -> impl IntoView {
             {move || match dados.get() {
                 None => view! { <p class="admin-status">"Carregando..."</p> }.into_any(),
                 Some(Err(e)) => {
-                    view! { <p class="admin-status">{e.to_string()}</p> }.into_any()
+                    view! { <p class="admin-status">{crate::components::mensagem_erro(&e)}</p> }.into_any()
                 }
                 Some(Ok(itens)) => tabela(itens, pendente).into_any(),
             }}

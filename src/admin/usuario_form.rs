@@ -66,7 +66,7 @@ pub fn AdminUsuarioForm() -> impl IntoView {
     });
 
     let erro = move || match salvar.value().get() {
-        Some(Err(e)) => Some(e.to_string()),
+        Some(Err(e)) => Some(crate::components::mensagem_erro(&e)),
         _ => None,
     };
     let salvando = salvar.pending();

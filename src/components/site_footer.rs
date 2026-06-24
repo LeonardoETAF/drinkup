@@ -43,7 +43,7 @@ pub fn SiteFooter() -> impl IntoView {
             definir_mensagem
                 .set(Some((true, "Pronto! Em breve você receberá nossas novidades.".to_string())));
         }
-        Some(Err(e)) => definir_mensagem.set(Some((false, e.to_string()))),
+        Some(Err(e)) => definir_mensagem.set(Some((false, crate::components::mensagem_erro(&e)))),
         None => {}
     });
     view! {

@@ -67,7 +67,7 @@ pub fn AdminConteudoQuemSomos() -> impl IntoView {
     let salvando = salvar.pending();
     let salvo = move || matches!(salvar.value().get(), Some(Ok(())));
     let erro = move || match salvar.value().get() {
-        Some(Err(e)) => Some(e.to_string()),
+        Some(Err(e)) => Some(crate::components::mensagem_erro(&e)),
         _ => None,
     };
 

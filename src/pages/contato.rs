@@ -78,7 +78,7 @@ pub fn ContatoPage() -> impl IntoView {
 
     let sucesso = move || matches!(enviar.value().get(), Some(Ok(())));
     let erro_msg = move || match enviar.value().get() {
-        Some(Err(e)) => Some(e.to_string()),
+        Some(Err(e)) => Some(crate::components::mensagem_erro(&e)),
         _ => None,
     };
     let enviando = enviar.pending();

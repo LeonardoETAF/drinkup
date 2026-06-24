@@ -56,7 +56,7 @@ pub fn AdminLoginPage() -> impl IntoView {
     });
 
     let erro = move || match entrar.value().get() {
-        Some(Err(e)) => Some(e.to_string()),
+        Some(Err(e)) => Some(crate::components::mensagem_erro(&e)),
         _ => None,
     };
     let ok = move || matches!(entrar.value().get(), Some(Ok(())));

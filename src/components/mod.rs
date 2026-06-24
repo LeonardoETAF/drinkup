@@ -1,5 +1,6 @@
 //! Componentes de UI reutilizáveis e "burros": recebem dados já resolvidos pelas
 //! server functions e apenas renderizam. Sem lógica de negócio nem segredos.
+mod erro;
 mod filter_bar;
 mod gallery;
 mod imagem;
@@ -11,6 +12,7 @@ mod site_footer;
 mod site_header;
 mod tema;
 
+pub use erro::mensagem_erro;
 pub use filter_bar::FilterBar;
 pub use gallery::Gallery;
 pub use imagem::responsiva;
