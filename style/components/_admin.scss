@@ -755,6 +755,20 @@
   color: var(--color-text-muted);
 }
 
+/* Ações (renomear/excluir/salvar/cancelar) de cada item da lista. */
+.cat-item__acoes {
+  display: flex;
+  gap: var(--space-1);
+  flex: 0 0 auto;
+}
+
+/* Input de edição inline ocupa o espaço do nome. */
+.cat-item__edit {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-right: var(--space-2);
+}
+
 @keyframes modal-fade {
   from {
     opacity: 0;

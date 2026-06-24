@@ -73,6 +73,21 @@ pub async fn criar(pool: &PgPool, nome: &str, parent_id: Option<Uuid>) -> Result
     Ok(())
 }
 
+/// Renomeia uma categoria ou subcategoria. O `slug` é mantido de propósito,
+/// para não quebrar links/filtros já em uso (`?categoria=...`); só o nome
+/// exibido muda.
+pub async fn renomear(pool: &PgPool, id: Uuid, nome: &str) -> Result<(), AppError> {
+    let nome = nome.trim();
+    if nome.is_empty() || nome.chars().count() > MAX_NOME {
+        return Err(AppError::Validation);
+    }
+    sqlx::query!("UPDATE categorias SET nome = $2 WHERE id = $1", id, nome)
+        .execute(pool)
+        .await
+        .map_err(interno)?;
+    Ok(())
+}
+
 /// Exclui uma categoria (produtos vinculados ficam sem categoria — FK SET NULL).
 pub async fn excluir(pool: &PgPool, id: Uuid) -> Result<(), AppError> {
     sqlx::query!("DELETE FROM categorias WHERE id = $1", id)

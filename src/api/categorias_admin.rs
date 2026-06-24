@@ -28,6 +28,20 @@ pub async fn criar_categoria(nome: String, parent_id: Option<Uuid>) -> Result<()
     }
 }
 
+/// Renomeia uma categoria ou subcategoria (papel mínimo: editor).
+#[server]
+pub async fn renomear_categoria(id: Uuid, nome: String) -> Result<(), ServerFnError> {
+    use crate::error::AppError;
+
+    let pool = expect_context::<sqlx::PgPool>();
+    crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Editor, "produtos").await?;
+    match crate::server::categorias_admin::renomear(&pool, id, &nome).await {
+        Ok(()) => Ok(()),
+        Err(AppError::Validation) => Err(ServerFnError::new("Informe um nome válido.")),
+        Err(_) => Err(ServerFnError::new("Não foi possível renomear.")),
+    }
+}
+
 /// Exclui uma categoria (papel mínimo: editor).
 #[server]
 pub async fn excluir_categoria(id: Uuid) -> Result<(), ServerFnError> {
