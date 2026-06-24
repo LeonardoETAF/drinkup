@@ -19,10 +19,10 @@ type Secao = (&'static str, &'static [Bloco]);
 
 /// Texto introdutório (antes das seções numeradas).
 const PREAMBULO: &[&str] = &[
-    "A DrinkUp, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº \
-     45.185.460/0001-70, com sede na Av. Pedro Taques, 5217 - Lot. Sumaré, Maringá - PR, \
-     CEP 87035-591, doravante denominada DrinkUp, nós ou nossa empresa, valoriza a \
-     privacidade, a segurança e a transparência no tratamento dos dados pessoais de seus \
+    "A Dk Comercio de Copos e Brindes LTDA, pessoa jurídica de direito privado, inscrita no \
+     CNPJ sob o nº 28.144.674/0001-89, com sede na Av. Pedro Taques, 5217 - Lot. Sumaré, \
+     Maringá - PR, CEP 87035-591, doravante denominada Drink Up Copos e Brindes, valorizamos \
+     a privacidade, a segurança e a transparência no tratamento dos dados pessoais de seus \
      clientes, parceiros, fornecedores, visitantes, usuários, representantes de empresas e \
      demais pessoas que interagem com nossos canais de atendimento.",
     "Esta Política de Privacidade explica como coletamos, utilizamos, armazenamos, \
@@ -364,8 +364,8 @@ const SECOES: &[Secao] = &[
 
 /// Bloco de contato (seção 13), com rótulos.
 const CONTATO: &[(&str, &str)] = &[
-    ("Empresa", "DrinkUp"),
-    ("CNPJ", "45.185.460/0001-70"),
+    ("Empresa", "Dk Comercio de Copos e Brindes LTDA"),
+    ("CNPJ", "28.144.674/0001-89"),
     ("Endereço", "Av. Pedro Taques, 5217 - Lot. Sumaré, Maringá - PR, CEP 87035-591"),
     ("Horário de atendimento", "Segunda a Sexta-feira, das 08h às 17h"),
     ("Canais de atendimento", "WhatsApp e redes sociais oficiais da DrinkUp"),

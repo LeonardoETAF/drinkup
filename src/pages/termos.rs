@@ -4,8 +4,8 @@ use crate::components::Seo;
 
 /// Texto introdutório (antes das seções numeradas).
 const PREAMBULO: &[&str] = &[
-    "A DrinkUp, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº \
-     45.185.460/0001-70, com sede na Av. Pedro Taques, 5217 - Lot. Sumaré, Maringá - PR, \
+    "A Drink Up Copos e Brindes, pessoa jurídica de direito privado, inscrita no CNPJ sob o \
+     nº 28.144.674/0001-89, com sede na Av. Pedro Taques, 5217 - Lot. Sumaré, Maringá - PR, \
      CEP 87035-591, oferece produtos personalizados e não personalizados, incluindo copos, \
      taças, canecas, baldes, garrafas, tampas e demais itens de seu portfólio.",
     "Estes Termos e Condições regulam a solicitação de orçamentos, compra de produtos, \
@@ -511,10 +511,10 @@ const SECOES: &[Secao] = &[
 
 /// Bloco de contato (seção 22), com rótulos.
 const CONTATO: &[(&str, &str)] = &[
-    ("Empresa", "DrinkUp"),
-    ("CNPJ", "45.185.460/0001-70"),
+    ("Empresa", "Dk Comercio de Copos e Brindes LTDA"),
+    ("CNPJ", "28.144.674/0001-89"),
     ("Endereço", "Av. Pedro Taques, 5217 - Lot. Sumaré, Maringá - PR, CEP 87035-591"),
-    ("Horário de atendimento", "segunda a sexta-feira, das 08h às 17h"),
+    ("Horário de atendimento", "Segunda a Sexta-feira, das 08h às 17h"),
     ("Canais de atendimento", "WhatsApp e redes sociais oficiais da DrinkUp"),
 ];
 
