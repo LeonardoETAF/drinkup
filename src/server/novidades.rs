@@ -32,7 +32,13 @@ pub async fn inscrever(pool: &PgPool, telefone: &str) -> Result<(), AppError> {
 }
 
 /// Lista inscritos (busca por WhatsApp). Limite de 200.
-pub async fn listar(pool: &PgPool, busca: Option<&str>) -> Result<PaginaInscritos, sqlx::Error> {
+pub async fn listar(
+    pool: &PgPool,
+    busca: Option<&str>,
+    pagina: i64,
+    por_pagina: i64,
+) -> Result<PaginaInscritos, sqlx::Error> {
+    let offset = pagina.max(1).saturating_sub(1) * por_pagina;
     let itens = sqlx::query_as!(
         InscritoResumo,
         r#"
@@ -41,9 +47,11 @@ pub async fn listar(pool: &PgPool, busca: Option<&str>) -> Result<PaginaInscrito
         FROM novidades_inscritos
         WHERE ($1::text IS NULL OR telefone ILIKE '%' || $1 || '%')
         ORDER BY created_at DESC
-        LIMIT 200
+        LIMIT $2 OFFSET $3
         "#,
         busca,
+        por_pagina,
+        offset,
     )
     .fetch_all(pool)
     .await?;

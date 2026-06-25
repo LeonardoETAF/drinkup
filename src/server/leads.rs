@@ -7,8 +7,14 @@ use crate::error::AppError;
 
 const STATUS_VALIDOS: [&str; 4] = ["novo", "em_atendimento", "convertido", "perdido"];
 
-/// Lista leads com busca (nome/contato) e filtro de status. Limite de 100.
-pub async fn listar(pool: &PgPool, filtro: &FiltroLeads) -> Result<PaginaLeads, sqlx::Error> {
+/// Lista leads com busca (nome/contato) e filtro de status, paginado.
+pub async fn listar(
+    pool: &PgPool,
+    filtro: &FiltroLeads,
+    pagina: i64,
+    por_pagina: i64,
+) -> Result<PaginaLeads, sqlx::Error> {
+    let offset = pagina.max(1).saturating_sub(1) * por_pagina;
     let itens = sqlx::query_as!(
         LeadResumo,
         r#"
@@ -19,10 +25,12 @@ pub async fn listar(pool: &PgPool, filtro: &FiltroLeads) -> Result<PaginaLeads, 
         WHERE ($1::text IS NULL OR nome ILIKE '%' || $1 || '%' OR contato ILIKE '%' || $1 || '%')
           AND ($2::text IS NULL OR status = $2)
         ORDER BY created_at DESC
-        LIMIT 100
+        LIMIT $3 OFFSET $4
         "#,
         filtro.busca.as_deref(),
         filtro.status.as_deref(),
+        por_pagina,
+        offset,
     )
     .fetch_all(pool)
     .await?;
@@ -56,4 +64,27 @@ pub async fn atualizar_status(pool: &PgPool, id: Uuid, status: &str) -> Result<(
             AppError::Internal
         })?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Integração: a query paginada executa e respeita o LIMIT (OFFSET aplicado).
+    #[tokio::test]
+    async fn listar_paginado_respeita_limite() {
+        let Ok(url) = std::env::var("DATABASE_URL") else {
+            return;
+        };
+        let Ok(pool) = crate::server::db::create_pool(&url).await else {
+            return;
+        };
+        let filtro = FiltroLeads {
+            busca: None,
+            status: None,
+        };
+        let p = listar(&pool, &filtro, 1, 5).await.expect("página 1");
+        assert!(p.itens.len() as i64 <= 5, "respeita o LIMIT");
+        assert!(p.total >= p.itens.len() as i64, "total é o geral");
+    }
 }

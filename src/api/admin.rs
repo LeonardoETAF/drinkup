@@ -31,12 +31,18 @@ pub async fn resumo_dashboard(
 pub async fn listar_leads(
     busca: Option<String>,
     status: Option<String>,
+    pagina: u32,
 ) -> Result<PaginaLeads, ServerFnError> {
     let pool = expect_context::<sqlx::PgPool>();
     crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Visualizador, "leads").await?;
     let filtro = crate::domain::FiltroLeads { busca, status };
-    crate::server::leads::listar(&pool, &filtro)
-        .await
+    crate::server::leads::listar(
+        &pool,
+        &filtro,
+        i64::from(pagina.max(1)),
+        crate::domain::ADMIN_TABELA_POR_PAGINA,
+    )
+    .await
         .map_err(|e| {
             tracing::error!(error = %e, "falha ao listar leads");
             ServerFnError::new("Não foi possível carregar os leads.")

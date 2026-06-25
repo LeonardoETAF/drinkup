@@ -100,6 +100,9 @@ pub struct PaginaProdutosLista {
 /// Itens por página na listagem de produtos do painel (servidor e UI).
 pub const PRODUTOS_ADMIN_POR_PAGINA: i64 = 15;
 
+/// Itens por página nas tabelas de leads e inscritos (servidor e UI).
+pub const ADMIN_TABELA_POR_PAGINA: i64 = 20;
+
 /// Configurações da loja (editáveis no painel, usadas no site).
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
 pub struct Configuracoes {

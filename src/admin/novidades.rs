@@ -3,8 +3,9 @@ use leptos::task::spawn_local;
 use uuid::Uuid;
 
 use super::modal::ModalConfirmacao;
+use super::paginacao::AdminPaginacao;
 use crate::api::novidades::{classificar_inscrito, excluir_inscrito, listar_inscritos};
-use crate::domain::PaginaInscritos;
+use crate::domain::{PaginaInscritos, ADMIN_TABELA_POR_PAGINA};
 
 /// Opções de classificação (valor no banco, rótulo na tela).
 const CLASSIFICACOES: [(&str, &str); 4] = [
@@ -23,6 +24,7 @@ const IC_DEL: &str = r#"<svg viewBox="0 0 24 24" width="16" height="16" fill="no
 #[component]
 pub fn AdminNovidades() -> impl IntoView {
     let busca = RwSignal::new(String::new());
+    let pagina = RwSignal::new(1u32);
     let versao = RwSignal::new(0u32);
     let dados = RwSignal::new(None::<Result<PaginaInscritos, ServerFnError>>);
     let pendente = RwSignal::new(None::<Uuid>);
@@ -32,13 +34,28 @@ pub fn AdminNovidades() -> impl IntoView {
         (!b.trim().is_empty()).then(|| b.trim().to_string())
     });
 
+    // Mudar a busca volta para a página 1.
+    Effect::new(move |_| {
+        filtro.track();
+        if pagina.get_untracked() != 1 {
+            pagina.set(1);
+        }
+    });
+
     Effect::new(move |_| {
         let f = filtro.get();
+        let pag = pagina.get();
         versao.get();
         dados.set(None);
         spawn_local(async move {
-            dados.set(Some(listar_inscritos(f).await));
+            dados.set(Some(listar_inscritos(f, pag).await));
         });
+    });
+
+    let total_paginas = Signal::derive(move || {
+        let total = dados.get().and_then(Result::ok).map_or(0, |p| p.total).max(0);
+        let por = ADMIN_TABELA_POR_PAGINA.max(1);
+        u32::try_from((total + por - 1) / por).unwrap_or(1).max(1)
     });
 
     let excluir = Action::new(|id: &Uuid| {
@@ -81,6 +98,8 @@ pub fn AdminNovidades() -> impl IntoView {
                 Some(Ok(p)) => tabela(p, pendente, classificar).into_any(),
             }}
         </section>
+
+        <AdminPaginacao pagina=pagina total_paginas=total_paginas/>
 
         <ModalConfirmacao
             aberto=Signal::derive(move || pendente.get().is_some())

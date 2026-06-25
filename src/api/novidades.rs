@@ -20,11 +20,19 @@ pub async fn inscrever_novidades(telefone: String) -> Result<(), ServerFnError> 
 
 /// Lista os inscritos (admin). Exige autenticação (papel: visualizador).
 #[server]
-pub async fn listar_inscritos(busca: Option<String>) -> Result<PaginaInscritos, ServerFnError> {
+pub async fn listar_inscritos(
+    busca: Option<String>,
+    pagina: u32,
+) -> Result<PaginaInscritos, ServerFnError> {
     let pool = expect_context::<sqlx::PgPool>();
     crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Visualizador, "novidades").await?;
-    crate::server::novidades::listar(&pool, busca.as_deref())
-        .await
+    crate::server::novidades::listar(
+        &pool,
+        busca.as_deref(),
+        i64::from(pagina.max(1)),
+        crate::domain::ADMIN_TABELA_POR_PAGINA,
+    )
+    .await
         .map_err(|e| {
             tracing::error!(error = %e, "falha ao listar inscritos");
             ServerFnError::new("Não foi possível carregar os inscritos.")

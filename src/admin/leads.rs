@@ -2,9 +2,10 @@ use leptos::prelude::*;
 use leptos::task::spawn_local;
 use uuid::Uuid;
 
+use super::paginacao::AdminPaginacao;
 use super::util::iniciais;
 use crate::api::admin::{atualizar_status_lead, listar_leads};
-use crate::domain::PaginaLeads;
+use crate::domain::{PaginaLeads, ADMIN_TABELA_POR_PAGINA};
 
 /// Página de leads: lista (busca + filtro) e alteração de status. Dados buscados
 /// no cliente (após a hidratação).
@@ -12,6 +13,7 @@ use crate::domain::PaginaLeads;
 pub fn AdminLeads() -> impl IntoView {
     let busca = RwSignal::new(String::new());
     let status_f = RwSignal::new(String::new());
+    let pagina = RwSignal::new(1u32);
     let versao = RwSignal::new(0u32);
     let dados = RwSignal::new(None::<Result<PaginaLeads, ServerFnError>>);
 
@@ -25,14 +27,29 @@ pub fn AdminLeads() -> impl IntoView {
         )
     });
 
-    // Busca (re)disparada por mudança de filtro ou após alterar um status.
+    // Mudar o filtro volta para a página 1 (não "esconder" resultados).
+    Effect::new(move |_| {
+        filtro.track();
+        if pagina.get_untracked() != 1 {
+            pagina.set(1);
+        }
+    });
+
+    // Busca (re)disparada por mudança de filtro, página ou após alterar status.
     Effect::new(move |_| {
         let (b, s) = filtro.get();
+        let pag = pagina.get();
         versao.get();
         dados.set(None);
         spawn_local(async move {
-            dados.set(Some(listar_leads(b, s).await));
+            dados.set(Some(listar_leads(b, s, pag).await));
         });
+    });
+
+    let total_paginas = Signal::derive(move || {
+        let total = dados.get().and_then(Result::ok).map_or(0, |p| p.total).max(0);
+        let por = ADMIN_TABELA_POR_PAGINA.max(1);
+        u32::try_from((total + por - 1) / por).unwrap_or(1).max(1)
     });
 
     let mudar = Action::new(|(id, st): &(Uuid, String)| {
@@ -77,6 +94,8 @@ pub fn AdminLeads() -> impl IntoView {
                 Some(Ok(p)) => tabela_leads(p, mudar).into_any(),
             }}
         </section>
+
+        <AdminPaginacao pagina=pagina total_paginas=total_paginas/>
     }
 }
 

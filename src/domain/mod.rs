@@ -15,7 +15,8 @@ mod usuario;
 pub use admin::{
     Configuracoes, DashboardResumo, DiaAcesso, EventoForm, EventoLista, FiltroLeads, InscritoResumo,
     ItemRanking, LeadResumo, PaginaInscritos, PaginaLeads, PaginaProdutosLista, ParceiroForm,
-    ParceiroLista, ProdutoForm, ProdutoLista, UsuarioForm, UsuarioLista, PRODUTOS_ADMIN_POR_PAGINA,
+    ParceiroLista, ProdutoForm, ProdutoLista, UsuarioForm, UsuarioLista, ADMIN_TABELA_POR_PAGINA,
+    PRODUTOS_ADMIN_POR_PAGINA,
 };
 pub use categoria::Categoria;
 pub use evento::EventoCarrossel;
