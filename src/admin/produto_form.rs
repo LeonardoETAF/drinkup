@@ -298,7 +298,7 @@ pub fn AdminProdutoForm() -> impl IntoView {
 
             <div class="field">
                 <span class="field__label">
-                    "Imagens do produto — swipe na página (PNG/JPG/WEBP, quadradas 1:1, até 5MB)"
+                    "Imagens do produto — selecione uma ou várias (PNG/JPG/WEBP, quadradas 1:1, até 5MB cada)"
                 </span>
                 <div class="form-galeria">
                     {move || {
@@ -328,6 +328,7 @@ pub fn AdminProdutoForm() -> impl IntoView {
                             class="upload-card__input"
                             type="file"
                             accept="image/png,image/jpeg,image/webp"
+                            multiple=true
                             on:change=move |ev| {
                                 #[cfg(feature = "hydrate")]
                                 {
@@ -336,12 +337,25 @@ pub fn AdminProdutoForm() -> impl IntoView {
                                         .target()
                                         .and_then(|t| t.dyn_into::<web_sys::HtmlInputElement>().ok())
                                     {
-                                        if let Some(file) = input.files().and_then(|f| f.get(0)) {
-                                            let fd = web_sys::FormData::new().unwrap();
-                                            let _ = fd.append_with_blob("imagem", &file);
-                                            input.set_value("");
-                                            enviando_prod.set(true);
-                                            leptos::task::spawn_local(async move {
+                                        // Coleta todos os arquivos selecionados (ordem mantida).
+                                        let mut selecionados = Vec::new();
+                                        if let Some(files) = input.files() {
+                                            for i in 0..files.length() {
+                                                if let Some(f) = files.get(i) {
+                                                    selecionados.push(f);
+                                                }
+                                            }
+                                        }
+                                        input.set_value("");
+                                        if selecionados.is_empty() {
+                                            return;
+                                        }
+                                        enviando_prod.set(true);
+                                        leptos::task::spawn_local(async move {
+                                            // Envia um a um, preservando a ordem da seleção.
+                                            for file in selecionados {
+                                                let fd = web_sys::FormData::new().unwrap();
+                                                let _ = fd.append_with_blob("imagem", &file);
                                                 let r = async {
                                                     let req = gloo_net::http::Request::post(
                                                             "/upload-imagem",
@@ -359,9 +373,9 @@ pub fn AdminProdutoForm() -> impl IntoView {
                                                 if let Ok(url) = r {
                                                     imagens.update(|v| v.push(url));
                                                 }
-                                                enviando_prod.set(false);
-                                            });
-                                        }
+                                            }
+                                            enviando_prod.set(false);
+                                        });
                                     }
                                 }
                                 #[cfg(not(feature = "hydrate"))]
