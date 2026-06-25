@@ -7,6 +7,7 @@ mod dashboard;
 mod editor_pares;
 mod evento_form;
 mod eventos;
+mod icons;
 mod layout;
 mod leads;
 mod login;

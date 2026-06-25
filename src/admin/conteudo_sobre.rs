@@ -1,3 +1,4 @@
+use super::icons::IC_DEL;
 use leptos::prelude::*;
 use leptos::task::spawn_local;
 
@@ -5,8 +6,6 @@ use super::modal::ModalConfirmacao;
 use crate::admin::upload_card::CartaoUpload;
 use crate::api::quem_somos_admin::{obter_quem_somos_form, salvar_quem_somos};
 use crate::domain::QuemSomosForm;
-
-const IC_DEL: &str = r#"<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/></svg>"#;
 
 /// Um depoimento em edição: id estável + sinais de texto e autor.
 type Depoimento = (usize, RwSignal<String>, RwSignal<String>);

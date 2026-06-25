@@ -30,8 +30,10 @@ pub fn SiteFooter() -> impl IntoView {
         if crate::domain::whatsapp_valido(&bruto) {
             inscrever.dispatch(bruto);
         } else {
-            definir_mensagem
-                .set(Some((false, "Informe um número de WhatsApp válido.".to_string())));
+            definir_mensagem.set(Some((
+                false,
+                "Informe um número de WhatsApp válido.".to_string(),
+            )));
         }
     };
 
@@ -39,8 +41,10 @@ pub fn SiteFooter() -> impl IntoView {
     Effect::new(move |_| match inscrever.value().get() {
         Some(Ok(())) => {
             definir_telefone.set(String::new());
-            definir_mensagem
-                .set(Some((true, "Pronto! Em breve você receberá nossas novidades.".to_string())));
+            definir_mensagem.set(Some((
+                true,
+                "Pronto! Em breve você receberá nossas novidades.".to_string(),
+            )));
         }
         Some(Err(e)) => definir_mensagem.set(Some((false, crate::components::mensagem_erro(&e)))),
         None => {}
@@ -183,4 +187,3 @@ fn redes_sociais(c: Configuracoes) -> impl IntoView {
         </div>
     }
 }
-

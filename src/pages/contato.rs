@@ -51,7 +51,9 @@ pub fn ContatoPage() -> impl IntoView {
         erro_nome.set(n.chars().count() < 2);
         erro_contato.set(!crate::domain::telefone_valido(&c));
         erro_mensagem.set(m.is_empty());
-        if erro_nome.get_untracked() || erro_contato.get_untracked() || erro_mensagem.get_untracked()
+        if erro_nome.get_untracked()
+            || erro_contato.get_untracked()
+            || erro_mensagem.get_untracked()
         {
             return;
         }

@@ -176,7 +176,10 @@ mod tests {
             senha: Some("1234567".into()), // 7 < 8
             menus: vec![],
         };
-        assert!(matches!(salvar(&pool, &base).await, Err(AppError::Validation)));
+        assert!(matches!(
+            salvar(&pool, &base).await,
+            Err(AppError::Validation)
+        ));
 
         let ok = UsuarioForm {
             senha: Some("12345678".into()),

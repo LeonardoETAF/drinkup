@@ -37,8 +37,12 @@ pub fn AdminUsuarioForm() -> impl IntoView {
     let ativo = RwSignal::new(true);
     let senha = RwSignal::new(String::new());
     // Novo usuário começa com acesso a todos os menus (admin restringe se quiser).
-    let menus =
-        RwSignal::new(MENU_OPCOES.iter().map(|(k, _)| k.to_string()).collect::<Vec<String>>());
+    let menus = RwSignal::new(
+        MENU_OPCOES
+            .iter()
+            .map(|(k, _)| k.to_string())
+            .collect::<Vec<String>>(),
+    );
 
     Effect::new(move |_| {
         let Some(uid) = id() else { return };

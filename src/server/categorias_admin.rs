@@ -46,7 +46,11 @@ pub async fn criar(pool: &PgPool, nome: &str, parent_id: Option<Uuid>) -> Result
         }
     }
     let base = slugify(nome);
-    let base = if base.is_empty() { "categoria".to_string() } else { base };
+    let base = if base.is_empty() {
+        "categoria".to_string()
+    } else {
+        base
+    };
     let mut slug = base.clone();
     let mut i = 1;
     while sqlx::query_scalar!(

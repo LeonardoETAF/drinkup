@@ -16,7 +16,10 @@ pub fn FilterBar(
     let categorias = StoredValue::new(categorias);
     // Lista fixa de categorias principais (o destaque é que é reativo).
     let topo: Vec<Categoria> = categorias.with_value(|cs| {
-        cs.iter().filter(|c| c.parent_id.is_none()).cloned().collect()
+        cs.iter()
+            .filter(|c| c.parent_id.is_none())
+            .cloned()
+            .collect()
     });
 
     view! {

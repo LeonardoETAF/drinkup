@@ -1,3 +1,4 @@
+use super::icons::IC_DEL;
 use leptos::prelude::*;
 use leptos::task::spawn_local;
 use uuid::Uuid;
@@ -16,8 +17,6 @@ const CLASSIFICACOES: [(&str, &str); 4] = [
 ];
 
 type AcaoClassificar = Action<(Uuid, String), Result<(), ServerFnError>>;
-
-const IC_DEL: &str = r#"<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/></svg>"#;
 
 /// Página de inscritos em "Novidades": lista (busca) e remoção. Dados buscados
 /// no cliente (após a hidratação).
@@ -53,7 +52,11 @@ pub fn AdminNovidades() -> impl IntoView {
     });
 
     let total_paginas = Signal::derive(move || {
-        let total = dados.get().and_then(Result::ok).map_or(0, |p| p.total).max(0);
+        let total = dados
+            .get()
+            .and_then(Result::ok)
+            .map_or(0, |p| p.total)
+            .max(0);
         let por = ADMIN_TABELA_POR_PAGINA.max(1);
         u32::try_from((total + por - 1) / por).unwrap_or(1).max(1)
     });

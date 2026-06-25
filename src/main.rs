@@ -64,8 +64,7 @@ async fn main() {
             "/upload-imagem",
             post({
                 let pool = pool.clone();
-                move |session: tower_sessions::Session,
-                      multipart: axum::extract::Multipart| {
+                move |session: tower_sessions::Session, multipart: axum::extract::Multipart| {
                     upload_handler(session, pool.clone(), multipart)
                 }
             }),
@@ -248,11 +247,7 @@ async fn sitemap_handler(pool: sqlx::PgPool) -> axum::response::Response {
 /// não duplicar no carregamento direto.
 #[cfg(feature = "ssr")]
 fn caminho_publico(p: &str) -> bool {
-    p == "/"
-        || p == "/produtos"
-        || p == "/quem-somos"
-        || p == "/parceiros"
-        || p == "/contato"
+    p == "/" || p == "/produtos" || p == "/quem-somos" || p == "/parceiros" || p == "/contato"
 }
 
 /// Registra um acesso (page view) das páginas públicas, em background, sem
@@ -286,8 +281,7 @@ async fn registra_visita(
     if let Some((caminho, referer, host)) = dados {
         if resp.status().is_success() {
             tokio::spawn(async move {
-                let origem =
-                    drinkup::server::visitas::origem_do_referer(referer.as_deref(), &host);
+                let origem = drinkup::server::visitas::origem_do_referer(referer.as_deref(), &host);
                 drinkup::server::visitas::registrar(&pool, &caminho, origem).await;
             });
         }

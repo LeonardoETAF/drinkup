@@ -9,7 +9,8 @@ const IC_PLAY: &str = r#"<svg viewBox="0 0 24 24" fill="currentColor" aria-hidde
 // Conteúdo padrão (fallback quando o painel ainda não foi preenchido).
 const STAT_TITULO: &str = "+25 mil unidades";
 const STAT_DESTAQUE: &str = "todos os dias";
-const STAT_TEXTO: &str = "Uma equipe de mais de 20 profissionais alinhados em Direção, Vendas, Arte, \
+const STAT_TEXTO: &str =
+    "Uma equipe de mais de 20 profissionais alinhados em Direção, Vendas, Arte, \
     Personalização, Expedição e Injeção. Somos rápidos, sérios e apaixonados pelo que fazemos.";
 const MISSAO: &str = "Nossa maior missão é brindar a vida por meio de momentos personalizados!";
 const VISAO: &str = "Ter uma linha completa de produtos personalizáveis para clientes que buscam \

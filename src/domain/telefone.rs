@@ -3,7 +3,11 @@
 /// revalida o número ao processar.
 #[must_use]
 pub fn mascara_telefone(bruto: &str) -> String {
-    let d: String = bruto.chars().filter(|c| c.is_ascii_digit()).take(11).collect();
+    let d: String = bruto
+        .chars()
+        .filter(|c| c.is_ascii_digit())
+        .take(11)
+        .collect();
     match d.len() {
         0 => String::new(),
         1..=2 => format!("({d}"),
@@ -63,7 +67,10 @@ mod tests {
         assert_eq!(mascara_telefone("4499812"), "(44) 99812");
         assert_eq!(mascara_telefone("44998124366"), "(44) 99812-4366");
         // Letras intercaladas são descartadas; excedente é truncado em 11.
-        assert_eq!(mascara_telefone("k4j4l9k9d8j1l2f4k3j6l6"), "(44) 99812-4366");
+        assert_eq!(
+            mascara_telefone("k4j4l9k9d8j1l2f4k3j6l6"),
+            "(44) 99812-4366"
+        );
     }
 
     #[test]

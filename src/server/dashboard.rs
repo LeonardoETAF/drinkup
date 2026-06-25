@@ -27,7 +27,6 @@ fn delta_pct(cur: f64, prev: f64) -> Option<i32> {
     Some((((cur - prev) / prev) * 100.0).round() as i32)
 }
 
-
 /// Agrega contadores, gráficos e leads recentes para o período selecionado.
 /// `ano = None` → padrão = mês atual.
 pub async fn resumo(
@@ -106,7 +105,13 @@ pub async fn resumo(
     .await?;
 
     // --- Conversão (leads convertidos / leads no período) ---
-    let conv = |c: i64, base: i64| if base > 0 { c as f64 / base as f64 * 100.0 } else { 0.0 };
+    let conv = |c: i64, base: i64| {
+        if base > 0 {
+            c as f64 / base as f64 * 100.0
+        } else {
+            0.0
+        }
+    };
     let taxa_conversao = conv(leads.conv_atual, leads.atual);
     let conversao_delta = delta_pct(taxa_conversao, conv(leads.conv_prev, leads.prev));
 

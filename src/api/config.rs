@@ -6,7 +6,8 @@ use crate::domain::Configuracoes;
 #[server]
 pub async fn obter_config() -> Result<Configuracoes, ServerFnError> {
     let pool = expect_context::<sqlx::PgPool>();
-    crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Visualizador, "configuracoes").await?;
+    crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Visualizador, "configuracoes")
+        .await?;
     crate::server::config::obter(&pool).await.map_err(|e| {
         tracing::error!(error = %e, "falha ao ler configurações");
         ServerFnError::new("Não foi possível carregar as configurações.")

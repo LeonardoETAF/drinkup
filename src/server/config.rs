@@ -43,9 +43,18 @@ pub async fn salvar(pool: &PgPool, c: &Configuracoes) -> Result<(), AppError> {
         ("horario_domingo", c.horario_domingo.trim()),
         ("social_facebook", c.facebook.trim()),
         ("social_instagram", c.instagram.trim()),
-        ("social_facebook_ativo", if c.facebook_ativo { "true" } else { "false" }),
-        ("social_instagram_ativo", if c.instagram_ativo { "true" } else { "false" }),
-        ("social_whatsapp_ativo", if c.whatsapp_ativo { "true" } else { "false" }),
+        (
+            "social_facebook_ativo",
+            if c.facebook_ativo { "true" } else { "false" },
+        ),
+        (
+            "social_instagram_ativo",
+            if c.instagram_ativo { "true" } else { "false" },
+        ),
+        (
+            "social_whatsapp_ativo",
+            if c.whatsapp_ativo { "true" } else { "false" },
+        ),
     ];
     for (chave, valor) in pares {
         if valor.chars().count() > 300 {

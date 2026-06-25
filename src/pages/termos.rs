@@ -513,9 +513,18 @@ const SECOES: &[Secao] = &[
 const CONTATO: &[(&str, &str)] = &[
     ("Empresa", "Dk Comercio de Copos e Brindes LTDA"),
     ("CNPJ", "28.144.674/0001-89"),
-    ("Endereço", "Av. Pedro Taques, 5217 - Lot. Sumaré, Maringá - PR, CEP 87035-591"),
-    ("Horário de atendimento", "Segunda a Sexta-feira, das 08h às 17h"),
-    ("Canais de atendimento", "WhatsApp e redes sociais oficiais da DrinkUp"),
+    (
+        "Endereço",
+        "Av. Pedro Taques, 5217 - Lot. Sumaré, Maringá - PR, CEP 87035-591",
+    ),
+    (
+        "Horário de atendimento",
+        "Segunda a Sexta-feira, das 08h às 17h",
+    ),
+    (
+        "Canais de atendimento",
+        "WhatsApp e redes sociais oficiais da DrinkUp",
+    ),
 ];
 
 /// Página estática de Termos e Condições.

@@ -33,10 +33,10 @@ pub async fn listar_inscritos(
         crate::domain::ADMIN_TABELA_POR_PAGINA,
     )
     .await
-        .map_err(|e| {
-            tracing::error!(error = %e, "falha ao listar inscritos");
-            ServerFnError::new("Não foi possível carregar os inscritos.")
-        })
+    .map_err(|e| {
+        tracing::error!(error = %e, "falha ao listar inscritos");
+        ServerFnError::new("Não foi possível carregar os inscritos.")
+    })
 }
 
 /// Atualiza a classificação de um inscrito (admin). Exige papel: editor.

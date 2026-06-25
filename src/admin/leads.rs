@@ -47,7 +47,11 @@ pub fn AdminLeads() -> impl IntoView {
     });
 
     let total_paginas = Signal::derive(move || {
-        let total = dados.get().and_then(Result::ok).map_or(0, |p| p.total).max(0);
+        let total = dados
+            .get()
+            .and_then(Result::ok)
+            .map_or(0, |p| p.total)
+            .max(0);
         let por = ADMIN_TABELA_POR_PAGINA.max(1);
         u32::try_from((total + por - 1) / por).unwrap_or(1).max(1)
     });

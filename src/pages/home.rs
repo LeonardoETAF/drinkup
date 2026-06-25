@@ -44,7 +44,6 @@ const NUMEROS: [(&str, &str); 4] = [
     ("+2 mil", "Eventos atendidos"),
 ];
 
-
 /// Home da vitrine.
 #[component]
 pub fn HomePage() -> impl IntoView {

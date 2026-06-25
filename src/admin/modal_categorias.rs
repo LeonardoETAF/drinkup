@@ -1,3 +1,4 @@
+use super::icons::IC_DEL;
 use leptos::prelude::*;
 use leptos::task::spawn_local;
 use uuid::Uuid;
@@ -8,7 +9,6 @@ use crate::api::categorias_admin::{
 };
 use crate::domain::Categoria;
 
-const IC_DEL: &str = r#"<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/></svg>"#;
 const IC_EDIT: &str = r#"<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>"#;
 const IC_OK: &str = r#"<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>"#;
 const IC_X: &str = r#"<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>"#;
@@ -83,7 +83,11 @@ pub fn ModalCategorias(aberto: RwSignal<bool>) -> impl IntoView {
 
     // Uma linha da lista (categoria ou subcategoria), com edição inline.
     let fila = move |id: Uuid, nome: String, is_sub: bool| {
-        let classe = if is_sub { "cat-item cat-item--sub" } else { "cat-item" };
+        let classe = if is_sub {
+            "cat-item cat-item--sub"
+        } else {
+            "cat-item"
+        };
         view! {
             <li class=classe>
                 {move || {

@@ -41,9 +41,7 @@ pub fn AdminLayout() -> impl IntoView {
     let nome = move || usuario.get().flatten().map(|u| u.nome).unwrap_or_default();
     let papel = move || usuario.get().flatten().map(|u| u.papel).unwrap_or_default();
     // Menus permitidos do usuário logado (filtram a navegação).
-    let menus = Memo::new(move |_| {
-        usuario.get().flatten().map(|u| u.menus).unwrap_or_default()
-    });
+    let menus = Memo::new(move |_| usuario.get().flatten().map(|u| u.menus).unwrap_or_default());
     let avatar = move || {
         usuario
             .get()
@@ -175,17 +173,13 @@ fn NavLink(
     let loc = use_location();
     let ativo = move || loc.pathname.get() == href;
     move || {
-        menus
-            .get()
-            .iter()
-            .any(|m| m == menu)
-            .then(|| {
-                view! {
-                    <a class="admin-nav__item" class:is-active=ativo href=href>
-                        <span class="admin-nav__icon" inner_html=icon></span>
-                        <span>{label}</span>
-                    </a>
-                }
-            })
+        menus.get().iter().any(|m| m == menu).then(|| {
+            view! {
+                <a class="admin-nav__item" class:is-active=ativo href=href>
+                    <span class="admin-nav__icon" inner_html=icon></span>
+                    <span>{label}</span>
+                </a>
+            }
+        })
     }
 }

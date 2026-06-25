@@ -1,3 +1,4 @@
+use super::icons::IC_DEL;
 use leptos::prelude::*;
 use leptos::task::spawn_local;
 use uuid::Uuid;
@@ -9,7 +10,6 @@ use crate::domain::EventoLista;
 type Acao = Action<Uuid, Result<(), ServerFnError>>;
 
 const IC_EDIT: &str = r#"<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>"#;
-const IC_DEL: &str = r#"<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/></svg>"#;
 
 /// "Eventos" = categorias do carrossel da home (lista ordenada).
 #[component]

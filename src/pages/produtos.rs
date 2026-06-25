@@ -43,7 +43,10 @@ pub fn ProdutosPage() -> impl IntoView {
         // (digitar enquanto em ?pagina=3 não pode "esconder" resultados).
         let url_busca = q.get("busca").map(|s| s.to_string()).unwrap_or_default();
         let pagina = if b == url_busca.trim() {
-            q.get("pagina").and_then(|s| s.parse::<u32>().ok()).unwrap_or(1).max(1)
+            q.get("pagina")
+                .and_then(|s| s.parse::<u32>().ok())
+                .unwrap_or(1)
+                .max(1)
         } else {
             1
         };

@@ -43,10 +43,10 @@ pub async fn listar_leads(
         crate::domain::ADMIN_TABELA_POR_PAGINA,
     )
     .await
-        .map_err(|e| {
-            tracing::error!(error = %e, "falha ao listar leads");
-            ServerFnError::new("Não foi possível carregar os leads.")
-        })
+    .map_err(|e| {
+        tracing::error!(error = %e, "falha ao listar leads");
+        ServerFnError::new("Não foi possível carregar os leads.")
+    })
 }
 
 /// Atualiza o status de um lead. Exige autenticação (papel: editor).

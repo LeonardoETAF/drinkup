@@ -8,8 +8,8 @@ use leptos_router::{
 
 use crate::admin::{
     AdminConfiguracoes, AdminConteudoHome, AdminConteudoQuemSomos, AdminDashboard, AdminEventoForm,
-    AdminEventos, AdminLayout, AdminLeads, AdminLoginPage, AdminParceiroForm, AdminParceiros,
-    AdminNovidades, AdminProdutoForm, AdminProdutos, AdminRecuperarSenhaPage,
+    AdminEventos, AdminLayout, AdminLeads, AdminLoginPage, AdminNovidades, AdminParceiroForm,
+    AdminParceiros, AdminProdutoForm, AdminProdutos, AdminRecuperarSenhaPage,
     AdminRedefinirSenhaPage, AdminUsuarioForm, AdminUsuarios,
 };
 use crate::components::{SiteFooter, SiteHeader};
