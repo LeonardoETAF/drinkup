@@ -170,7 +170,7 @@ pub async fn resumo(
                WHEN $2 IS NOT NULL THEN interval '1 month' ELSE interval '1 year' END AS passo)
         SELECT p.nome AS "rotulo!", count(v.id) AS "total!"
         FROM produtos p
-        JOIN visitas v ON v.caminho = '/produtos/' || p.slug
+        JOIN visitas v ON v.produto_id = p.id
         JOIN per ON v.created_at >= per.d0 AND v.created_at < per.d0 + per.passo
         GROUP BY p.id, p.nome ORDER BY count(v.id) DESC LIMIT 50
         "#,
