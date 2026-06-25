@@ -42,6 +42,15 @@
   display: block;
 }
 
+/* No mobile, a marca "//" do hero some também no tema claro. A troca de logo
+   acima tem especificidade maior que o `display:none` da media query do
+   _home.scss, então reforçamos aqui com mais especificidade. */
+@media (max-width: 900px) {
+  [data-theme="light"] .hero__mark.logo-light {
+    display: none;
+  }
+}
+
 /* Painel admin no tema claro: sidebar clara (o texto/ícones já usam tokens). */
 [data-theme="light"] .admin-side {
   background: var(--color-surface);
