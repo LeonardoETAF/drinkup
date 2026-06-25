@@ -84,14 +84,6 @@
   margin-bottom: var(--space-4);
 }
 
-.dash-row--2-1 {
-  grid-template-columns: 2fr 1fr;
-}
-
-.dash-row--1-1 {
-  grid-template-columns: 1fr 1fr;
-}
-
 .dash-card__head-title {
   font-family: var(--font-display);
   font-weight: var(--fw-bold);
@@ -205,63 +197,6 @@
 }
 
 /* Listas de barras (origem do tráfego, páginas mais visitadas) */
-.bar-list {
-  display: grid;
-  gap: var(--space-4);
-  list-style: none;
-}
-
-.bar-row {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  column-gap: var(--space-2);
-  row-gap: var(--space-2);
-}
-
-.bar-row__dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--color-surface-3);
-}
-
-.bar-row.is-top .bar-row__dot {
-  background: var(--color-lime);
-}
-
-.bar-row__lbl {
-  font-weight: var(--fw-semibold);
-  font-size: var(--text-sm);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.bar-row__pct {
-  text-align: right;
-  color: var(--color-text-muted);
-  font-size: var(--text-sm);
-}
-
-.bar-row__track {
-  grid-column: 1 / -1;
-  height: 8px;
-  border-radius: var(--radius-pill);
-  background: var(--color-surface-3);
-  overflow: hidden;
-}
-
-.bar-row__fill {
-  height: 100%;
-  border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--color-lime) 55%, var(--color-surface-3));
-}
-
-.bar-row.is-top .bar-row__fill {
-  background: var(--color-lime);
-}
-
 /* Produtos mais vistos */
 .prod-list {
   display: grid;

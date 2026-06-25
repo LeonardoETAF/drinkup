@@ -11,7 +11,7 @@ use crate::error::AppError;
 use crate::server::auth::gerar_hash;
 
 const VALIDADE_HORAS: i32 = 1;
-const SENHA_MIN: usize = 8;
+use crate::server::auth::SENHA_MIN;
 
 /// Dados necessários para enviar o e-mail (token em claro, só em memória).
 pub struct PedidoReset {

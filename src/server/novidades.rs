@@ -16,10 +16,10 @@ fn interno(e: sqlx::Error, ctx: &str) -> AppError {
 
 /// Inscreve um WhatsApp (11 dígitos). Idempotente: repetido é ignorado.
 pub async fn inscrever(pool: &PgPool, telefone: &str) -> Result<(), AppError> {
-    let digitos: String = telefone.chars().filter(|c| c.is_ascii_digit()).collect();
-    if digitos.len() != 11 {
+    if !crate::domain::whatsapp_valido(telefone) {
         return Err(AppError::Validation);
     }
+    let digitos: String = telefone.chars().filter(|c| c.is_ascii_digit()).collect();
     let formatado = crate::domain::mascara_telefone(&digitos);
     sqlx::query!(
         "INSERT INTO novidades_inscritos (telefone) VALUES ($1) ON CONFLICT (telefone) DO NOTHING",

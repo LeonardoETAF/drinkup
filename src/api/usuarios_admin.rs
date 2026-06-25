@@ -35,11 +35,18 @@ pub async fn salvar_usuario(form: UsuarioForm) -> Result<Uuid, ServerFnError> {
     use crate::error::AppError;
 
     let pool = expect_context::<sqlx::PgPool>();
-    crate::api::auth::exigir_papel(crate::server::rbac::Papel::Admin).await?;
+    let atual = crate::api::auth::exigir_papel(crate::server::rbac::Papel::Admin).await?;
+    // Evita lockout: o próprio admin não pode rebaixar nem desativar a si mesmo
+    // (deixaria o sistema possivelmente sem administrador ativo).
+    if form.id == Some(atual.id) && (form.papel != "admin" || !form.ativo) {
+        return Err(ServerFnError::new(
+            "Você não pode rebaixar ou desativar a si mesmo.",
+        ));
+    }
     match crate::server::usuarios_admin::salvar(&pool, &form).await {
         Ok(id) => Ok(id),
         Err(AppError::Validation) => Err(ServerFnError::new(
-            "Dados inválidos (verifique e-mail, papel e senha).",
+            "Dados inválidos (e-mail, papel ou senha — mínimo 8 caracteres).",
         )),
         Err(_) => Err(ServerFnError::new("Não foi possível salvar o usuário.")),
     }

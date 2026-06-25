@@ -108,7 +108,7 @@ fn DetalheProduto(produto: ProdutoDetalhe) -> impl IntoView {
     });
 
     // Medidas lineares são guardadas em mm e exibidas em cm (ex.: 61 -> "6,1 cm").
-    let cm = |mm: i32| format!("{},{} cm", mm / 10, (mm % 10).abs());
+    let cm = |mm: i32| format!("{} cm", crate::domain::mm_para_cm(mm));
     let atributos: Vec<(&'static str, String)> = [
         produto
             .capacidade_ml

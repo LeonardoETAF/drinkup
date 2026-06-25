@@ -144,6 +144,16 @@ async fn cabecalhos_seguranca(
         // Assets do bundle (wasm/js/css) não têm hash no nome → revalidar sempre
         // para nunca servir versão velha após um novo build.
         h.insert(header::CACHE_CONTROL, HeaderValue::from_static("no-cache"));
+    } else if path.starts_with("/fonts/")
+        || path.starts_with("/brand/")
+        || path.starts_with("/backgrounds/")
+    {
+        // Fontes, logos e fundos são estáveis → cache de 7 dias (menos
+        // revalidações em visitas repetidas).
+        h.insert(
+            header::CACHE_CONTROL,
+            HeaderValue::from_static("public, max-age=604800"),
+        );
     }
     h.insert(
         header::X_CONTENT_TYPE_OPTIONS,

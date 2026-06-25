@@ -13,6 +13,9 @@ use uuid::Uuid;
 use crate::domain::UsuarioSessao;
 use crate::error::AppError;
 
+/// Comprimento mínimo de senha do painel (criação, edição e redefinição).
+pub const SENHA_MIN: usize = 8;
+
 /// Gera um hash Argon2id (PHC string) para armazenar no banco.
 pub fn gerar_hash(senha: &str) -> Result<String, AppError> {
     let salt = SaltString::generate(&mut OsRng);

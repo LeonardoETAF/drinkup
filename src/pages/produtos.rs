@@ -12,30 +12,48 @@ pub fn ProdutosPage() -> impl IntoView {
 
     // Busca ao vivo: sinal no cliente (atualiza ao digitar). Categoria/página
     // continuam vindo da URL.
-    let busca = RwSignal::new(
-        query
-            .read_untracked()
-            .get("busca")
-            .map(|s| s.to_string())
-            .unwrap_or_default(),
-    );
+    let inicial = query
+        .read_untracked()
+        .get("busca")
+        .map(|s| s.to_string())
+        .unwrap_or_default();
+    let busca = RwSignal::new(inicial.clone()); // imediato (campo)
+    let busca_deb = RwSignal::new(inicial); // com debounce (alimenta o filtro)
+
+    // Debounce de 300ms: evita refazer a query a cada tecla (Effects só rodam no
+    // cliente). Cancela o timer anterior a cada nova digitação.
+    Effect::new(move |anterior: Option<Option<TimeoutHandle>>| {
+        if let Some(Some(h)) = anterior {
+            h.clear();
+        }
+        let _ = busca.get();
+        set_timeout_with_handle(
+            move || busca_deb.set(busca.get_untracked()),
+            std::time::Duration::from_millis(300),
+        )
+        .ok()
+    });
 
     let filtro = Memo::new(move |_| {
         let q = query.read();
         let txt = |k: &str| q.get(k).map(|s| s.to_string()).filter(|s| !s.is_empty());
-        let b = busca.get();
+        let b = busca_deb.get();
         let b = b.trim();
+        // Se a busca digitada difere da que está na URL, reinicia na página 1
+        // (digitar enquanto em ?pagina=3 não pode "esconder" resultados).
+        let url_busca = q.get("busca").map(|s| s.to_string()).unwrap_or_default();
+        let pagina = if b == url_busca.trim() {
+            q.get("pagina").and_then(|s| s.parse::<u32>().ok()).unwrap_or(1).max(1)
+        } else {
+            1
+        };
         FiltroProdutos {
             categoria_slug: txt("categoria"),
             subcategoria_slug: txt("sub"),
             material: txt("material"),
             cor: txt("cor"),
             busca: (!b.is_empty()).then(|| b.to_string()),
-            pagina: q
-                .get("pagina")
-                .and_then(|s| s.parse::<u32>().ok())
-                .unwrap_or(1)
-                .max(1),
+            pagina,
             por_pagina: 12,
         }
     });

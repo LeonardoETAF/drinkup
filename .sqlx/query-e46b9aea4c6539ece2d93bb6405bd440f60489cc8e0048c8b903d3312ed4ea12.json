@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO visitas (caminho, origem)\n           SELECT '/produtos/' || $1, 'direto'\n           WHERE EXISTS (SELECT 1 FROM produtos WHERE slug = $1)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e46b9aea4c6539ece2d93bb6405bd440f60489cc8e0048c8b903d3312ed4ea12"
+}

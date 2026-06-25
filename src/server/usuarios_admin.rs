@@ -63,6 +63,10 @@ pub async fn salvar(pool: &PgPool, form: &UsuarioForm) -> Result<Uuid, AppError>
         .as_deref()
         .map(str::trim)
         .filter(|s| !s.is_empty());
+    // Quando há senha (criação ou troca), exige o comprimento mínimo.
+    if senha.is_some_and(|s| s.chars().count() < crate::server::auth::SENHA_MIN) {
+        return Err(AppError::Validation);
+    }
 
     // Só permite chaves de menu conhecidas.
     let menus: Vec<String> = form
@@ -143,4 +147,44 @@ pub async fn excluir(pool: &PgPool, id: Uuid, atual: Uuid) -> Result<(), AppErro
 fn banco(e: sqlx::Error) -> AppError {
     tracing::error!(error = %e, "erro de banco em usuarios_admin");
     AppError::Internal
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Integração (requer Postgres em DATABASE_URL): senha < 8 é rejeitada;
+    /// senha >= 8 cria o usuário.
+    #[tokio::test]
+    async fn senha_minima_obrigatoria() {
+        let Ok(url) = std::env::var("DATABASE_URL") else {
+            return;
+        };
+        let Ok(pool) = crate::server::db::create_pool(&url).await else {
+            return;
+        };
+        let n = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let base = UsuarioForm {
+            id: None,
+            nome: "Teste".into(),
+            email: format!("seg{n}@test.com"),
+            papel: "editor".into(),
+            ativo: true,
+            senha: Some("1234567".into()), // 7 < 8
+            menus: vec![],
+        };
+        assert!(matches!(salvar(&pool, &base).await, Err(AppError::Validation)));
+
+        let ok = UsuarioForm {
+            senha: Some("12345678".into()),
+            ..base
+        };
+        let id = salvar(&pool, &ok).await.expect("senha de 8 deve criar");
+        let _ = sqlx::query!("DELETE FROM usuarios WHERE id = $1", id)
+            .execute(&pool)
+            .await;
+    }
 }

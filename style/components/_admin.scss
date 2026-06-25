@@ -163,13 +163,6 @@
 }
 
 /* ===== Casca do painel (sidebar + conteúdo) ===== */
-.admin-loading {
-  min-height: 60vh;
-  display: grid;
-  place-content: center;
-  color: var(--color-text-muted);
-}
-
 .admin {
   display: grid;
   grid-template-columns: 248px 1fr;
@@ -341,52 +334,12 @@
 }
 
 /* KPIs */
-.kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-4);
-  margin-bottom: var(--space-6);
-}
-
-.kpi {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-5);
-  display: grid;
-  gap: var(--space-1);
-}
-
-.kpi__valor {
-  font-family: var(--font-display);
-  font-weight: var(--fw-black);
-  font-size: var(--text-3xl);
-}
-
-.kpi__rotulo {
-  color: var(--color-text-muted);
-  font-size: var(--text-sm);
-}
-
-.kpi--destaque {
-  border-color: var(--color-lime);
-}
-
-.kpi--destaque .kpi__valor {
-  color: var(--color-lime);
-}
-
 /* Card e tabela */
 .admin-card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: var(--space-5);
-}
-
-.admin-card__title {
-  font-size: var(--text-xl);
-  margin-bottom: var(--space-4);
 }
 
 .admin-card__meta {
@@ -577,16 +530,6 @@
 
 .admin-form textarea {
   resize: vertical;
-}
-
-.form-preview {
-  margin-top: var(--space-3);
-  max-width: 180px;
-  max-height: 180px;
-  border-radius: var(--radius);
-  border: 1px solid var(--color-border);
-  object-fit: contain;
-  background: #fff;
 }
 
 /* Galeria de miniaturas (imagens de produtos do parceiro). */
@@ -1234,16 +1177,6 @@
 
   .admin-nav__sair {
     margin-top: 0;
-  }
-
-  .kpi-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 520px) {
-  .kpi-grid {
-    grid-template-columns: 1fr;
   }
 }
 

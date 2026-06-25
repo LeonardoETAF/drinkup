@@ -37,15 +37,18 @@ pub fn origem_do_referer(referer: Option<&str>, host: &str) -> &'static str {
 /// ao entrar na tela de detalhe — inclusive em navegação no cliente (SPA).
 /// Só registra se o produto existir, para não poluir o rastreio.
 pub async fn registrar_produto(pool: &PgPool, slug: &str) {
-    let existe = sqlx::query_scalar!(
-        r#"SELECT EXISTS(SELECT 1 FROM produtos WHERE slug = $1) AS "e!""#,
+    // Insere a visita apenas se o produto existir — numa única query
+    // (evita um round-trip extra de EXISTS). Best-effort.
+    if let Err(e) = sqlx::query!(
+        r#"INSERT INTO visitas (caminho, origem)
+           SELECT '/produtos/' || $1, 'direto'
+           WHERE EXISTS (SELECT 1 FROM produtos WHERE slug = $1)"#,
         slug,
     )
-    .fetch_one(pool)
+    .execute(pool)
     .await
-    .unwrap_or(false);
-    if existe {
-        registrar(pool, &format!("/produtos/{slug}"), "direto").await;
+    {
+        tracing::warn!(error = %e, "falha ao registrar visita de produto");
     }
 }
 

@@ -12,6 +12,26 @@ pub fn mascara_telefone(bruto: &str) -> String {
     }
 }
 
+/// Conta os dígitos de um telefone (ignora máscara/espaços).
+#[must_use]
+pub fn so_digitos(bruto: &str) -> usize {
+    bruto.chars().filter(|c| c.is_ascii_digit()).count()
+}
+
+/// Telefone de contato válido: fixo (10) ou celular (11) dígitos. Usado nos
+/// formulários gerais (ex.: orçamento), onde fixo é aceito.
+#[must_use]
+pub fn telefone_valido(bruto: &str) -> bool {
+    matches!(so_digitos(bruto), 10 | 11)
+}
+
+/// Número de WhatsApp válido: exige celular com 11 dígitos (DDD + 9 + número).
+/// Usado onde o canal é WhatsApp (newsletter/novidades).
+#[must_use]
+pub fn whatsapp_valido(bruto: &str) -> bool {
+    so_digitos(bruto) == 11
+}
+
 /// Monta o link `wa.me` a partir do telefone cadastrado (só dígitos, com DDI 55).
 /// Retorna `None` quando não há dígitos suficientes para um número válido.
 #[must_use]

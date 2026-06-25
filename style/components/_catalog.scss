@@ -434,59 +434,6 @@
   transform: scale(1.3);
 }
 
-/* ===== Home: destaques e chamada ===== */
-.destaques {
-  padding-block: var(--space-10);
-  display: grid;
-  gap: var(--space-5);
-  text-align: center;
-}
-
-.destaques__title {
-  font-size: clamp(2rem, 5vw, 3rem);
-}
-
-.destaques .product-grid {
-  text-align: start;
-}
-
-.destaques__cta {
-  margin-top: var(--space-4);
-}
-
-.cta-band {
-  background: var(--color-surface);
-  border-block: 1px solid var(--color-border);
-}
-
-.cta-band__inner {
-  display: grid;
-  gap: var(--space-4);
-  justify-items: center;
-  text-align: center;
-  padding-block: var(--space-10);
-}
-
-.cta-band__title {
-  font-size: clamp(1.8rem, 5vw, 3rem);
-  color: var(--color-lime);
-}
-
-.cta-band__inner p {
-  color: var(--color-text-muted);
-  max-width: 46ch;
-}
-
-/* ===== Em breve ===== */
-.em-breve {
-  display: grid;
-  justify-items: center;
-  gap: var(--space-5);
-  text-align: center;
-  padding-block: var(--space-12);
-  color: var(--color-text-muted);
-}
-
 /* ===== Responsivo ===== */
 @media (max-width: 1024px) {
   .product-grid {

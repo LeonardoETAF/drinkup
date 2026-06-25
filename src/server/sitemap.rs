@@ -29,7 +29,22 @@ pub async fn gerar_xml(pool: &PgPool, base: &str) -> Result<String, sqlx::Error>
 
 fn empilhar(xml: &mut String, base: &str, caminho: &str) {
     xml.push_str("  <url><loc>");
-    xml.push_str(base);
-    xml.push_str(caminho);
+    escapar_xml(xml, base);
+    escapar_xml(xml, caminho);
     xml.push_str("</loc></url>\n");
+}
+
+/// Acrescenta `texto` ao buffer escapando as entidades XML obrigatórias.
+/// Defesa em profundidade: hoje os slugs/base não contêm esses caracteres.
+fn escapar_xml(xml: &mut String, texto: &str) {
+    for c in texto.chars() {
+        match c {
+            '&' => xml.push_str("&amp;"),
+            '<' => xml.push_str("&lt;"),
+            '>' => xml.push_str("&gt;"),
+            '"' => xml.push_str("&quot;"),
+            '\'' => xml.push_str("&apos;"),
+            _ => xml.push(c),
+        }
+    }
 }

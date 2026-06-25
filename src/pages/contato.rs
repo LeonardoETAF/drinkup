@@ -48,9 +48,8 @@ pub fn ContatoPage() -> impl IntoView {
         let n = nome.get().trim().to_string();
         let c = contato.get().trim().to_string();
         let m = mensagem.get().trim().to_string();
-        let digitos = c.chars().filter(char::is_ascii_digit).count();
         erro_nome.set(n.chars().count() < 2);
-        erro_contato.set(digitos < 10);
+        erro_contato.set(!crate::domain::telefone_valido(&c));
         erro_mensagem.set(m.is_empty());
         if erro_nome.get_untracked() || erro_contato.get_untracked() || erro_mensagem.get_untracked()
         {

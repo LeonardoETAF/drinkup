@@ -27,8 +27,7 @@ pub fn SiteFooter() -> impl IntoView {
     let enviar = move |ev: leptos::ev::SubmitEvent| {
         ev.prevent_default();
         let bruto = telefone.get_untracked();
-        let digitos = bruto.chars().filter(|c| c.is_ascii_digit()).count();
-        if digitos == 11 {
+        if crate::domain::whatsapp_valido(&bruto) {
             inscrever.dispatch(bruto);
         } else {
             definir_mensagem
