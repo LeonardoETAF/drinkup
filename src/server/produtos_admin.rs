@@ -332,8 +332,9 @@ mod tests {
         assert!(obter_form(&pool, id).await.unwrap().is_none());
     }
 
-    /// Integração: a paginação respeita o LIMIT, devolve o total completo e a
-    /// página 2 não repete o primeiro item da página 1 (OFFSET).
+    /// Integração: a paginação respeita o LIMIT e o OFFSET. Usa um prefixo único
+    /// como filtro (busca) para isolar o teste de outras linhas do banco e de
+    /// testes concorrentes — total determinístico.
     #[tokio::test]
     async fn paginacao_admin() {
         let Ok(url) = std::env::var("DATABASE_URL") else {
@@ -342,19 +343,39 @@ mod tests {
         let Ok(pool) = crate::server::db::create_pool(&url).await else {
             return;
         };
-        let por = 2;
-        let p1 = listar_admin(&pool, None, 1, por).await.expect("página 1");
-        assert!(p1.itens.len() as i64 <= por, "respeita o LIMIT");
-        assert!(p1.total >= p1.itens.len() as i64, "total é o geral");
+        let n = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let prefixo = format!("ZZPAG{n}");
 
-        if p1.total > por {
-            let p2 = listar_admin(&pool, None, 2, por).await.expect("página 2");
-            assert_eq!(p2.total, p1.total, "total estável entre páginas");
-            assert_ne!(
-                p1.itens.first().map(|x| x.id),
-                p2.itens.first().map(|x| x.id),
-                "OFFSET muda os itens"
-            );
+        // Cria 3 produtos com o prefixo único.
+        let mut ids = Vec::new();
+        for i in 0..3 {
+            let form = ProdutoForm {
+                nome: format!("{prefixo} {i}"),
+                ativo: true,
+                ..Default::default()
+            };
+            ids.push(salvar(&pool, &form).await.unwrap());
+        }
+
+        let por = 2;
+        let p1 = listar_admin(&pool, Some(&prefixo), 1, por).await.unwrap();
+        let p2 = listar_admin(&pool, Some(&prefixo), 2, por).await.unwrap();
+
+        assert_eq!(p1.total, 3, "count filtra pelo prefixo");
+        assert_eq!(p2.total, 3);
+        assert_eq!(p1.itens.len(), 2, "página cheia respeita o LIMIT");
+        assert_eq!(p2.itens.len(), 1, "OFFSET traz o resto");
+        assert_ne!(
+            p1.itens.first().map(|x| x.id),
+            p2.itens.first().map(|x| x.id),
+            "OFFSET muda os itens"
+        );
+
+        for id in ids {
+            excluir(&pool, id).await.unwrap();
         }
     }
 }
