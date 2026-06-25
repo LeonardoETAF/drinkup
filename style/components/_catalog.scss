@@ -326,6 +326,21 @@
 .atributo dd {
   color: var(--color-text-muted);
   text-align: right;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* No mobile, empilha rótulo e valor (evita valores longos — ex.: lista de
+   cores — estourarem para fora da tela). */
+@media (max-width: 480px) {
+  .atributo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+  }
+  .atributo dd {
+    text-align: left;
+  }
 }
 
 .detalhe__voltar {
@@ -389,6 +404,7 @@
 
 .gallery__dots {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: var(--space-1);
 }
