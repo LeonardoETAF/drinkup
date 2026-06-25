@@ -99,10 +99,44 @@ pub fn AdminDashboard() -> impl IntoView {
         });
     });
 
+    // ---- Tempo real: polling silencioso a cada 15s ----
+    let tick = RwSignal::new(0u32);
+    // Timer só no cliente (Effects não rodam no SSR); um único intervalo,
+    // encerrado quando o componente sai de tela.
+    Effect::new(move |_| {
+        if let Ok(handle) = set_interval_with_handle(
+            move || tick.update(|t| *t = t.wrapping_add(1)),
+            std::time::Duration::from_secs(15),
+        ) {
+            on_cleanup(move || handle.clear());
+        }
+    });
+    // A cada tick, recarrega EM SILÊNCIO (sem "Carregando"), mantendo o período
+    // atual; em caso de erro, preserva os dados já exibidos.
+    Effect::new(move |_| {
+        tick.get();
+        let a = ano.get_untracked();
+        if a == 0 {
+            return;
+        }
+        let (m, d) = (mes.get_untracked(), dia.get_untracked());
+        spawn_local(async move {
+            if let Ok(res) = resumo_dashboard(Some(a), m, d).await {
+                dados.set(Some(Ok(res)));
+            }
+        });
+    });
+
     view! {
         <header class="admin-head">
             <h1 class="admin-head__title">"Dashboard"</h1>
-            <p class="admin-head__sub">"Visão geral do negócio"</p>
+            <p class="admin-head__sub">
+                "Visão geral do negócio · "
+                <span class="dash-live">
+                    <span class="dash-live__dot"></span>
+                    "ao vivo"
+                </span>
+            </p>
         </header>
 
         {move || {

@@ -336,3 +336,38 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Indicador "ao vivo" — o dashboard atualiza sozinho (polling). */
+.dash-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--color-green);
+  font-weight: var(--fw-semibold);
+}
+
+.dash-live__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-green);
+  animation: dash-pulse 1.8s ease-out infinite;
+}
+
+@keyframes dash-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-green) 55%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 7px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-live__dot {
+    animation: none;
+  }
+}
