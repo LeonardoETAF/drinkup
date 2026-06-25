@@ -61,7 +61,7 @@
   align-items: center;
   padding: 0.55rem 1.2rem;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius);
   font-family: var(--font-display);
   font-weight: var(--fw-bold);
   font-size: var(--text-xs);
@@ -109,7 +109,7 @@
   min-width: 0;
   width: clamp(200px, 24vw, 300px);
   padding: 0.6rem 1rem;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius);
   border: 1px solid var(--color-border);
   background: var(--color-surface);
   color: var(--color-text);

@@ -6,7 +6,7 @@
   gap: var(--space-2);
   padding: 0.8rem 1.6rem;
   border: 1px solid transparent;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius);
   font-family: var(--font-display);
   font-weight: var(--fw-bold);
   font-size: var(--text-sm);
@@ -62,13 +62,16 @@
   background: #000;
 }
 
+/* "Pink" recolorido para a cor do rodapé (lima) no site público. O admin
+   restaura o rosa original (ver _admin.scss). */
 .btn--pink {
-  background: var(--color-pink);
-  color: #fff;
+  background: var(--color-lime);
+  color: var(--color-on-lime);
+  box-shadow: var(--shadow-lime);
 }
 
 .btn--pink:hover {
-  filter: brightness(1.08);
+  background: var(--color-lime-bright);
 }
 
 .btn--block {

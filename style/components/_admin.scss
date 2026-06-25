@@ -1246,3 +1246,22 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* O painel mantém o estilo padrão (cantos arredondados "pill" e o rosa de
+   perigo). Os ajustes de cantos retangulares e o "pink" virando lima valem
+   apenas para o site público. */
+.admin .btn,
+.admin .theme-toggle {
+  border-radius: var(--radius-pill);
+}
+
+.admin .btn--pink {
+  background: var(--color-pink);
+  color: #fff;
+  box-shadow: none;
+}
+
+.admin .btn--pink:hover {
+  background: var(--color-pink);
+  filter: brightness(1.08);
+}
