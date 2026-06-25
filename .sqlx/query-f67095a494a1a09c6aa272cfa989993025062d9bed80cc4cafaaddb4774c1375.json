@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT count(*) AS \"c!\" FROM produtos p\n           WHERE ($1::text IS NULL OR p.nome ILIKE '%' || $1 || '%')",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "c!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "f67095a494a1a09c6aa272cfa989993025062d9bed80cc4cafaaddb4774c1375"
+}

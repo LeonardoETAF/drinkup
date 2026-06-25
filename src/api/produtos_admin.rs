@@ -1,20 +1,28 @@
 use leptos::prelude::*;
 use uuid::Uuid;
 
-use crate::domain::{ProdutoForm, ProdutoLista};
+use crate::domain::{PaginaProdutosLista, ProdutoForm};
 
-/// Lista produtos no painel (papel mínimo: editor).
+/// Lista produtos no painel, paginado (papel mínimo: visualizador).
 #[server]
-pub async fn listar_produtos_admin(busca: String) -> Result<Vec<ProdutoLista>, ServerFnError> {
+pub async fn listar_produtos_admin(
+    busca: String,
+    pagina: u32,
+) -> Result<PaginaProdutosLista, ServerFnError> {
     let pool = expect_context::<sqlx::PgPool>();
     crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Visualizador, "produtos").await?;
     let busca = (!busca.trim().is_empty()).then(|| busca.trim().to_string());
-    crate::server::produtos_admin::listar_admin(&pool, busca.as_deref())
-        .await
-        .map_err(|e| {
-            tracing::error!(error = %e, "falha ao listar produtos (admin)");
-            ServerFnError::new("Não foi possível carregar os produtos.")
-        })
+    crate::server::produtos_admin::listar_admin(
+        &pool,
+        busca.as_deref(),
+        i64::from(pagina.max(1)),
+        crate::domain::PRODUTOS_ADMIN_POR_PAGINA,
+    )
+    .await
+    .map_err(|e| {
+        tracing::error!(error = %e, "falha ao listar produtos (admin)");
+        ServerFnError::new("Não foi possível carregar os produtos.")
+    })
 }
 
 /// Carrega um produto para edição.

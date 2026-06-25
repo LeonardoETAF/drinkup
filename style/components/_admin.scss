@@ -333,7 +333,20 @@
   padding: var(--space-4) 0;
 }
 
-/* KPIs */
+/* Paginação das listagens do painel. */
+.admin-paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+.admin-paginacao__info {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
 /* Card e tabela */
 .admin-card {
   background: var(--color-surface);

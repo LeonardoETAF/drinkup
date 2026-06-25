@@ -50,12 +50,16 @@ pub(crate) fn slugify(s: &str) -> String {
     }
 }
 
-/// Lista produtos (com nome da categoria e imagem principal) para o painel.
+/// Lista produtos (com nome da categoria e imagem principal) para o painel,
+/// paginado: devolve a página pedida e o total para a navegação.
 pub async fn listar_admin(
     pool: &PgPool,
     busca: Option<&str>,
-) -> Result<Vec<ProdutoLista>, sqlx::Error> {
-    sqlx::query_as!(
+    pagina: i64,
+    por_pagina: i64,
+) -> Result<crate::domain::PaginaProdutosLista, sqlx::Error> {
+    let offset = pagina.max(1).saturating_sub(1) * por_pagina;
+    let itens = sqlx::query_as!(
         ProdutoLista,
         r#"
         SELECT p.id AS "id!", p.nome AS "nome!", c.nome AS "categoria?",
@@ -66,11 +70,24 @@ pub async fn listar_admin(
         LEFT JOIN categorias c ON c.id = p.categoria_id
         WHERE ($1::text IS NULL OR p.nome ILIKE '%' || $1 || '%')
         ORDER BY p.nome
+        LIMIT $2 OFFSET $3
         "#,
-        busca
+        busca,
+        por_pagina,
+        offset,
     )
     .fetch_all(pool)
-    .await
+    .await?;
+
+    let total = sqlx::query_scalar!(
+        r#"SELECT count(*) AS "c!" FROM produtos p
+           WHERE ($1::text IS NULL OR p.nome ILIKE '%' || $1 || '%')"#,
+        busca,
+    )
+    .fetch_one(pool)
+    .await?;
+
+    Ok(crate::domain::PaginaProdutosLista { itens, total })
 }
 
 /// Carrega um produto para edição.
@@ -313,5 +330,31 @@ mod tests {
 
         excluir(&pool, id).await.unwrap();
         assert!(obter_form(&pool, id).await.unwrap().is_none());
+    }
+
+    /// Integração: a paginação respeita o LIMIT, devolve o total completo e a
+    /// página 2 não repete o primeiro item da página 1 (OFFSET).
+    #[tokio::test]
+    async fn paginacao_admin() {
+        let Ok(url) = std::env::var("DATABASE_URL") else {
+            return;
+        };
+        let Ok(pool) = crate::server::db::create_pool(&url).await else {
+            return;
+        };
+        let por = 2;
+        let p1 = listar_admin(&pool, None, 1, por).await.expect("página 1");
+        assert!(p1.itens.len() as i64 <= por, "respeita o LIMIT");
+        assert!(p1.total >= p1.itens.len() as i64, "total é o geral");
+
+        if p1.total > por {
+            let p2 = listar_admin(&pool, None, 2, por).await.expect("página 2");
+            assert_eq!(p2.total, p1.total, "total estável entre páginas");
+            assert_ne!(
+                p1.itens.first().map(|x| x.id),
+                p2.itens.first().map(|x| x.id),
+                "OFFSET muda os itens"
+            );
+        }
     }
 }

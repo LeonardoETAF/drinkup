@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT p.id AS \"id!\", p.nome AS \"nome!\", c.nome AS \"categoria?\",\n               p.capacidade_ml, p.ativo AS \"ativo!\",\n               (SELECT url FROM produto_imagens pi\n                  WHERE pi.produto_id = p.id AND pi.principal LIMIT 1) AS \"imagem_url?\"\n        FROM produtos p\n        LEFT JOIN categorias c ON c.id = p.categoria_id\n        WHERE ($1::text IS NULL OR p.nome ILIKE '%' || $1 || '%')\n        ORDER BY p.nome\n        ",
+  "query": "\n        SELECT p.id AS \"id!\", p.nome AS \"nome!\", c.nome AS \"categoria?\",\n               p.capacidade_ml, p.ativo AS \"ativo!\",\n               (SELECT url FROM produto_imagens pi\n                  WHERE pi.produto_id = p.id AND pi.principal LIMIT 1) AS \"imagem_url?\"\n        FROM produtos p\n        LEFT JOIN categorias c ON c.id = p.categoria_id\n        WHERE ($1::text IS NULL OR p.nome ILIKE '%' || $1 || '%')\n        ORDER BY p.nome\n        LIMIT $2 OFFSET $3\n        ",
   "describe": {
     "columns": [
       {
@@ -36,7 +36,9 @@
     ],
     "parameters": {
       "Left": [
-        "Text"
+        "Text",
+        "Int8",
+        "Int8"
       ]
     },
     "nullable": [
@@ -48,5 +50,5 @@
       null
     ]
   },
-  "hash": "9d90ecccd513d089d83082030c4dab1519916b35d59233dadaea787fedd5b657"
+  "hash": "4c31598f7f643604bb0cee899bcab433c79d29777033f14f193f59ebd07d0cef"
 }

@@ -4,8 +4,9 @@ use uuid::Uuid;
 
 use super::modal::ModalConfirmacao;
 use super::modal_categorias::ModalCategorias;
+use super::paginacao::AdminPaginacao;
 use crate::api::produtos_admin::{alternar_produto, excluir_produto, listar_produtos_admin};
-use crate::domain::ProdutoLista;
+use crate::domain::{PaginaProdutosLista, ProdutoLista, PRODUTOS_ADMIN_POR_PAGINA};
 
 type Acao = Action<Uuid, Result<(), ServerFnError>>;
 
@@ -16,16 +17,29 @@ const IC_DEL: &str = r#"<svg viewBox="0 0 24 24" width="16" height="16" fill="no
 #[component]
 pub fn AdminProdutos() -> impl IntoView {
     let busca = RwSignal::new(String::new());
+    let pagina = RwSignal::new(1u32);
     let versao = RwSignal::new(0u32);
-    let dados = RwSignal::new(None::<Result<Vec<ProdutoLista>, ServerFnError>>);
+    let dados = RwSignal::new(None::<Result<PaginaProdutosLista, ServerFnError>>);
 
     Effect::new(move |_| {
         let b = busca.get();
+        let pag = pagina.get();
         versao.get();
         dados.set(None);
         spawn_local(async move {
-            dados.set(Some(listar_produtos_admin(b).await));
+            dados.set(Some(listar_produtos_admin(b, pag).await));
         });
+    });
+
+    // Total de páginas a partir do total devolvido (arredonda para cima).
+    let total_paginas = Signal::derive(move || {
+        let total = dados
+            .get()
+            .and_then(Result::ok)
+            .map_or(0, |p| p.total)
+            .max(0);
+        let por = PRODUTOS_ADMIN_POR_PAGINA.max(1);
+        u32::try_from((total + por - 1) / por).unwrap_or(1).max(1)
     });
 
     let excluir = Action::new(|id: &Uuid| {
@@ -86,7 +100,10 @@ pub fn AdminProdutos() -> impl IntoView {
                 type="search"
                 placeholder="Buscar produto..."
                 prop:value=move || busca.get()
-                on:input=move |ev| busca.set(event_target_value(&ev))
+                on:input=move |ev| {
+                    busca.set(event_target_value(&ev));
+                    pagina.set(1);
+                }
             />
         </div>
 
@@ -96,13 +113,15 @@ pub fn AdminProdutos() -> impl IntoView {
                 Some(Err(_)) => {
                     view! { <p class="admin-status">"Não foi possível carregar."</p> }.into_any()
                 }
-                Some(Ok(itens)) if itens.is_empty() => {
+                Some(Ok(p)) if p.itens.is_empty() => {
                     view! { <p class="admin-status">"Nenhum produto. Crie o primeiro."</p> }
                         .into_any()
                 }
-                Some(Ok(itens)) => tabela(itens, pendente, alternar).into_any(),
+                Some(Ok(p)) => tabela(p.itens, pendente, alternar).into_any(),
             }}
         </section>
+
+        <AdminPaginacao pagina=pagina total_paginas=total_paginas/>
     }
 }
 

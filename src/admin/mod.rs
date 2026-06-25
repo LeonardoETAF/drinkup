@@ -13,6 +13,7 @@ mod login;
 mod modal;
 mod modal_categorias;
 mod novidades;
+mod paginacao;
 mod parceiro_form;
 mod parceiros;
 mod produto_form;

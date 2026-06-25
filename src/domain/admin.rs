@@ -90,6 +90,16 @@ pub struct ProdutoLista {
     pub imagem_url: Option<String>,
 }
 
+/// Página da listagem de produtos do painel (itens + total para a paginação).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PaginaProdutosLista {
+    pub itens: Vec<ProdutoLista>,
+    pub total: i64,
+}
+
+/// Itens por página na listagem de produtos do painel (servidor e UI).
+pub const PRODUTOS_ADMIN_POR_PAGINA: i64 = 15;
+
 /// Configurações da loja (editáveis no painel, usadas no site).
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
 pub struct Configuracoes {
