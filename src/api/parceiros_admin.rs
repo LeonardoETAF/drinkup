@@ -1,20 +1,28 @@
 use leptos::prelude::*;
 use uuid::Uuid;
 
-use crate::domain::{ParceiroForm, ParceiroLista};
+use crate::domain::{Pagina, ParceiroForm, ParceiroLista};
 
-/// Lista parceiros no painel (papel mínimo: editor).
+/// Lista parceiros no painel, paginado (papel mínimo: visualizador).
 #[server]
-pub async fn listar_parceiros_admin(busca: String) -> Result<Vec<ParceiroLista>, ServerFnError> {
+pub async fn listar_parceiros_admin(
+    busca: String,
+    pagina: u32,
+) -> Result<Pagina<ParceiroLista>, ServerFnError> {
     let pool = expect_context::<sqlx::PgPool>();
     crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Visualizador, "parceiros").await?;
     let busca = (!busca.trim().is_empty()).then(|| busca.trim().to_string());
-    crate::server::parceiros_admin::listar(&pool, busca.as_deref())
-        .await
-        .map_err(|e| {
-            tracing::error!(error = %e, "falha ao listar parceiros");
-            ServerFnError::new("Não foi possível carregar os parceiros.")
-        })
+    crate::server::parceiros_admin::listar(
+        &pool,
+        busca.as_deref(),
+        i64::from(pagina.max(1)),
+        crate::domain::ADMIN_TABELA_POR_PAGINA,
+    )
+    .await
+    .map_err(|e| {
+        tracing::error!(error = %e, "falha ao listar parceiros");
+        ServerFnError::new("Não foi possível carregar os parceiros.")
+    })
 }
 
 /// Carrega um parceiro para edição.

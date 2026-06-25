@@ -1,19 +1,23 @@
 use leptos::prelude::*;
 use uuid::Uuid;
 
-use crate::domain::{EventoForm, EventoLista};
+use crate::domain::{EventoForm, EventoLista, Pagina};
 
-/// Lista as categorias do carrossel (papel mínimo: editor).
+/// Lista os eventos do carrossel, paginado (papel mínimo: visualizador).
 #[server]
-pub async fn listar_eventos_admin() -> Result<Vec<EventoLista>, ServerFnError> {
+pub async fn listar_eventos_admin(pagina: u32) -> Result<Pagina<EventoLista>, ServerFnError> {
     let pool = expect_context::<sqlx::PgPool>();
     crate::api::auth::exigir_acesso(crate::server::rbac::Papel::Visualizador, "eventos").await?;
-    crate::server::eventos_admin::listar(&pool)
-        .await
-        .map_err(|e| {
-            tracing::error!(error = %e, "falha ao listar eventos");
-            ServerFnError::new("Não foi possível carregar as categorias.")
-        })
+    crate::server::eventos_admin::listar(
+        &pool,
+        i64::from(pagina.max(1)),
+        crate::domain::ADMIN_TABELA_POR_PAGINA,
+    )
+    .await
+    .map_err(|e| {
+        tracing::error!(error = %e, "falha ao listar eventos");
+        ServerFnError::new("Não foi possível carregar as categorias.")
+    })
 }
 
 /// Carrega uma categoria para edição.

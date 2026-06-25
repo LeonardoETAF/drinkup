@@ -1,19 +1,23 @@
 use leptos::prelude::*;
 use uuid::Uuid;
 
-use crate::domain::{UsuarioForm, UsuarioLista};
+use crate::domain::{Pagina, UsuarioForm, UsuarioLista};
 
-/// Lista usuários do painel. Somente `admin`.
+/// Lista usuários do painel, paginado. Somente `admin`.
 #[server]
-pub async fn listar_usuarios() -> Result<Vec<UsuarioLista>, ServerFnError> {
+pub async fn listar_usuarios(pagina: u32) -> Result<Pagina<UsuarioLista>, ServerFnError> {
     let pool = expect_context::<sqlx::PgPool>();
     crate::api::auth::exigir_papel(crate::server::rbac::Papel::Admin).await?;
-    crate::server::usuarios_admin::listar(&pool)
-        .await
-        .map_err(|e| {
-            tracing::error!(error = %e, "falha ao listar usuários");
-            ServerFnError::new("Não foi possível carregar os usuários.")
-        })
+    crate::server::usuarios_admin::listar(
+        &pool,
+        i64::from(pagina.max(1)),
+        crate::domain::ADMIN_TABELA_POR_PAGINA,
+    )
+    .await
+    .map_err(|e| {
+        tracing::error!(error = %e, "falha ao listar usuários");
+        ServerFnError::new("Não foi possível carregar os usuários.")
+    })
 }
 
 /// Carrega um usuário para edição. Somente `admin`.

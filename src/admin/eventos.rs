@@ -4,8 +4,9 @@ use leptos::task::spawn_local;
 use uuid::Uuid;
 
 use super::modal::ModalConfirmacao;
+use super::paginacao::AdminPaginacao;
 use crate::api::eventos_admin::{alternar_evento, excluir_evento, listar_eventos_admin};
-use crate::domain::EventoLista;
+use crate::domain::{EventoLista, Pagina, ADMIN_TABELA_POR_PAGINA};
 
 type Acao = Action<Uuid, Result<(), ServerFnError>>;
 
@@ -14,15 +15,23 @@ const IC_EDIT: &str = r#"<svg viewBox="0 0 24 24" width="16" height="16" fill="n
 /// "Eventos" = categorias do carrossel da home (lista ordenada).
 #[component]
 pub fn AdminEventos() -> impl IntoView {
+    let pagina = RwSignal::new(1u32);
     let versao = RwSignal::new(0u32);
-    let dados = RwSignal::new(None::<Result<Vec<EventoLista>, ServerFnError>>);
+    let dados = RwSignal::new(None::<Result<Pagina<EventoLista>, ServerFnError>>);
 
     Effect::new(move |_| {
+        let pag = pagina.get();
         versao.get();
         dados.set(None);
         spawn_local(async move {
-            dados.set(Some(listar_eventos_admin().await));
+            dados.set(Some(listar_eventos_admin(pag).await));
         });
+    });
+
+    let total_paginas = Signal::derive(move || {
+        let total = dados.get().and_then(Result::ok).map_or(0, |p| p.total).max(0);
+        let por = ADMIN_TABELA_POR_PAGINA.max(1);
+        u32::try_from((total + por - 1) / por).unwrap_or(1).max(1)
     });
 
     let excluir = Action::new(|id: &Uuid| {
@@ -58,13 +67,15 @@ pub fn AdminEventos() -> impl IntoView {
                 Some(Err(_)) => {
                     view! { <p class="admin-status">"Não foi possível carregar."</p> }.into_any()
                 }
-                Some(Ok(itens)) if itens.is_empty() => {
+                Some(Ok(p)) if p.itens.is_empty() => {
                     view! { <p class="admin-status">"Nenhuma categoria. Crie a primeira."</p> }
                         .into_any()
                 }
-                Some(Ok(itens)) => lista(itens, pendente, alternar).into_any(),
+                Some(Ok(p)) => lista(p.itens, pendente, alternar).into_any(),
             }}
         </section>
+
+        <AdminPaginacao pagina=pagina total_paginas=total_paginas/>
 
         <ModalConfirmacao
             aberto=Signal::derive(move || pendente.get().is_some())

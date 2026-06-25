@@ -17,15 +17,29 @@ pub async fn listar_publicos(pool: &PgPool) -> Result<Vec<EventoCarrossel>, sqlx
     .await
 }
 
-/// Lista as categorias ordenadas.
-pub async fn listar(pool: &PgPool) -> Result<Vec<EventoLista>, sqlx::Error> {
-    sqlx::query_as!(
+/// Lista os eventos ordenados, paginado.
+pub async fn listar(
+    pool: &PgPool,
+    pagina: i64,
+    por_pagina: i64,
+) -> Result<crate::domain::Pagina<EventoLista>, sqlx::Error> {
+    let offset = pagina.max(1).saturating_sub(1) * por_pagina;
+    let itens = sqlx::query_as!(
         EventoLista,
         r#"SELECT id AS "id!", titulo AS "titulo!", cor, ordem AS "ordem!", ativo AS "ativo!"
-           FROM eventos ORDER BY ordem, titulo"#
+           FROM eventos ORDER BY ordem, titulo
+           LIMIT $1 OFFSET $2"#,
+        por_pagina,
+        offset,
     )
     .fetch_all(pool)
-    .await
+    .await?;
+
+    let total = sqlx::query_scalar!(r#"SELECT count(*) AS "c!" FROM eventos"#)
+        .fetch_one(pool)
+        .await?;
+
+    Ok(crate::domain::Pagina { itens, total })
 }
 
 /// Carrega uma categoria para edição.

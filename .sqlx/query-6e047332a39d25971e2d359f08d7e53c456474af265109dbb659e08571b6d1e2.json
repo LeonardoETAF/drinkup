@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT id AS \"id!\", nome AS \"nome!\", logo_url, ativo AS \"ativo!\"\n        FROM parceiros\n        WHERE ($1::text IS NULL OR nome ILIKE '%' || $1 || '%')\n        ORDER BY ordem, nome\n        ",
+  "query": "SELECT id AS \"id!\", titulo AS \"titulo!\", cor, ordem AS \"ordem!\", ativo AS \"ativo!\"\n           FROM eventos ORDER BY ordem, titulo\n           LIMIT $1 OFFSET $2",
   "describe": {
     "columns": [
       {
@@ -10,31 +10,38 @@
       },
       {
         "ordinal": 1,
-        "name": "nome!",
+        "name": "titulo!",
         "type_info": "Text"
       },
       {
         "ordinal": 2,
-        "name": "logo_url",
+        "name": "cor",
         "type_info": "Text"
       },
       {
         "ordinal": 3,
+        "name": "ordem!",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
         "name": "ativo!",
         "type_info": "Bool"
       }
     ],
     "parameters": {
       "Left": [
-        "Text"
+        "Int8",
+        "Int8"
       ]
     },
     "nullable": [
       false,
       false,
       true,
+      false,
       false
     ]
   },
-  "hash": "21ea8e3aa83bd4f7d8b1d303494929d8181c50b9ed2a55a8ec37c28be18c4796"
+  "hash": "6e047332a39d25971e2d359f08d7e53c456474af265109dbb659e08571b6d1e2"
 }

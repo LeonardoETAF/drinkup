@@ -19,19 +19,38 @@ pub async fn listar_publicos(pool: &PgPool) -> Result<Vec<ParceiroPublico>, sqlx
 }
 
 /// Lista parceiros (ordenados) para a grade do painel.
-pub async fn listar(pool: &PgPool, busca: Option<&str>) -> Result<Vec<ParceiroLista>, sqlx::Error> {
-    sqlx::query_as!(
+pub async fn listar(
+    pool: &PgPool,
+    busca: Option<&str>,
+    pagina: i64,
+    por_pagina: i64,
+) -> Result<crate::domain::Pagina<ParceiroLista>, sqlx::Error> {
+    let offset = pagina.max(1).saturating_sub(1) * por_pagina;
+    let itens = sqlx::query_as!(
         ParceiroLista,
         r#"
         SELECT id AS "id!", nome AS "nome!", logo_url, ativo AS "ativo!"
         FROM parceiros
         WHERE ($1::text IS NULL OR nome ILIKE '%' || $1 || '%')
         ORDER BY ordem, nome
+        LIMIT $2 OFFSET $3
         "#,
-        busca
+        busca,
+        por_pagina,
+        offset,
     )
     .fetch_all(pool)
-    .await
+    .await?;
+
+    let total = sqlx::query_scalar!(
+        r#"SELECT count(*) AS "c!" FROM parceiros
+           WHERE ($1::text IS NULL OR nome ILIKE '%' || $1 || '%')"#,
+        busca,
+    )
+    .fetch_one(pool)
+    .await?;
+
+    Ok(crate::domain::Pagina { itens, total })
 }
 
 /// Carrega um parceiro para edição.

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT id AS \"id!\", nome AS \"nome!\", email AS \"email!\", papel AS \"papel!\",\n               ativo AS \"ativo!\",\n               to_char(ultimo_login, 'DD/MM/YYYY HH24:MI') AS \"ultimo_login?\"\n        FROM usuarios\n        ORDER BY nome\n        ",
+  "query": "\n        SELECT id AS \"id!\", nome AS \"nome!\", email AS \"email!\", papel AS \"papel!\",\n               ativo AS \"ativo!\",\n               to_char(ultimo_login, 'DD/MM/YYYY HH24:MI') AS \"ultimo_login?\"\n        FROM usuarios\n        ORDER BY nome\n        LIMIT $1 OFFSET $2\n        ",
   "describe": {
     "columns": [
       {
@@ -35,7 +35,10 @@
       }
     ],
     "parameters": {
-      "Left": []
+      "Left": [
+        "Int8",
+        "Int8"
+      ]
     },
     "nullable": [
       false,
@@ -46,5 +49,5 @@
       null
     ]
   },
-  "hash": "c9208d9d8c794962ca78f2cdeadd9355d430d20fbffb01acd6da2dd988dc8b58"
+  "hash": "41e441ff4701a95295f4054e17f4dd0e853118daa0d95ddf14874eb7d67d5fce"
 }

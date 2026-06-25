@@ -8,9 +8,14 @@ use crate::server::auth::gerar_hash;
 
 const PAPEIS: [&str; 4] = ["admin", "gerente", "editor", "visualizador"];
 
-/// Lista os usuários do painel.
-pub async fn listar(pool: &PgPool) -> Result<Vec<UsuarioLista>, sqlx::Error> {
-    sqlx::query_as!(
+/// Lista os usuários do painel, paginado.
+pub async fn listar(
+    pool: &PgPool,
+    pagina: i64,
+    por_pagina: i64,
+) -> Result<crate::domain::Pagina<UsuarioLista>, sqlx::Error> {
+    let offset = pagina.max(1).saturating_sub(1) * por_pagina;
+    let itens = sqlx::query_as!(
         UsuarioLista,
         r#"
         SELECT id AS "id!", nome AS "nome!", email AS "email!", papel AS "papel!",
@@ -18,10 +23,19 @@ pub async fn listar(pool: &PgPool) -> Result<Vec<UsuarioLista>, sqlx::Error> {
                to_char(ultimo_login, 'DD/MM/YYYY HH24:MI') AS "ultimo_login?"
         FROM usuarios
         ORDER BY nome
-        "#
+        LIMIT $1 OFFSET $2
+        "#,
+        por_pagina,
+        offset,
     )
     .fetch_all(pool)
-    .await
+    .await?;
+
+    let total = sqlx::query_scalar!(r#"SELECT count(*) AS "c!" FROM usuarios"#)
+        .fetch_one(pool)
+        .await?;
+
+    Ok(crate::domain::Pagina { itens, total })
 }
 
 /// Carrega um usuário para edição (sem expor a senha).
