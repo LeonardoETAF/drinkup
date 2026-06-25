@@ -57,12 +57,15 @@
 
 .hero__title {
   font-family: var(--font-title);
-  font-weight: 400;
+  /* Anton só tem peso 400 (e já é encorpada); `font-synthesis: none` evita
+     faux-bold nela. Se cair no fallback, Montserrat usa o 900 real. Sem
+     `-webkit-text-stroke` para não criar "espinhos" nas junções das letras. */
+  font-weight: 900;
+  font-synthesis: none;
   font-size: clamp(2.4rem, 5.6vw, 4.4rem);
   line-height: 0.9;
   letter-spacing: 0.02em;
   white-space: nowrap;
-  -webkit-text-stroke: 4.5px currentColor;
 }
 
 .hero__kicker {

@@ -64,6 +64,15 @@
     url("/backgrounds/doodles3b.webp");
 }
 
+/* No mobile, o wallpaper de doodles do tema claro fica pesado/poluído — usa só
+   a cor sólida (sem imagem de fundo). Só afeta o tema claro no mobile. */
+@media (max-width: 640px) {
+  [data-theme="light"] .hero {
+    background-image: none;
+    background-color: var(--color-bg);
+  }
+}
+
 /* No tema claro, o "NALIZE" do hero fica azul exatamente igual ao slogan
    "Cheers to life" (cor amostrada da imagem: #00a9cd). */
 [data-theme="light"] .hero__title .accent {
