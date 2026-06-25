@@ -60,7 +60,16 @@ async fn main() {
     let routes = generate_route_list(App);
 
     let app = Router::new()
-        .route("/upload-imagem", post(upload_handler))
+        .route(
+            "/upload-imagem",
+            post({
+                let pool = pool.clone();
+                move |session: tower_sessions::Session,
+                      multipart: axum::extract::Multipart| {
+                    upload_handler(session, pool.clone(), multipart)
+                }
+            }),
+        )
         .route(
             "/sitemap.xml",
             axum::routing::get({
@@ -310,18 +319,26 @@ async fn guarda_admin(
 #[cfg(feature = "ssr")]
 async fn upload_handler(
     session: tower_sessions::Session,
+    pool: sqlx::PgPool,
     mut multipart: axum::extract::Multipart,
 ) -> axum::response::Response {
     use axum::http::StatusCode;
     use axum::response::IntoResponse;
+    use drinkup::server::rbac::Papel;
 
-    let autenticado = session
-        .get::<uuid::Uuid>("uid")
-        .await
-        .unwrap_or(None)
-        .is_some();
-    if !autenticado {
+    // Upload faz parte do cadastro de produtos: exige sessão válida com papel
+    // >= Editor e acesso ao menu "produtos" (não basta estar logado).
+    let Some(uid) = session.get::<uuid::Uuid>("uid").await.unwrap_or(None) else {
         return (StatusCode::UNAUTHORIZED, "Não autenticado.").into_response();
+    };
+    let autorizado = matches!(
+        drinkup::server::auth::carregar_sessao(&pool, uid).await,
+        Ok(Some(u))
+            if Papel::from_db(&u.papel).is_some_and(|p| p.atende(Papel::Editor))
+                && u.menus.iter().any(|m| m == "produtos")
+    );
+    if !autorizado {
+        return (StatusCode::FORBIDDEN, "Acesso negado.").into_response();
     }
 
     while let Ok(Some(field)) = multipart.next_field().await {
