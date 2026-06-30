@@ -41,9 +41,13 @@ pub fn QuemSomosPage() -> impl IntoView {
             <div class="container">
                 <h1 class="sobre-hero__title">"Quem Somos"</h1>
                 <p class="sobre-hero__text">
-                    "A Drink Up é especializada na fabricação de acrílicos personalizados: copos, \
-                    canecas, taças e muito mais. Com anos no mercado e uma equipe comprometida, \
-                    conquistamos o carinho de clientes por todo o Brasil."
+                    "Há uma década no mercado, a Drink Up é especialista em personalizar copos e \
+                    taças em acrílico de alta resistência, traduzindo a identidade e a energia de \
+                    quem sabe celebrar de verdade. Conectamos a solidez de uma marca que já é \
+                    parceira de grandes empresas nacionais com a vibe vibrante que o público jovem \
+                    procura. Unimos tecnologia de ponta em serigrafia e impressão label de alta \
+                    definição, para entregar o produto perfeito para o seu rolê ou para a sua \
+                    grande conquista. Afinal, cada vitória merece ser eternizada em grande estilo."
                 </p>
             </div>
         </section>
