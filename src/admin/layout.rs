@@ -134,6 +134,10 @@ pub fn AdminLayout() -> impl IntoView {
                         menus
                     />
                 </nav>
+                <div class="admin-live" aria-live="polite">
+                    <span class="admin-live__dot"></span>
+                    <span>"Ao Vivo"</span>
+                </div>
                 <button
                     class="admin-nav__sair"
                     on:click=move |_| {

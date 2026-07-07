@@ -130,13 +130,7 @@ pub fn AdminDashboard() -> impl IntoView {
     view! {
         <header class="admin-head">
             <h1 class="admin-head__title">"Dashboard"</h1>
-            <p class="admin-head__sub">
-                "Visão geral do negócio · "
-                <span class="dash-live">
-                    <span class="dash-live__dot"></span>
-                    "ao vivo"
-                </span>
-            </p>
+            <p class="admin-head__sub">"Visão geral do negócio"</p>
         </header>
 
         {move || {

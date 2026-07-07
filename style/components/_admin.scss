@@ -253,8 +253,30 @@
   display: block;
 }
 
-.admin-nav__sair {
+/* Indicador "Ao Vivo" fixado no rodapé da sidebar (empurra a si e o "Sair"
+   para baixo). */
+.admin-live {
   margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.9rem;
+  color: var(--color-green);
+  font-family: var(--font-body);
+  font-weight: var(--fw-semibold);
+  font-size: var(--text-sm);
+}
+
+.admin-live__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-green);
+  animation: dash-pulse 1.8s ease-out infinite;
+}
+
+.admin-nav__sair {
+  margin-top: 0;
 }
 
 .admin-body {
@@ -768,6 +790,10 @@
   .admin-side,
   .admin-overlay {
     transition: none;
+  }
+
+  .admin-live__dot {
+    animation: none;
   }
 }
 
