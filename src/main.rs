@@ -76,6 +76,10 @@ async fn main() {
                 move || sitemap_handler(pool.clone())
             }),
         )
+        // Endpoint de saúde para health-check/uptime: responde 200 rápido, sem
+        // renderizar Leptos nem tocar o banco, e não é rota pública contada como
+        // visita. Aponte o monitoramento para cá em vez da home.
+        .route("/healthz", axum::routing::get(|| async { "ok" }))
         .nest_service("/uploads", ServeDir::new(uploads::DIR_UPLOADS))
         .leptos_routes_with_context(
             &leptos_options,
@@ -250,6 +254,37 @@ fn caminho_publico(p: &str) -> bool {
     p == "/" || p == "/produtos" || p == "/quem-somos" || p == "/parceiros" || p == "/contato"
 }
 
+/// Heurística simples de robô/monitor: User-Agent vazio ou contendo termos
+/// típicos de bots, health-checks e scripts. Serve só para não inflar o
+/// contador de visitas — não é controle de acesso.
+#[cfg(feature = "ssr")]
+fn e_bot(ua: &str) -> bool {
+    let ua = ua.trim();
+    if ua.is_empty() {
+        return true;
+    }
+    let ua = ua.to_ascii_lowercase();
+    const PADROES: [&str; 16] = [
+        "bot",
+        "crawl",
+        "spider",
+        "slurp",
+        "monitor",
+        "uptime",
+        "pingdom",
+        "curl",
+        "wget",
+        "python-requests",
+        "go-http-client",
+        "java/",
+        "headless",
+        "traefik",
+        "kube-probe",
+        "healthcheck",
+    ];
+    PADROES.iter().any(|p| ua.contains(p))
+}
+
 /// Registra um acesso (page view) das páginas públicas, em background, sem
 /// bloquear a resposta. Só conta GET de página HTML com resposta de sucesso.
 #[cfg(feature = "ssr")]
@@ -260,7 +295,17 @@ async fn registra_visita(
 ) -> axum::response::Response {
     use axum::http::{header, Method};
 
-    let dados = (*req.method() == Method::GET && caminho_publico(req.uri().path())).then(|| {
+    // User-Agent vazio ou de robô/monitor não conta como visita (evita inflar o
+    // dashboard com health-checks e crawlers).
+    let ua = req
+        .headers()
+        .get(header::USER_AGENT)
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or_default();
+    let contar =
+        *req.method() == Method::GET && caminho_publico(req.uri().path()) && !e_bot(ua);
+
+    let dados = contar.then(|| {
         let caminho = req.uri().path().to_string();
         let referer = req
             .headers()
@@ -367,4 +412,29 @@ async fn upload_handler(
 #[cfg(not(feature = "ssr"))]
 fn main() {
     // Sem main no cliente — a hidratação ocorre em `src/hydration.rs`.
+}
+
+#[cfg(all(test, feature = "ssr"))]
+mod tests {
+    use super::e_bot;
+
+    #[test]
+    fn bots_e_monitores_nao_contam() {
+        // Robôs, health-checks e UA vazio => bot.
+        assert!(e_bot(""));
+        assert!(e_bot("Googlebot/2.1 (+http://www.google.com/bot.html)"));
+        assert!(e_bot("UptimeRobot/2.0"));
+        assert!(e_bot("curl/8.5.0"));
+        assert!(e_bot("Go-http-client/2.0"));
+        assert!(e_bot("Traefik"));
+        // Navegadores reais => não-bot.
+        assert!(!e_bot(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 \
+             (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
+        ));
+        assert!(!e_bot(
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) \
+             AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile Safari/604.1"
+        ));
+    }
 }
