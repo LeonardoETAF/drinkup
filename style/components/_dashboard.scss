@@ -134,6 +134,19 @@
   gap: 3px;
 }
 
+/* No mobile, o gráfico denso (ex.: 31 dias) rola horizontalmente com barras
+   legíveis em vez de espremer tudo na largura da tela. */
+@media (max-width: 640px) {
+  .chart-bars--densa {
+    overflow-x: auto;
+    gap: var(--space-1);
+  }
+
+  .chart-bars--densa .chart-col {
+    flex: 0 0 24px;
+  }
+}
+
 .chart-bars--densa .chart-col__bar {
   width: 78%;
 }

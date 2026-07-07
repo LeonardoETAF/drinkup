@@ -315,6 +315,25 @@
   min-width: 0;
 }
 
+/* Hambúrguer e overlay do drawer: inertes no desktop, ativados no mobile. */
+.admin-hamburguer {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.admin-overlay {
+  display: none;
+}
+
 .admin-head {
   margin-bottom: var(--space-6);
 }
@@ -369,6 +388,8 @@
   width: 100%;
   border-collapse: collapse;
   font-size: var(--text-sm);
+  /* Em telas estreitas rola dentro de .table-wrap em vez de espremer colunas. */
+  min-width: 560px;
 }
 
 .admin-table th {
@@ -742,6 +763,11 @@
   .modal-overlay,
   .modal {
     animation: none;
+  }
+
+  .admin-side,
+  .admin-overlay {
+    transition: none;
   }
 }
 
@@ -1153,43 +1179,49 @@
   min-width: 220px;
 }
 
-/* Responsivo do painel */
+/* Responsivo do painel: a sidebar vira um drawer deslizante com hambúrguer. */
 @media (max-width: 880px) {
   .admin {
     grid-template-columns: 1fr;
   }
 
   .admin-side {
-    position: static;
-    height: auto;
-    flex-direction: row;
-    align-items: center;
-    overflow-x: auto;
-    gap: var(--space-2);
-    padding: var(--space-3);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 50;
+    width: min(280px, 82vw);
+    height: 100vh;
+    transform: translateX(-100%);
+    transition: transform var(--transition);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
   }
 
-  .admin-side__brand {
-    padding: 0 var(--space-2) 0 0;
-    border-bottom: none;
-    border-right: 1px solid var(--color-border);
+  .admin.is-aberto .admin-side {
+    transform: translateX(0);
   }
 
-  .admin-side__tag {
-    display: none;
+  .admin-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity var(--transition),
+      visibility var(--transition);
   }
 
-  .admin-nav {
-    grid-auto-flow: column;
+  .admin.is-aberto .admin-overlay {
+    opacity: 1;
+    visibility: visible;
   }
 
-  .admin-nav__item span:last-child,
-  .admin-nav__sair span:last-child {
-    display: none;
-  }
-
-  .admin-nav__sair {
-    margin-top: 0;
+  .admin-hamburguer {
+    display: inline-flex;
+    margin-right: auto; /* empurra usuário/tema para a direita */
   }
 }
 

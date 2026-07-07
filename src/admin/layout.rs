@@ -19,6 +19,7 @@ const IC_CFG: &str = r#"<svg viewBox="0 0 24 24" fill="none" stroke="currentColo
 const IC_CONT: &str = r#"<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>"#;
 const IC_INFO: &str = r#"<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>"#;
 const IC_SAIR: &str = r#"<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>"#;
+const IC_MENU: &str = r#"<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>"#;
 
 /// Layout do painel: provê a casca (sidebar + topo + `Outlet`). A proteção da
 /// rota é feita server-side pelo middleware (303); aqui os dados do usuário são
@@ -36,6 +37,8 @@ pub fn AdminLayout() -> impl IntoView {
     let sair = Action::new(|_: &()| async move { logout().await });
     let saiu = move || matches!(sair.value().get(), Some(Ok(())));
     let sair_aberto = RwSignal::new(false);
+    // Drawer da navegação no mobile (hambúrguer). Sem efeito no desktop.
+    let menu_aberto = RwSignal::new(false);
     let nao_auth = move || matches!(usuario.get(), Some(None));
 
     let nome = move || usuario.get().flatten().map(|u| u.nome).unwrap_or_default();
@@ -54,7 +57,12 @@ pub fn AdminLayout() -> impl IntoView {
         {move || {
             (saiu() || nao_auth()).then(|| view! { <Redirect path="/admin/login"/> })
         }}
-        <div class="admin">
+        <div class="admin" class:is-aberto=move || menu_aberto.get()>
+            <div
+                class="admin-overlay"
+                on:click=move |_| menu_aberto.set(false)
+                aria-hidden="true"
+            ></div>
             <aside class="admin-side">
                 <div class="admin-side__brand">
                     <img
@@ -73,7 +81,7 @@ pub fn AdminLayout() -> impl IntoView {
                     />
                     <span class="admin-side__tag">"Admin"</span>
                 </div>
-                <nav class="admin-nav">
+                <nav class="admin-nav" on:click=move |_| menu_aberto.set(false)>
                     <NavLink href="/admin" label="Dashboard" icon=IC_DASH menu="dashboard" menus/>
                     <NavLink
                         href="/admin/produtos"
@@ -126,7 +134,13 @@ pub fn AdminLayout() -> impl IntoView {
                         menus
                     />
                 </nav>
-                <button class="admin-nav__sair" on:click=move |_| sair_aberto.set(true)>
+                <button
+                    class="admin-nav__sair"
+                    on:click=move |_| {
+                        menu_aberto.set(false);
+                        sair_aberto.set(true);
+                    }
+                >
                     <span class="admin-nav__icon" inner_html=IC_SAIR></span>
                     <span>"Sair"</span>
                 </button>
@@ -145,6 +159,14 @@ pub fn AdminLayout() -> impl IntoView {
 
             <div class="admin-body">
                 <header class="admin-top">
+                    <button
+                        class="admin-hamburguer"
+                        aria-label="Abrir menu"
+                        aria-expanded=move || menu_aberto.get().to_string()
+                        on:click=move |_| menu_aberto.update(|a| *a = !*a)
+                    >
+                        <span class="admin-nav__icon" inner_html=IC_MENU></span>
+                    </button>
                     <div class="admin-top__user">
                         <span class="admin-top__avatar">{avatar}</span>
                         <span class="admin-top__meta">
