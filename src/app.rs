@@ -14,8 +14,8 @@ use crate::admin::{
 };
 use crate::components::{AbrirConsentimento, BannerConsentimento, SiteFooter, SiteHeader};
 use crate::pages::{
-    ContatoPage, HomePage, ParceirosPage, PrivacidadePage, ProdutoPage, ProdutosPage,
-    QuemSomosPage, TermosPage,
+    ContatoPage, HomePage, IntegracaoPage, ParceirosPage, PrivacidadePage, ProdutoPage,
+    ProdutosPage, QuemSomosPage, TermosPage,
 };
 
 /// Script (inline) que aplica o tema salvo antes da primeira pintura, evitando
@@ -102,7 +102,7 @@ pub fn App() -> impl IntoView {
     provide_context(AbrirConsentimento(RwSignal::new(false)));
 
     view! {
-        <Stylesheet id="leptos" href="/pkg/drinkup.css?v=68"/>
+        <Stylesheet id="leptos" href="/pkg/drinkup.css?v=70"/>
         <Title text="DRINK UP — Copos personalizados"/>
         <Router>
             <Routes fallback=NotFound>
@@ -121,6 +121,7 @@ pub fn App() -> impl IntoView {
                     <Route path=StaticSegment("parceiros") view=ParceirosPage/>
                     <Route path=StaticSegment("contato") view=ContatoPage/>
                     <Route path=StaticSegment("termos-de-uso") view=TermosPage/>
+                    <Route path=StaticSegment("integracao") view=IntegracaoPage/>
                     <Route
                         path=StaticSegment("politica-de-privacidade")
                         view=PrivacidadePage

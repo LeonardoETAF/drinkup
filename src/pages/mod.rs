@@ -1,6 +1,7 @@
 //! Páginas públicas (vitrine).
 mod contato;
 mod home;
+mod integracao;
 mod parceiros;
 mod privacidade;
 mod produto;
@@ -10,6 +11,7 @@ mod termos;
 
 pub use contato::ContatoPage;
 pub use home::HomePage;
+pub use integracao::IntegracaoPage;
 pub use parceiros::ParceirosPage;
 pub use privacidade::PrivacidadePage;
 pub use produto::ProdutoPage;

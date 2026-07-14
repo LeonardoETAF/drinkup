@@ -2,7 +2,14 @@
 use sqlx::PgPool;
 
 /// Páginas públicas fixas do site.
-const PAGINAS: [&str; 5] = ["/", "/produtos", "/contato", "/quem-somos", "/parceiros"];
+const PAGINAS: [&str; 6] = [
+    "/",
+    "/produtos",
+    "/contato",
+    "/quem-somos",
+    "/parceiros",
+    "/integracao",
+];
 
 /// Monta o XML do sitemap com URLs absolutas a partir de `base` (sem barra final).
 pub async fn gerar_xml(pool: &PgPool, base: &str) -> Result<String, sqlx::Error> {
