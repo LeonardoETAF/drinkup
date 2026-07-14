@@ -61,6 +61,21 @@ fn recarregar() {
     }
 }
 
+/// O clique partiu de dentro do banner (ou do link que o abre)?
+#[cfg(feature = "hydrate")]
+fn clique_no_banner(ev: &leptos::ev::MouseEvent) -> bool {
+    use wasm_bindgen::JsCast;
+
+    ev.target()
+        .and_then(|alvo| alvo.dyn_into::<web_sys::Element>().ok())
+        .and_then(|el| {
+            el.closest(".cookie-banner, .footer-links__botao")
+                .ok()
+                .flatten()
+        })
+        .is_some()
+}
+
 /// Faixa de consentimento. Não é renderizada no SSR (o HTML é o mesmo para todos
 /// e cacheável); ela aparece na hidratação, e só para quem ainda não decidiu.
 #[component]
@@ -76,7 +91,7 @@ pub fn BannerConsentimento() -> impl IntoView {
         }
     });
 
-    let aceitar = move |_| {
+    let aceitar_agora = move || {
         #[cfg(feature = "hydrate")]
         {
             gravar(ACEITO);
@@ -84,6 +99,21 @@ pub fn BannerConsentimento() -> impl IntoView {
         }
         aberto.set(false);
     };
+
+    let aceitar = move |_| aceitar_agora();
+
+    // Clicar fora do banner também aceita (decisão do produto). O clique no
+    // próprio banner e no link "Cookies" do rodapé — que é justamente quem abre
+    // o banner, e cujo clique borbulharia até aqui — não contam.
+    #[cfg(feature = "hydrate")]
+    {
+        let ouvinte = window_event_listener(leptos::ev::click, move |ev| {
+            if aberto.get_untracked() && !clique_no_banner(&ev) {
+                aceitar_agora();
+            }
+        });
+        on_cleanup(move || ouvinte.remove());
+    }
 
     let recusar = move |_| {
         #[cfg(feature = "hydrate")]
@@ -110,17 +140,18 @@ pub fn BannerConsentimento() -> impl IntoView {
                     <h2 id="cookie-titulo" class="cookie-banner__titulo">"Cookies"</h2>
                     <p>
                         "Usamos cookies necessários para o site funcionar e, com a sua permissão, \
-                         cookies de medição para entender como a vitrine é usada. Você pode mudar \
-                         de ideia quando quiser em “Cookies”, no rodapé."
+                         cookies de medição para entender como a vitrine é usada. Ao aceitar ou \
+                         seguir navegando, você concorda com os cookies de medição. Você pode \
+                         mudar de ideia quando quiser em “Cookies”, no rodapé."
                         <a href="/politica-de-privacidade">"Política de Privacidade"</a>
                     </p>
                 </div>
                 <div class="cookie-banner__acoes">
-                    <button type="button" class="btn btn--ghost" on:click=recusar>
-                        "Recusar"
-                    </button>
                     <button type="button" class="btn btn--primary" on:click=aceitar>
                         "Aceitar"
+                    </button>
+                    <button type="button" class="cookie-banner__recusar" on:click=recusar>
+                        "Recusar"
                     </button>
                 </div>
             </div>

@@ -95,7 +95,7 @@ pub fn App() -> impl IntoView {
     provide_context(AbrirConsentimento(RwSignal::new(false)));
 
     view! {
-        <Stylesheet id="leptos" href="/pkg/drinkup.css?v=65"/>
+        <Stylesheet id="leptos" href="/pkg/drinkup.css?v=66"/>
         <Title text="DRINK UP — Copos personalizados"/>
         <Router>
             <Routes fallback=NotFound>

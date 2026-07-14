@@ -56,11 +56,30 @@
 .cookie-banner__acoes {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: var(--space-3);
 
   .btn {
     // ≥44px de alvo de toque, mesmo no mobile.
     min-height: 44px;
+  }
+}
+
+// "Recusar" discreto, como um link ao lado do botão principal — mas ainda
+// alcançável por teclado, com foco visível e alvo de toque razoável.
+.cookie-banner__recusar {
+  background: none;
+  border: 0;
+  padding: var(--space-2) var(--space-1);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--color-text);
   }
 }
 
@@ -75,8 +94,10 @@
 
   .cookie-banner__acoes {
     width: 100%;
+    justify-content: space-between;
 
     .btn {
+      // O "Aceitar" ocupa a linha; o "Recusar" fica ao lado, discreto.
       flex: 1 1 8rem;
     }
   }
