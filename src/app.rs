@@ -208,16 +208,18 @@ fn definir_csp() {
     // que entendem CSP) e conversa com ela.
     //
     // Meta/Facebook Pixel (disparado pelo GTM): o script vem do connect.facebook.net e
-    // os eventos vão para o facebook.com/tr — por isso os três lugares. O código inline
-    // do Pixel é aceito pelo nonce que o loader repassa ao GTM (ver `GTM_INIT`).
+    // os eventos vão para o facebook.com/tr — por isso os três lugares.
+    //
+    // google.com/doubleclick: pings de Ads (remarketing/conversões) que o GA4 dispara
+    // quando essas features estão ligadas. Sem eles, só o GA4 básico funciona.
     //
     // Toda tag nova de terceiro adicionada no GTM exige liberar o domínio dela aqui.
     let csp = format!(
         "default-src 'self'; base-uri 'self'; object-src 'none'; \
          frame-ancestors https://tagassistant.google.com; form-action 'self'; \
-         img-src 'self' data: https://www.googletagmanager.com https://*.google-analytics.com https://www.facebook.com; \
+         img-src 'self' data: https://www.googletagmanager.com https://*.google-analytics.com https://www.facebook.com https://www.google.com https://*.doubleclick.net; \
          font-src 'self'; style-src 'self' 'unsafe-inline'; \
-         connect-src 'self' https://www.googletagmanager.com https://tagassistant.google.com https://*.google-analytics.com https://*.analytics.google.com https://connect.facebook.net https://www.facebook.com; \
+         connect-src 'self' https://www.googletagmanager.com https://tagassistant.google.com https://*.google-analytics.com https://*.analytics.google.com https://connect.facebook.net https://www.facebook.com https://www.google.com https://*.doubleclick.net; \
          media-src 'self' https:; \
          frame-src https://www.googletagmanager.com https://tagassistant.google.com https://www.youtube-nocookie.com https://www.youtube.com https://player.vimeo.com; \
          script-src 'self' 'wasm-unsafe-eval' 'nonce-{nonce}' https://www.googletagmanager.com https://connect.facebook.net"
