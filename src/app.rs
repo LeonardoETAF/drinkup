@@ -12,7 +12,7 @@ use crate::admin::{
     AdminParceiros, AdminProdutoForm, AdminProdutos, AdminRecuperarSenhaPage,
     AdminRedefinirSenhaPage, AdminUsuarioForm, AdminUsuarios,
 };
-use crate::components::{SiteFooter, SiteHeader};
+use crate::components::{AbrirConsentimento, BannerConsentimento, SiteFooter, SiteHeader};
 use crate::pages::{
     ContatoPage, HomePage, ParceirosPage, PrivacidadePage, ProdutoPage, ProdutosPage,
     QuemSomosPage, TermosPage,
@@ -22,12 +22,44 @@ use crate::pages::{
 /// "flash" do tema padrão. Sem `<`/`>`/`&` para passar intacto no HTML.
 const TEMA_INIT: &str = "(function(){try{if(localStorage.getItem('tema')==='light'){document.documentElement.setAttribute('data-theme','light')}}catch(e){}})()";
 
+/// Loader do Google Tag Manager (snippet oficial), embrulhado numa função e
+/// **não executado de imediato**: o `gtm.js` só é baixado se houver consentimento.
+///
+/// Fica no `<head>` (com nonce) para que quem já aceitou seja medido desde o
+/// primeiro paint, sem esperar a hidratação do WASM. Quem não decidiu ou recusou
+/// não recebe nenhuma requisição ao Google. O `BannerConsentimento` chama esta
+/// mesma função ao aceitar — daí ela viver no `window`.
+///
+/// Injetado via `inner_html` para não sofrer escape de HTML.
+const GTM_INIT: &str = "window.__drinkupGtm=function(){if(window.__drinkupGtmOn){return}\
+window.__drinkupGtmOn=true;(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':\
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],\
+j=d.createElement(s),dl=l!='dataLayer'?'\\u0026l='+l:'';j.async=true;j.src=\
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);\
+})(window,document,'script','dataLayer','GTM-MTJ898HN')};\
+try{if(localStorage.getItem('consentimento')==='aceito'){window.__drinkupGtm()}}catch(e){}";
+
+/// O GTM só entra no site público: no painel, cada navegação viraria pageview no
+/// Google (expondo URLs internas) e sujaria as métricas de visita da vitrine.
+#[cfg(feature = "ssr")]
+fn medir_pagina() -> bool {
+    use_context::<axum::http::request::Parts>()
+        .is_none_or(|partes| !partes.uri.path().starts_with("/admin"))
+}
+
+/// Em hidratação o `shell` não é renderizado; o valor é irrelevante.
+#[cfg(not(feature = "ssr"))]
+fn medir_pagina() -> bool {
+    false
+}
+
 /// Documento HTML renderizado no servidor (SSR).
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     #[cfg(feature = "ssr")]
     let nonce = leptos::nonce::use_nonce().map(|n| n.to_string());
     #[cfg(not(feature = "ssr"))]
     let nonce: Option<String> = None;
+    let medir = medir_pagina();
     view! {
         <!DOCTYPE html>
         <html lang="pt-BR">
@@ -35,11 +67,14 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
                 <meta charset="utf-8"/>
                 <meta name="viewport" content="width=device-width, initial-scale=1"/>
                 <link rel="icon" href="/favicon.png?v=2"/>
-                <script nonce=nonce>{TEMA_INIT}</script>
+                <script nonce=nonce.clone()>{TEMA_INIT}</script>
+                {medir.then(|| view! { <script nonce=nonce inner_html=GTM_INIT></script> })}
                 <AutoReload options=options.clone()/>
                 <HydrationScripts options/>
                 <MetaTags/>
             </head>
+            // Sem o `<noscript>` do GTM de propósito: sem JavaScript não há como
+            // pedir nem registrar consentimento, então também não se rastreia.
             <body>
                 <App/>
             </body>
@@ -55,9 +90,12 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
 pub fn App() -> impl IntoView {
     provide_meta_context();
     definir_csp();
+    // Compartilhado entre o banner de cookies e o link "Cookies" do rodapé, que
+    // reabre as preferências depois de o visitante já ter decidido.
+    provide_context(AbrirConsentimento(RwSignal::new(false)));
 
     view! {
-        <Stylesheet id="leptos" href="/pkg/drinkup.css?v=63"/>
+        <Stylesheet id="leptos" href="/pkg/drinkup.css?v=65"/>
         <Title text="DRINK UP — Copos personalizados"/>
         <Router>
             <Routes fallback=NotFound>
@@ -156,13 +194,20 @@ fn definir_csp() {
     use leptos_axum::ResponseOptions;
 
     let Some(nonce) = use_nonce() else { return };
+    // Google Tag Manager: o loader é inline (cobre o nonce), mas o gtm.js e as tags
+    // que ele injeta vêm do googletagmanager.com e enviam dados ao Google Analytics.
+    // `tagassistant.google.com` é só para o modo Visualizar/depurar do GTM: ele embute
+    // a página (daí o frame-ancestors, que substitui o X-Frame-Options nos navegadores
+    // que entendem CSP) e conversa com ela.
     let csp = format!(
         "default-src 'self'; base-uri 'self'; object-src 'none'; \
-         frame-ancestors 'none'; form-action 'self'; img-src 'self' data:; \
-         font-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; \
+         frame-ancestors https://tagassistant.google.com; form-action 'self'; \
+         img-src 'self' data: https://www.googletagmanager.com https://*.google-analytics.com; \
+         font-src 'self'; style-src 'self' 'unsafe-inline'; \
+         connect-src 'self' https://www.googletagmanager.com https://tagassistant.google.com https://*.google-analytics.com https://*.analytics.google.com; \
          media-src 'self' https:; \
-         frame-src https://www.youtube-nocookie.com https://www.youtube.com https://player.vimeo.com; \
-         script-src 'self' 'wasm-unsafe-eval' 'nonce-{nonce}'"
+         frame-src https://www.googletagmanager.com https://tagassistant.google.com https://www.youtube-nocookie.com https://www.youtube.com https://player.vimeo.com; \
+         script-src 'self' 'wasm-unsafe-eval' 'nonce-{nonce}' https://www.googletagmanager.com"
     );
     if let Ok(valor) = axum::http::HeaderValue::from_str(&csp) {
         expect_context::<ResponseOptions>()
@@ -184,6 +229,7 @@ fn PublicLayout() -> impl IntoView {
             <Outlet/>
         </main>
         <SiteFooter/>
+        <BannerConsentimento/>
     }
 }
 
@@ -201,6 +247,7 @@ fn NotFound() -> impl IntoView {
             </section>
         </main>
         <SiteFooter/>
+        <BannerConsentimento/>
     }
 }
 

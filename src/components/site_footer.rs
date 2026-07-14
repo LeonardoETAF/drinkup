@@ -1,6 +1,7 @@
 use leptos::prelude::*;
 
 use crate::api::config::obter_contato;
+use crate::components::AbrirConsentimento;
 use crate::domain::{link_whatsapp, mascara_telefone, Configuracoes};
 
 const ICON_INSTAGRAM: &str = r#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.2" fill="currentColor" stroke="none"/></svg>"#;
@@ -14,6 +15,13 @@ const ICON_WHATSAPP: &str = r#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="
 #[component]
 pub fn SiteFooter() -> impl IntoView {
     let info = Resource::new(|| (), |_| async move { obter_contato().await });
+    // Reabre o banner de cookies para quem quiser rever a decisão.
+    let consentimento = use_context::<AbrirConsentimento>().map(|c| c.0);
+    let abrir_cookies = move |_| {
+        if let Some(aberto) = consentimento {
+            aberto.set(true);
+        }
+    };
     let (telefone, definir_telefone) = signal(String::new());
     // Feedback do envio: None = nada; Some((sucesso, texto)).
     let (mensagem, definir_mensagem) = signal::<Option<(bool, String)>>(None);
@@ -124,6 +132,9 @@ pub fn SiteFooter() -> impl IntoView {
                     <nav class="footer-links" aria-label="Links legais">
                         <a href="/termos-de-uso">"Termos e Condições"</a>
                         <a href="/politica-de-privacidade">"Política de Privacidade"</a>
+                        <button type="button" class="footer-links__botao" on:click=abrir_cookies>
+                            "Cookies"
+                        </button>
                     </nav>
                 </div>
             </div>

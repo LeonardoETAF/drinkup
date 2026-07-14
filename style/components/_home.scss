@@ -570,3 +570,20 @@ img.hero__slogan {
     grid-column: span 2;
   }
 }
+
+/* Celulares estreitos (~320-400px). Palavras longas como "PERSONALIZE" e
+   "Personalização" não têm onde quebrar: no corpo original elas ultrapassam a
+   largura útil (272px em 320px de tela), forçando rolagem horizontal. Reduzimos
+   o corpo só aqui — tablet e desktop seguem o mockup. Os cards de passos passam
+   a uma coluna, senão o texto deles é cortado pelo `overflow: hidden`. */
+@media (max-width: 400px) {
+  .hero__title {
+    font-size: 2rem;
+  }
+  .secao__titulo {
+    font-size: 1.5rem;
+  }
+  .passos__grid {
+    grid-template-columns: 1fr;
+  }
+}
