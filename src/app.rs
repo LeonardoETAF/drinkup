@@ -30,6 +30,13 @@ const TEMA_INIT: &str = "(function(){try{if(localStorage.getItem('tema')==='ligh
 /// não recebe nenhuma requisição ao Google. O `BannerConsentimento` chama esta
 /// mesma função ao aceitar — daí ela viver no `window`.
 ///
+/// Nota sobre CSP: o `gtm.js` procura um `script[nonce]` qualquer na página e usa
+/// esse nonce nos scripts **externos** que injeta (é o caminho do `fbevents.js`).
+/// Tags *Custom HTML*, porém, são script **inline** e o GTM não lhes aplica nonce
+/// nenhum — a CSP as bloqueia, e nada que se faça aqui muda isso (com nonce na
+/// política, o navegador ignora `'unsafe-inline'`). A saída é do lado do GTM: usar
+/// o template oficial do fornecedor (injeção externa) em vez de Custom HTML.
+///
 /// Injetado via `inner_html` para não sofrer escape de HTML.
 const GTM_INIT: &str = "window.__drinkupGtm=function(){if(window.__drinkupGtmOn){return}\
 window.__drinkupGtmOn=true;(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':\
@@ -95,7 +102,7 @@ pub fn App() -> impl IntoView {
     provide_context(AbrirConsentimento(RwSignal::new(false)));
 
     view! {
-        <Stylesheet id="leptos" href="/pkg/drinkup.css?v=67"/>
+        <Stylesheet id="leptos" href="/pkg/drinkup.css?v=68"/>
         <Title text="DRINK UP — Copos personalizados"/>
         <Router>
             <Routes fallback=NotFound>
@@ -199,15 +206,21 @@ fn definir_csp() {
     // `tagassistant.google.com` é só para o modo Visualizar/depurar do GTM: ele embute
     // a página (daí o frame-ancestors, que substitui o X-Frame-Options nos navegadores
     // que entendem CSP) e conversa com ela.
+    //
+    // Meta/Facebook Pixel (disparado pelo GTM): o script vem do connect.facebook.net e
+    // os eventos vão para o facebook.com/tr — por isso os três lugares. O código inline
+    // do Pixel é aceito pelo nonce que o loader repassa ao GTM (ver `GTM_INIT`).
+    //
+    // Toda tag nova de terceiro adicionada no GTM exige liberar o domínio dela aqui.
     let csp = format!(
         "default-src 'self'; base-uri 'self'; object-src 'none'; \
          frame-ancestors https://tagassistant.google.com; form-action 'self'; \
-         img-src 'self' data: https://www.googletagmanager.com https://*.google-analytics.com; \
+         img-src 'self' data: https://www.googletagmanager.com https://*.google-analytics.com https://www.facebook.com; \
          font-src 'self'; style-src 'self' 'unsafe-inline'; \
-         connect-src 'self' https://www.googletagmanager.com https://tagassistant.google.com https://*.google-analytics.com https://*.analytics.google.com; \
+         connect-src 'self' https://www.googletagmanager.com https://tagassistant.google.com https://*.google-analytics.com https://*.analytics.google.com https://connect.facebook.net https://www.facebook.com; \
          media-src 'self' https:; \
          frame-src https://www.googletagmanager.com https://tagassistant.google.com https://www.youtube-nocookie.com https://www.youtube.com https://player.vimeo.com; \
-         script-src 'self' 'wasm-unsafe-eval' 'nonce-{nonce}' https://www.googletagmanager.com"
+         script-src 'self' 'wasm-unsafe-eval' 'nonce-{nonce}' https://www.googletagmanager.com https://connect.facebook.net"
     );
     if let Ok(valor) = axum::http::HeaderValue::from_str(&csp) {
         expect_context::<ResponseOptions>()
