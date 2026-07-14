@@ -147,11 +147,11 @@ pub fn BannerConsentimento() -> impl IntoView {
                     </p>
                 </div>
                 <div class="cookie-banner__acoes">
-                    <button type="button" class="btn btn--primary" on:click=aceitar>
-                        "Aceitar"
-                    </button>
                     <button type="button" class="cookie-banner__recusar" on:click=recusar>
                         "Recusar"
+                    </button>
+                    <button type="button" class="btn btn--primary" on:click=aceitar>
+                        "Aceitar"
                     </button>
                 </div>
             </div>
