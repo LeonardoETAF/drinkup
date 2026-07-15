@@ -78,6 +78,17 @@ pub fn ContatoPage() -> impl IntoView {
     };
 
     let sucesso = move || matches!(enviar.value().get(), Some(Ok(())));
+
+    // Conversão de lead: dispara no sucesso REAL do envio (não no clique), uma
+    // única vez. O GTM (se carregado, ou seja, com consentimento) escuta o evento
+    // `lead_ok` no dataLayer — gatilho mais fiel que o clique em "Enviar".
+    let lead_disparado = StoredValue::new(false);
+    Effect::new(move |_| {
+        if matches!(enviar.value().get(), Some(Ok(()))) && !lead_disparado.get_value() {
+            lead_disparado.set_value(true);
+            crate::components::analytics::push_event("lead_ok");
+        }
+    });
     let erro_msg = move || match enviar.value().get() {
         Some(Err(e)) => Some(crate::components::mensagem_erro(&e)),
         _ => None,

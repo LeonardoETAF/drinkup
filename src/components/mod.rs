@@ -1,5 +1,6 @@
 //! Componentes de UI reutilizáveis e "burros": recebem dados já resolvidos pelas
 //! server functions e apenas renderizam. Sem lógica de negócio nem segredos.
+pub mod analytics;
 mod consentimento;
 mod erro;
 mod filter_bar;
