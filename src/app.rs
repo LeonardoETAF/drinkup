@@ -214,13 +214,17 @@ fn definir_csp() {
     // google.com/doubleclick: pings de Ads (remarketing/conversões) que o GA4 dispara
     // quando essas features estão ligadas. Sem eles, só o GA4 básico funciona.
     //
+    // sgtm.drinkup.com.br: GTM server-side (CAPI do Meta) na VPS. O container web do
+    // navegador envia os eventos para esse subdomínio 1st-party (por isso em connect-src).
+    // Se um dia o loader do gtm.js passar a ser servido por ele, entra também em script-src.
+    //
     // Toda tag nova de terceiro adicionada no GTM exige liberar o domínio dela aqui.
     let csp = format!(
         "default-src 'self'; base-uri 'self'; object-src 'none'; \
          frame-ancestors https://tagassistant.google.com; form-action 'self'; \
          img-src 'self' data: https://www.googletagmanager.com https://*.google-analytics.com https://www.facebook.com https://www.google.com https://*.doubleclick.net; \
          font-src 'self'; style-src 'self' 'unsafe-inline'; \
-         connect-src 'self' https://www.googletagmanager.com https://tagassistant.google.com https://*.google-analytics.com https://*.analytics.google.com https://connect.facebook.net https://www.facebook.com https://www.google.com https://*.doubleclick.net; \
+         connect-src 'self' https://www.googletagmanager.com https://tagassistant.google.com https://*.google-analytics.com https://*.analytics.google.com https://connect.facebook.net https://www.facebook.com https://www.google.com https://*.doubleclick.net https://sgtm.drinkup.com.br; \
          media-src 'self' https:; \
          frame-src https://www.googletagmanager.com https://tagassistant.google.com https://www.youtube-nocookie.com https://www.youtube.com https://player.vimeo.com; \
          script-src 'self' 'wasm-unsafe-eval' 'nonce-{nonce}' https://www.googletagmanager.com https://connect.facebook.net"
