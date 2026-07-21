@@ -10,6 +10,16 @@ use crate::domain::FiltroProdutos;
 pub fn ProdutosPage() -> impl IntoView {
     let query = use_query_map();
 
+    // Medição (dataLayer): visualização do catálogo. Sem dependência reativa, o
+    // efeito roda uma vez por visita à tela — inclusive em navegação SPA, que
+    // remonta a página — e não a cada troca de filtro/busca (que só mexe na URL).
+    Effect::new(|_| {
+        crate::components::analytics::push_evento(
+            "dl_view_content",
+            &[("content_type", "product_group")],
+        );
+    });
+
     // Busca ao vivo: sinal no cliente (atualiza ao digitar). Categoria/página
     // continuam vindo da URL.
     let inicial = query

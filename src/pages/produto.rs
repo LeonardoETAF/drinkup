@@ -32,6 +32,22 @@ pub fn ProdutoPage() -> impl IntoView {
         }
     });
 
+    // Medição (dataLayer): visualização de produto, com o nome real. Guardamos o
+    // último slug medido para não repetir o evento se o recurso reavaliar sem
+    // que o visitante tenha trocado de produto.
+    let medido = StoredValue::new(String::new());
+    Effect::new(move |_| {
+        if let Some(Ok(Some(p))) = produto.get() {
+            if medido.get_value() != p.slug {
+                medido.set_value(p.slug.clone());
+                crate::components::analytics::push_evento(
+                    "dl_view_content",
+                    &[("content_type", "product"), ("content_name", &p.nome)],
+                );
+            }
+        }
+    });
+
     view! {
         <Suspense fallback=move || {
             view! { <div class="container detalhe-status">"Carregando..."</div> }

@@ -45,6 +45,11 @@ pub fn SiteFooter() -> impl IntoView {
         }
     };
 
+    // Medição: uma inscrição = um evento. O sinalizador zera quando um novo
+    // envio começa (valor volta a `None`), então reinscrições contam de novo,
+    // mas uma reavaliação do efeito com o mesmo resultado não duplica.
+    let medido = StoredValue::new(false);
+
     // Reflete o resultado da server function na mensagem de feedback.
     Effect::new(move |_| match inscrever.value().get() {
         Some(Ok(())) => {
@@ -53,9 +58,13 @@ pub fn SiteFooter() -> impl IntoView {
                 true,
                 "Pronto! Em breve você receberá nossas novidades.".to_string(),
             )));
+            if !medido.get_value() {
+                medido.set_value(true);
+                crate::components::analytics::push_evento("dl_subscribe", &[]);
+            }
         }
         Some(Err(e)) => definir_mensagem.set(Some((false, crate::components::mensagem_erro(&e)))),
-        None => {}
+        None => medido.set_value(false),
     });
     view! {
         <footer class="site-footer">

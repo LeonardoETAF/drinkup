@@ -1,14 +1,48 @@
 //! Ponte fina com o `dataLayer` do Google Tag Manager.
 //!
-//! Empurra eventos de negócio (ex.: conversão de lead) para o `dataLayer`. Quem
-//! decide o que fazer com o evento é o GTM — que só está carregado se houve
-//! consentimento de cookies (ver [`crate::components`] / banner). Sem GTM, o
-//! evento apenas fica no array e nada é enviado, o que é o comportamento correto.
+//! Empurra eventos de negócio para o `dataLayer`. Quem decide o que fazer com
+//! eles é o GTM — que só está carregado se houve consentimento de cookies (ver
+//! o banner em [`super::consentimento`]). Sem GTM, o evento apenas fica no array
+//! local e **nada sai do navegador**, que é o comportamento correto.
+//!
+//! Todo evento leva um `event_id` único, gerado aqui. Ele é o que permite ao
+//! Meta **deduplicar** a mesma conversão vinda do Pixel (navegador) e da
+//! Conversions API (servidor): as duas pontas carregam o mesmo id.
+//!
+//! Este módulo só empurra dados. Nada de GTM/Pixel/gtag é configurado aqui.
 
-/// Empurra `{ event: <nome> }` para `window.dataLayer`, criando o array se ainda
-/// não existir (o GTM reprocessa itens já presentes ao inicializar). No-op no SSR.
+/// Identificador único por disparo, para deduplicação Pixel ↔ CAPI.
+///
+/// Usa `crypto.randomUUID()` quando disponível; senão, tempo + aleatório.
 #[cfg(feature = "hydrate")]
-pub fn push_event(nome: &str) {
+fn capi_event_id() -> String {
+    use wasm_bindgen::{JsCast, JsValue};
+
+    if let Some(win) = web_sys::window() {
+        let cripto = js_sys::Reflect::get(&win, &JsValue::from_str("crypto"));
+        if let Ok(cripto) = cripto {
+            if let Ok(f) = js_sys::Reflect::get(&cripto, &JsValue::from_str("randomUUID")) {
+                if let Ok(func) = f.dyn_into::<js_sys::Function>() {
+                    if let Some(id) = func.call0(&cripto).ok().and_then(|v| v.as_string()) {
+                        return id;
+                    }
+                }
+            }
+        }
+    }
+
+    let agora = js_sys::Date::now() as u64;
+    let aleatorio = (js_sys::Math::random() * 1e12) as u64;
+    format!("{agora:x}-{aleatorio:x}")
+}
+
+/// Empurra `{ event, event_id, ...extras }` para `window.dataLayer`.
+///
+/// O `event_id` é gerado internamente a cada chamada — por construção, nunca é
+/// reaproveitado entre disparos. O array é criado se ainda não existir (o GTM
+/// reprocessa o que já estiver lá ao inicializar). No-op no SSR.
+#[cfg(feature = "hydrate")]
+pub fn push_evento(evento: &str, extras: &[(&str, &str)]) {
     use wasm_bindgen::{JsCast, JsValue};
 
     let Some(win) = web_sys::window() else { return };
@@ -22,9 +56,15 @@ pub fn push_event(nome: &str) {
         dl = arr.into();
     }
 
-    // { event: nome }
     let obj = js_sys::Object::new();
-    let _ = js_sys::Reflect::set(&obj, &JsValue::from_str("event"), &JsValue::from_str(nome));
+    let definir = |chave: &str, valor: &str| {
+        let _ = js_sys::Reflect::set(&obj, &JsValue::from_str(chave), &JsValue::from_str(valor));
+    };
+    definir("event", evento);
+    definir("event_id", &capi_event_id());
+    for (k, v) in extras {
+        definir(k, v);
+    }
 
     // dataLayer.push(obj) — chama o `push` do próprio objeto para respeitar a
     // versão que o GTM instala (não assume que seja um Array cru).
@@ -37,4 +77,29 @@ pub fn push_event(nome: &str) {
 
 /// No-op no servidor (SSR): não há `window`/`dataLayer`.
 #[cfg(not(feature = "hydrate"))]
-pub fn push_event(_nome: &str) {}
+pub fn push_evento(_evento: &str, _extras: &[(&str, &str)]) {}
+
+/// Escuta cliques em **qualquer** link de WhatsApp do site (`wa.me`) por
+/// delegação na janela — assim vale para header, rodapé, páginas e para
+/// qualquer link novo que apareça depois, sem precisar instrumentar um a um.
+///
+/// Chamado uma vez, na raiz da aplicação.
+#[cfg(feature = "hydrate")]
+pub fn escutar_cliques_whatsapp() {
+    use leptos::prelude::window_event_listener;
+    use wasm_bindgen::JsCast;
+
+    let _ = window_event_listener(leptos::ev::click, |ev| {
+        let alvo = ev
+            .target()
+            .and_then(|t| t.dyn_into::<web_sys::Element>().ok())
+            .and_then(|el| el.closest("a[href*='wa.me']").ok().flatten());
+        if alvo.is_some() {
+            push_evento("dl_contact", &[]);
+        }
+    });
+}
+
+/// No-op no servidor (SSR).
+#[cfg(not(feature = "hydrate"))]
+pub fn escutar_cliques_whatsapp() {}

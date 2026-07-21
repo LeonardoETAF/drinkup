@@ -101,6 +101,10 @@ pub fn App() -> impl IntoView {
     // reabre as preferências depois de o visitante já ter decidido.
     provide_context(AbrirConsentimento(RwSignal::new(false)));
 
+    // Cliques em WhatsApp (qualquer `wa.me` do site) por delegação — registrado
+    // uma única vez, no cliente. Ver `components::analytics`.
+    Effect::new(|_| crate::components::analytics::escutar_cliques_whatsapp());
+
     view! {
         <Stylesheet id="leptos" href="/pkg/drinkup.css?v=70"/>
         <Title text="DRINK UP — Copos personalizados"/>

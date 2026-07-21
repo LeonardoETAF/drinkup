@@ -86,7 +86,7 @@ pub fn ContatoPage() -> impl IntoView {
     Effect::new(move |_| {
         if matches!(enviar.value().get(), Some(Ok(()))) && !lead_disparado.get_value() {
             lead_disparado.set_value(true);
-            crate::components::analytics::push_event("lead_ok");
+            crate::components::analytics::push_evento("lead_ok", &[]);
         }
     });
     let erro_msg = move || match enviar.value().get() {
