@@ -3,6 +3,7 @@
 //! Princípio do frontend burro: tudo aqui (acesso a dados, autenticação,
 //! autorização/RBAC e regras de negócio sensíveis) vive no servidor e NUNCA
 //! vai ao cliente. As server functions são a única porta de entrada para dados.
+pub mod atribuicao;
 pub mod auth;
 pub mod categorias_admin;
 pub mod config;

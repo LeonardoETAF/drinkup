@@ -29,6 +29,17 @@ fn decisao() -> Option<String> {
         .and_then(|ls| ls.get_item(CHAVE).ok().flatten())
 }
 
+/// O visitante autorizou os cookies de medição?
+///
+/// É o mesmo critério que libera o GTM/Pixel — use-o antes de qualquer coisa
+/// que transmita dados de rastreamento para fora do navegador. Só existe no
+/// cliente: no servidor não há decisão de consentimento a consultar.
+#[cfg(feature = "hydrate")]
+#[must_use]
+pub fn rastreio_permitido() -> bool {
+    decisao().as_deref() == Some(ACEITO)
+}
+
 #[cfg(feature = "hydrate")]
 fn gravar(valor: &str) {
     if let Some(ls) = web_sys::window().and_then(|w| w.local_storage().ok().flatten()) {

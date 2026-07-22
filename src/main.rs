@@ -76,6 +76,9 @@ async fn main() {
                 move || sitemap_handler(pool.clone())
             }),
         )
+        // Handoff de atribuição (site → WhatsApp). Fica sob `/api/` para herdar a
+        // checagem de origem (CSRF) do middleware.
+        .route("/api/atribuicao", post(atribuicao_handler))
         // Endpoint de saúde para health-check/uptime: responde 200 rápido, sem
         // renderizar Leptos nem tocar o banco, e não é rota pública contada como
         // visita. Aponte o monitoramento para cá em vez da home.
@@ -224,6 +227,18 @@ async fn verifica_origem(
     next.run(req).await
 }
 
+/// Recebe o handoff de atribuição do navegador e o encaminha à edge do CRM.
+///
+/// Sempre responde 204: o registro é *best-effort* e o cliente não espera por
+/// ele (dispara e segue para o WhatsApp). Falhas ficam no log do servidor.
+#[cfg(feature = "ssr")]
+async fn atribuicao_handler(
+    axum::Json(dados): axum::Json<drinkup::domain::Handoff>,
+) -> axum::http::StatusCode {
+    let _ = drinkup::server::atribuicao::registrar(dados).await;
+    axum::http::StatusCode::NO_CONTENT
+}
+
 /// Serve o `sitemap.xml` gerado a partir das páginas públicas + produtos ativos.
 #[cfg(feature = "ssr")]
 async fn sitemap_handler(pool: sqlx::PgPool) -> axum::response::Response {
@@ -302,8 +317,7 @@ async fn registra_visita(
         .get(header::USER_AGENT)
         .and_then(|v| v.to_str().ok())
         .unwrap_or_default();
-    let contar =
-        *req.method() == Method::GET && caminho_publico(req.uri().path()) && !e_bot(ua);
+    let contar = *req.method() == Method::GET && caminho_publico(req.uri().path()) && !e_bot(ua);
 
     let dados = contar.then(|| {
         let caminho = req.uri().path().to_string();

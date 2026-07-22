@@ -1,6 +1,7 @@
 //! Tipos compartilhados entre cliente e servidor (DTOs de exibição).
 //! Sem lógica de negócio sensível e sem segredos — só o que pode ir ao cliente.
 mod admin;
+mod atribuicao;
 mod categoria;
 mod evento;
 mod home;
@@ -16,9 +17,9 @@ pub use admin::{
     Configuracoes, DashboardResumo, DiaAcesso, EventoForm, EventoLista, FiltroLeads,
     InscritoResumo, ItemRanking, LeadResumo, Pagina, PaginaInscritos, PaginaLeads,
     PaginaProdutosLista, ParceiroForm, ParceiroLista, ProdutoForm, ProdutoLista, UsuarioForm,
-    UsuarioLista,
-    ADMIN_TABELA_POR_PAGINA, PRODUTOS_ADMIN_POR_PAGINA,
+    UsuarioLista, ADMIN_TABELA_POR_PAGINA, PRODUTOS_ADMIN_POR_PAGINA,
 };
+pub use atribuicao::{Handoff, MARCA as MARCA_ATRIBUICAO};
 pub use categoria::Categoria;
 pub use evento::EventoCarrossel;
 pub use home::{HomeConteudo, HomeForm, BENTO_PADRAO};
